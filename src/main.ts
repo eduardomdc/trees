@@ -17,8 +17,8 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 // const cube = new THREE.Mesh( geometry, material );
 // scene.add( cube );
 
-camera.position.z = 14;
-camera.position.y = 3;
+camera.position.z = 18;
+camera.position.y = 12;
 
 // lights
 const color = 0xFFFFFF;
@@ -30,19 +30,25 @@ scene.add(light);
 
 
 // tree
-const line_material = new THREE.LineBasicMaterial({color: 0x00ff00});
-// const tree : Tree = new Tree(generate_branch(0, 11));
-// const tree_points =  tree.get_world_points();
-// const tree_line_geom = new THREE.BufferGeometry().setFromPoints(tree_points);
-// const tree_line = new THREE.Line(tree_line_geom, line_material);
 const tree = new T.pennTree(TestAspen);
-const tree_line_geom = new THREE.BufferGeometry().setFromPoints(tree.get_points());
-const tree_line = new THREE.Line(tree_line_geom, line_material);
-scene.add(tree_line);
-console.log(tree.get_points())
+const tree_points = tree.get_points();
+console.log(tree_points);
+const level_colors : THREE.LineBasicMaterialParameters[] = [{color: 0xffffff}, {color: 0x0000ff}, {color: 0x00ff00}, {color: 0xff0000}];
+const tree_lines : THREE.Line[] = [];
+
+for (let level = 0; level < 4; level++) {
+    const line_material = new THREE.LineBasicMaterial(level_colors[level]);
+    const tree_line_geom = new THREE.BufferGeometry().setFromPoints(tree_points[level]);
+    const tree_line = new THREE.LineSegments(tree_line_geom, line_material);
+    tree_lines.push(tree_line);
+    scene.add(tree_line);
+}
+
 
 function animate() {
     renderer.render( scene, camera );
-    tree_line.rotation.y += 0.01;
+    for (const line of tree_lines) {
+        line.rotation.y += 0.01;
+    }
 }
 renderer.setAnimationLoop( animate );
