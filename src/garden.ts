@@ -4,7 +4,7 @@ export const TestAspen: TreeParams = {
   Shape: 7,
   BaseSize: 0.4,
   Scale: 13,
-  ScaleV: 3,
+  ScaleV: 0,
   ZScale: 1,
   ZScaleV: 0,
   Levels: 3,

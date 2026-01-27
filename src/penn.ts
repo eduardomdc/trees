@@ -113,10 +113,26 @@ export class Segment {
         // check if it is in barren trunk base
 
 
+        var offset_child : number = 0;
+        var bottom_position_cap = 0; // used to cut off bare trunk base
         // move child across parent segment
-        const position_across = parent.stem.per_segment_length*randFloat(0,1);
-        const offset_child = position_across + parent.length_along_this_stem;
+        if (parent.stem.level == 0) { // if they're first branches don't add them on the bare trunk base
+            const len_base = tree.processed_params.length_base;
+            if (this.length_along_this_stem < len_base) {
+                const diff = this.length_along_this_stem+tree.processed_params.per_segment_length_trunk-tree.processed_params.length_base;
+                if (diff > 0) {
+                    const fraction_out_of_bare_trunk = diff/tree.processed_params.per_segment_length_trunk;
+                    bottom_position_cap = (1-fraction_out_of_bare_trunk);
+                } else {
+                    return; // shouldn't even be creating a child here
+                }
+            }
+        }
+        // position the child branch
+        const position_across = parent.stem.per_segment_length*randFloat(bottom_position_cap,1);
+        offset_child = position_across + parent.length_along_this_stem;
         child.position.add(new THREE.Vector3(0,position_across, 0).applyQuaternion(parent.rotation));
+        
         
         // set length
         const length_child_max = tree.params.LevelParam[child.stem.level].Length + randFloat(-1,1)*tree.params.LevelParam[child.stem.level].LengthV
