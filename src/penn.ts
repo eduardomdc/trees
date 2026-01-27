@@ -82,13 +82,13 @@ export class Segment {
                 0
             )
             growth.applyQuaternion(parent.rotation);
-        next_segment.position.add(growth);
-        next_segment.length_along_this_stem += growth.length();
-            // curve the new segment's coordinate frame a little
-            const bendQ = new THREE.Quaternion().setFromAxisAngle(
-                new THREE.Vector3(1, 0, 0), // local X axis
-                randFloat(-0.5,0.5),                       // bend angle
-            );
+            next_segment.position.add(growth);
+            next_segment.length_along_this_stem += growth.length();
+                // curve the new segment's coordinate frame a little
+                const bendQ = new THREE.Quaternion().setFromAxisAngle(
+                    new THREE.Vector3(1, 0, 0), // local X axis
+                    randFloat(-0.5,0.5),                       // bend angle
+                );
             next_segment.rotation.multiply(bendQ).normalize();
         }
 
@@ -109,12 +109,24 @@ export class Segment {
         child.rotation = parent.rotation.clone();
         child.length_along_this_stem = 0;
         child.stem.level = parent.stem.level+1;
-        const length_child_max = tree.params.LevelParam[child.stem.level].Length + randFloat(-1,1)*tree.params.LevelParam[child.stem.level].LengthV
-        child.stem.length = length_child_max * (parent.stem.length)
-        child.stem.per_segment_length = child.stem.length/tree.params.LevelParam[child.stem.level].CurveRes;
         
+        // check if it is in barren trunk base
+
+
         // move child across parent segment
-        child.position.add(new THREE.Vector3(0,parent.stem.per_segment_length*randFloat(0,1), 0).applyQuaternion(parent.rotation));
+        const position_across = parent.stem.per_segment_length*randFloat(0,1);
+        const offset_child = position_across + parent.length_along_this_stem;
+        child.position.add(new THREE.Vector3(0,position_across, 0).applyQuaternion(parent.rotation));
+        
+        // set length
+        const length_child_max = tree.params.LevelParam[child.stem.level].Length + randFloat(-1,1)*tree.params.LevelParam[child.stem.level].LengthV
+        if (child.stem.level == 1) {
+            child.stem.length = tree.processed_params.length_trunk * length_child_max * ShapeRatio(tree.params.Shape, (tree.processed_params.length_trunk-offset_child)/(tree.processed_params.length_trunk-tree.processed_params.length_base) );
+        } else {
+            child.stem.length = length_child_max * (parent.stem.length - 0.6 * offset_child);
+        }
+        if (child.stem.length <= 0) return;
+        child.stem.per_segment_length = child.stem.length/tree.params.LevelParam[child.stem.level].CurveRes;
         
         const child_bend = new THREE.Quaternion().setFromAxisAngle(
             new THREE.Vector3(0, 0.5, 0.5), // local Z axis
@@ -132,8 +144,21 @@ export class Segment {
     generate_children (tree : pennTree) {
         if (this.stem.level < 3) {
             const children_branches = tree.params.LevelParam[this.stem.level+1].Branches
-            const children_per_segment = children_branches/tree.params.LevelParam[this.stem.level].CurveRes
+            var children_per_segment = children_branches/tree.params.LevelParam[this.stem.level].CurveRes
             console.log("Make", children_per_segment, "children");
+            if (this.stem.level == 0) {
+                const len_base = tree.processed_params.length_base;
+                if (this.length_along_this_stem < len_base) {
+                    const diff = this.length_along_this_stem+tree.processed_params.per_segment_length_trunk-tree.processed_params.length_base;
+                    if (diff > 0) {
+                        const fraction_out_of_bare_trunk = diff/tree.processed_params.per_segment_length_trunk;
+                        children_per_segment = children_per_segment*fraction_out_of_bare_trunk;
+                    } else {
+                        children_per_segment = 0;
+                    }
+                }
+                
+            }
             for (let i = 0; i < children_per_segment; i++) {
                 this.generate_child(tree, this);
             }
@@ -166,6 +191,7 @@ export type TreeParams = {
 
 class ProcessedTreeParams {
     length_trunk : number; // length of full trunk ( 0Length ± 0LengthV )*scale_tree
+    length_base : number; //(BaseSize*scale tree ) 
     scale_tree : number; // (Scale±ScaleV)
     per_segment_length_trunk : number;
     level_param : ProcessedLevelParam[];
@@ -174,6 +200,7 @@ class ProcessedTreeParams {
         this.scale_tree = (params.Scale + randFloat(-1,1)*params.ScaleV);
         this.length_trunk = (params.LevelParam[0].Length)*this.scale_tree;
         this.per_segment_length_trunk = this.length_trunk/params.LevelParam[0].CurveRes,
+        this.length_base = (params.BaseSize*params.Scale);
         this.level_param = [];
         const plp : ProcessedLevelParam = {
             
@@ -191,4 +218,40 @@ export type LevelParam = {
     Branches : number, // # of branches
     Length : number, LengthV:number, Taper:number // relative length of children to parent, cross-section scaling
     CurveRes:number,Curve:number,CurveBack:number,CurveV:number, // curvature resolution and angles
+}
+
+enum ShapeID {
+    Conical,
+    Spherical,
+    Hemispherical,
+    Cylindrical,
+    TaperedCylindrical,
+    Flame,
+    InverseConical,
+    TendFlame,
+    Envelope,
+};
+
+function ShapeRatio (Shape : ShapeID, ratio : number) : number {
+    switch (Shape) {
+        case ShapeID.Conical:
+            return 0.2 + 0.8*ratio;
+        case ShapeID.Spherical:
+            return 0.2 + 0.8*Math.sin(Math.PI*ratio);
+        case ShapeID.Hemispherical:
+            return 0.2 + 0.8*Math.sin(0.5*Math.PI*ratio);
+        case ShapeID.Cylindrical:
+            return 1.0;
+        case ShapeID.TaperedCylindrical:
+            return 0.5 + 0.5 * ratio;
+        case ShapeID.Flame:
+            return ratio/0.7;
+        case ShapeID.InverseConical:
+            return 1.0 - 0.8*ratio;
+        case ShapeID.TendFlame:
+            if (ratio <= 0.7) return 0.5 + 0.5 * ratio;
+            else return 0.5 + 0.5 * (1.0 - ratio)/0.3;
+        case ShapeID.Envelope:
+            return 0; // todo
+    }
 }
