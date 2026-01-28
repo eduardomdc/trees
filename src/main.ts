@@ -33,7 +33,7 @@ scene.add(light);
 const tree = new T.pennTree(TestAspen);
 const tree_points = tree.get_points();
 console.log(tree_points);
-const level_colors : THREE.LineBasicMaterialParameters[] = [{color: 0xffffff}, {color: 0x0000ff}, {color: 0x00ff00}, {color: 0xff0000}];
+const level_colors : THREE.LineBasicMaterialParameters[] = [{color: 0xffffff}, {color: 0x00ff00}, {color: 0x0000ff}, {color: 0xff0000}];
 const tree_lines : THREE.Line[] = [];
 
 for (let level = 0; level < 4; level++) {
