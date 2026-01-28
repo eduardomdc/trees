@@ -17,8 +17,8 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 // const cube = new THREE.Mesh( geometry, material );
 // scene.add( cube );
 
-camera.position.z = 18;
-camera.position.y = 12;
+camera.position.z = 13;
+camera.position.y = 8;
 
 // lights
 const color = 0xFFFFFF;

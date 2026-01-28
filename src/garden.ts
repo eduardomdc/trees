@@ -28,14 +28,14 @@ export const TestAspen: TreeParams = {
       Length: 1,
       LengthV: 0,
       Taper: 1,
-      CurveRes: 3,
+      CurveRes: 10,
       Curve: 0,
       CurveBack: 0,
       CurveV: 20,
     },
     // level 1
     {
-      DownAngle: 60,
+      DownAngle: 80,
       DownAngleV: -50,
       Rotate: 140,
       RotateV: 0,

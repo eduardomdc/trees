@@ -72,31 +72,43 @@ export class Segment {
             next_segment.stem.per_segment_length = tree.processed_params.per_segment_length_trunk;
         }
         
+        const curve_res = tree.params.LevelParam[next_segment.stem.level].CurveRes;
+        if (next_segment.segment_number >= curve_res) return next_segment; // stem end
         
-        if (next_segment.segment_number >= tree.params.LevelParam[next_segment.stem.level].CurveRes) return next_segment; // stem end
-        
-        // grow in the direction of the parent's Y axis
         if (parent){
-            const growth = new THREE.Vector3(
-                0,
-                next_segment.stem.per_segment_length, // grows in the y axis
-                0
-            )
+            const curve = tree.params.LevelParam[next_segment.stem.level].Curve;
+            const curve_back = tree.params.LevelParam[next_segment.stem.level].CurveBack;
+            // curve the new segment's coordinate frame a little
+            if (curve_back == 0) {
+                const bendQ = new THREE.Quaternion().setFromAxisAngle(
+                    new THREE.Vector3(0, 0, 1), // local Z axis
+                    Math.PI*(curve/curve_res)/180,  // bend angle
+                );
+                next_segment.rotation.multiply(bendQ);
+            } else if (curve_back > 0) {
+                // todo
+            } else if (curve_back < 0) {
+                // todo (probably won't do)
+            }
+            // in either case, a random rotation of magnitude (nCurveV/nCurveRes ) is also added for each segment
+            const curve_v = tree.params.LevelParam[next_segment.stem.level].CurveV;
+            const randrot = new THREE.Quaternion().setFromAxisAngle(
+                new THREE.Vector3(0, 0, 1),
+                randFloat(0,1)*Math.PI*(curve_v/curve_res)/180, 
+            );
+            next_segment.rotation.multiply(randrot).normalize();
+
+            // grow in the direction of the parent's Y axis
+            const growth = new THREE.Vector3(0,next_segment.stem.per_segment_length, 0)// grows in the y axis
             growth.applyQuaternion(parent.rotation);
             next_segment.position.add(growth);
             next_segment.length_along_this_stem += growth.length();
-                // curve the new segment's coordinate frame a little
-                const bendQ = new THREE.Quaternion().setFromAxisAngle(
-                    new THREE.Vector3(1, 0, 0), // local X axis
-                    0,                       // bend angle
-                );
-            next_segment.rotation.multiply(bendQ).normalize();
         }
 
         next_segment.generate_children(tree);
 
         if (parent) parent.children.push(next_segment);
-        console.log("new segment:", next_segment);
+        // console.log("new segment:", next_segment);
 
         this.generate_stem_Segments(tree, next_segment);
         return next_segment;
@@ -136,7 +148,7 @@ export class Segment {
         
         
         // set length
-        const length_child_max = tree.params.LevelParam[child.stem.level].Length + randFloat(-1,1)*tree.params.LevelParam[child.stem.level].LengthV
+        const length_child_max = tree.params.LevelParam[child.stem.level].Length + randFloat(0,1)*tree.params.LevelParam[child.stem.level].LengthV
         if (child.stem.level == 1) {
             child.stem.length = tree.processed_params.length_trunk * length_child_max * ShapeRatio(tree.params.Shape, (tree.processed_params.length_trunk-offset_child)/(tree.processed_params.length_trunk-tree.processed_params.length_base) );
         } else {
@@ -151,7 +163,7 @@ export class Segment {
         var a_rotation = new THREE.Quaternion();
         var Y_rotation_angle = 0;
         if (DownAngle >= 0) {
-            const down_angle = Math.PI*(DownAngle + randFloat(-1,1)*DownAngleV)/180;
+            const down_angle = Math.PI*(DownAngle + randFloat(0,1)*DownAngleV)/180;
             
             if (true) { // set Y rotation according to most recent spawned child
                 const Rotate = tree.params.LevelParam[child.stem.level].Rotate;
@@ -187,7 +199,7 @@ export class Segment {
 
         parent.children.push(child);
         parent.stem.last_spawned_child_Y_rotation_angle = Y_rotation_angle;
-        console.log("new child", child);
+        // console.log("new child", child);
         this.generate_stem_Segments(tree, child);
     }
 
@@ -195,7 +207,7 @@ export class Segment {
         if (this.stem.level < 3) {
             const children_branches = tree.params.LevelParam[this.stem.level+1].Branches
             var children_per_segment = children_branches/tree.params.LevelParam[this.stem.level].CurveRes
-            console.log("Make", children_per_segment, "children");
+            if (this.stem.level == 0) {console.log("1Make", children_per_segment, "children");}
             if (this.stem.level == 0) {
                 const len_base = tree.processed_params.length_base;
                 if (this.length_along_this_stem < len_base) {
@@ -209,6 +221,7 @@ export class Segment {
                 }
                 
             }
+            if (this.stem.level == 0) {console.log("2Make", children_per_segment, "children");}
             for (let i = 0; i < children_per_segment; i++) {
                 this.generate_child(tree, this);
             }
@@ -247,7 +260,7 @@ class ProcessedTreeParams {
     level_param : ProcessedLevelParam[];
 
     constructor(params: TreeParams){
-        this.scale_tree = (params.Scale + randFloat(-1,1)*params.ScaleV);
+        this.scale_tree = (params.Scale + randFloat(0,1)*params.ScaleV);
         this.length_trunk = (params.LevelParam[0].Length)*this.scale_tree;
         this.per_segment_length_trunk = this.length_trunk/params.LevelParam[0].CurveRes,
         this.length_base = (params.BaseSize*params.Scale);
