@@ -28,7 +28,7 @@ export const TestAspen: TreeParams = {
       Length: 1,
       LengthV: 0,
       Taper: 1,
-      CurveRes: 10,
+      CurveRes: 3,
       Curve: 0,
       CurveBack: 0,
       CurveV: 20,

@@ -222,9 +222,13 @@ export class Segment {
                 
             }
             if (this.stem.level == 0) {console.log("2Make", children_per_segment, "children");}
-            for (let i = 0; i < children_per_segment; i++) {
+            const children_whole = Math.floor(children_per_segment);
+            const children_fractional = children_per_segment - children_whole;
+            for (let i = 0; i < children_whole; i++) {
                 this.generate_child(tree, this);
             }
+            // spawn child with probability of fractional part
+            if (randFloat(0, 1) <= children_fractional) this.generate_child(tree, this);
         }
     }
 }
