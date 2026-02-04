@@ -1,16 +1,16 @@
 import * as THREE from 'three';
-import { randFloat } from 'three/src/math/MathUtils.js';
 
 export class pennTree {
-
+    seed : number;
     root : Segment;
 
     params : TreeParams;
     processed_params : ProcessedTreeParams; // parameters in a more useful format for segment-based generation
 
-    constructor (params : TreeParams) {
+    constructor (params : TreeParams, seed : number) {
+        this.seed = seed;
         this.params = params;
-        this.processed_params = new ProcessedTreeParams(params);
+        this.processed_params = new ProcessedTreeParams(this);
         console.log("generating penn tree");
         this.root = new Segment();
         this.root = this.root.generate_stem_Segments(this, null);
@@ -36,6 +36,15 @@ export class pennTree {
         };
         traverse(this.root);
         return points;
+    }
+
+    randFloat (min : number, max : number) : number {
+        //mullberry32
+        var t = this.seed += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        const rand = ((t ^ t >>> 14) >>> 0) / 4294967296;
+        return min + (max-min) * rand;
     }
 }
 
@@ -94,7 +103,7 @@ export class Segment {
             const curve_v = tree.params.LevelParam[next_segment.stem.level].CurveV;
             const randrot = new THREE.Quaternion().setFromAxisAngle(
                 new THREE.Vector3(0, 0, 1),
-                randFloat(0,1)*Math.PI*(curve_v/curve_res)/180, 
+                tree.randFloat(0,1)*Math.PI*(curve_v/curve_res)/180, 
             );
             next_segment.rotation.multiply(randrot).normalize();
 
@@ -140,13 +149,13 @@ export class Segment {
             }
         }
         // position the child branch
-        const position_across = parent.stem.per_segment_length*randFloat(bottom_position_cap,1);
+        const position_across = parent.stem.per_segment_length*tree.randFloat(bottom_position_cap,1);
         offset_child = position_across + parent.length_along_this_stem;
         child.position.add(new THREE.Vector3(0,position_across, 0).applyQuaternion(parent.rotation));
         
         
         // set length
-        const length_child_max = tree.params.LevelParam[child.stem.level].Length + randFloat(0,1)*tree.params.LevelParam[child.stem.level].LengthV
+        const length_child_max = tree.params.LevelParam[child.stem.level].Length + tree.randFloat(0,1)*tree.params.LevelParam[child.stem.level].LengthV
         if (child.stem.level == 1) {
             child.stem.length = tree.processed_params.length_trunk * length_child_max * ShapeRatio(tree.params.Shape, (tree.processed_params.length_trunk-offset_child)/(tree.processed_params.length_trunk-tree.processed_params.length_base) );
         } else {
@@ -161,7 +170,7 @@ export class Segment {
         var a_rotation = new THREE.Quaternion();
         var Y_rotation_angle = 0;
         if (DownAngle >= 0) {
-            const down_angle = Math.PI*(DownAngle + randFloat(0,1)*DownAngleV)/180;
+            const down_angle = Math.PI*(DownAngle + tree.randFloat(0,1)*DownAngleV)/180;
             
             if (true) { // set Y rotation according to most recent spawned child
                 const Rotate = tree.params.LevelParam[child.stem.level].Rotate;
@@ -171,7 +180,7 @@ export class Segment {
                     Y_rotation_angle = parent.stem.last_spawned_child_Y_rotation_angle; // rotate by previous child
 
                     // then a bit more
-                    Y_rotation_angle += Math.PI*(Rotate + randFloat(-1,1)*RotateV)/180;
+                    Y_rotation_angle += Math.PI*(Rotate + tree.randFloat(-1,1)*RotateV)/180;
                     a_rotation.setFromAxisAngle(
                         new THREE.Vector3(0, 1, 0), // local Y axis
                         Y_rotation_angle,  // bend angle
@@ -226,7 +235,7 @@ export class Segment {
                 this.generate_child(tree, this);
             }
             // spawn child with probability of fractional part
-            if (randFloat(0, 1) <= children_fractional) this.generate_child(tree, this);
+            if (tree.randFloat(0, 1) <= children_fractional) this.generate_child(tree, this);
         }
     }
 }
@@ -263,11 +272,11 @@ class ProcessedTreeParams {
     per_segment_length_trunk : number;
     level_param : ProcessedLevelParam[];
 
-    constructor(params: TreeParams){
-        this.scale_tree = (params.Scale + randFloat(0,1)*params.ScaleV);
-        this.length_trunk = (params.LevelParam[0].Length)*this.scale_tree;
-        this.per_segment_length_trunk = this.length_trunk/params.LevelParam[0].CurveRes,
-        this.length_base = (params.BaseSize*params.Scale);
+    constructor(t: pennTree){
+        this.scale_tree = (t.params.Scale + t.randFloat(0,1)*t.params.ScaleV);
+        this.length_trunk = (t.params.LevelParam[0].Length)*this.scale_tree;
+        this.per_segment_length_trunk = this.length_trunk/t.params.LevelParam[0].CurveRes,
+        this.length_base = (t.params.BaseSize*t.params.Scale);
         this.level_param = [];
         const plp : ProcessedLevelParam = {
             

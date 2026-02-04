@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as T from './penn'
-import { BlackTupelo, CABlackOak, QuakingAspen, TestAspen, WeepingWillow } from './garden';
-import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+import { QuakingAspen } from './garden';
+// import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import GUI from 'lil-gui'; 
 
 const canvas = document.querySelector('#render-canvas');
@@ -18,8 +18,9 @@ camera.position.z = 27;
 camera.position.y = 8;
 
 // tree
+var seed = {Seed : 0};
 var tree_params = QuakingAspen;
-var tree = new T.pennTree(tree_params);
+var tree = new T.pennTree(tree_params, seed.Seed);
 var tree_points = tree.get_points();
 console.log(tree_points);
 const level_colors : THREE.LineBasicMaterialParameters[] = [{color: 0xffffff}, {color: 0x00ff00}, {color: 0x0000ff}, {color: 0xff0000}];
@@ -42,6 +43,7 @@ camera_controls.add( camera.position, 'x', -20, 20);
 
 const tree_controls = gui.addFolder('Tree');
 
+tree_controls.add(seed, 'Seed', 0, 1000);
 tree_controls.add(tree_params, 'Shape', 0, 10, 1);
 tree_controls.add(tree_params, 'BaseSize', 0, 2);
 tree_controls.add(tree_params, 'Scale', 0, 100);
@@ -96,12 +98,12 @@ tree_params.LevelParam.forEach((level, i) => {
 
 
 tree_controls.onChange(
-    event => {
+    _ => {
         for (let level = 0; level < 4; level++) {
             const line = tree_lines[level]
             scene.remove(line);
         }
-        tree = new T.pennTree(tree_params);
+        tree = new T.pennTree(tree_params, seed.Seed);
         tree_points = tree.get_points();
         tree_lines = [];
 
