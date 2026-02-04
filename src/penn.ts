@@ -124,8 +124,6 @@ export class Segment {
         child.stem.level = parent.stem.level+1;
         
         // check if it is in barren trunk base
-
-
         var offset_child : number = 0;
         var bottom_position_cap = 0; // used to cut off bare trunk base
         // move child across parent segment
@@ -204,7 +202,7 @@ export class Segment {
     }
 
     generate_children (tree : pennTree) {
-        if (this.stem.level < 3) {
+        if (this.stem.level < tree.params.Levels-1) {
             const children_branches = tree.params.LevelParam[this.stem.level+1].Branches
             var children_per_segment = children_branches/tree.params.LevelParam[this.stem.level].CurveRes
             if (this.stem.level == 0) {console.log("1Make", children_per_segment, "children");}
@@ -243,6 +241,8 @@ export type TreeParams = {
     Flare : number, //exponential expansion at base of tree
     // trunk (level 0) only params
     Scale0 : number, ScaleV0 :number, //extra trunk scaling
+
+    BaseSplits0 : number, // dichotomous branching at the base
     
     LevelParam : LevelParam[], // array of level-specific parameters indexed by level
 
@@ -285,6 +285,7 @@ export type LevelParam = {
     Branches : number, // # of branches
     Length : number, LengthV:number, Taper:number // relative length of children to parent, cross-section scaling
     CurveRes:number,Curve:number,CurveBack:number,CurveV:number, // curvature resolution and angles
+    SegSplits:number,SplitAngle:number,SplitAngleV:number, // dichotomous branching parameters
 }
 
 enum ShapeID {
