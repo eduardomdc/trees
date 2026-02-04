@@ -1,4 +1,4 @@
-import type {TreeParams} from './penn'
+import type {TreeParams} from './penn.ts'
 
 export const TestAspen: TreeParams = {
   Shape: 7,

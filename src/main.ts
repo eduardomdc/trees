@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import * as T from './penn'
-import { QuakingAspen } from './garden';
+import * as T from './penn.ts'
+import { QuakingAspen } from './garden.ts';
 // import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import GUI from 'lil-gui'; 
 
