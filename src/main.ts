@@ -17,6 +17,11 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 camera.position.z = 27;
 camera.position.y = 8;
 
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+scene.add( directionalLight );
+const light = new THREE.AmbientLight( 0x404040 ); // soft white light
+scene.add( light );
+
 // tree
 var seed = {Seed : 0};
 var tree_params = QuakingAspen;
@@ -25,6 +30,12 @@ var tree_points = tree.get_points();
 console.log(tree_points);
 const level_colors : THREE.LineBasicMaterialParameters[] = [{color: 0xffffff}, {color: 0x00ff00}, {color: 0x0000ff}, {color: 0xff0000}];
 var tree_lines : THREE.Line[] = [];
+
+const basic_mesh_mat : THREE.Material = new THREE.MeshPhongMaterial();
+var tree_mesh = tree.build_mesh(basic_mesh_mat);
+for (let i = 0; i < tree_mesh.length; i++) {
+    scene.add(tree_mesh[i]);
+}
 
 for (let level = 0; level < 4; level++) {
     const line_material = new THREE.LineBasicMaterial(level_colors[level]);
@@ -119,8 +130,8 @@ tree_controls.onChange(
 
 function animate() {
     renderer.render( scene, camera );
-    for (const line of tree_lines) {
-        line.rotation.y += 0.01;
-    }
+    // for (const line of tree_lines) {
+    //     line.rotation.y += 0.01;
+    // }
 }
 renderer.setAnimationLoop( animate );

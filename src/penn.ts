@@ -38,6 +38,29 @@ export class pennTree {
         return points;
     }
 
+    build_mesh (material : THREE.Material) : THREE.Mesh[] {
+        const cylinders : THREE.Mesh[] = [];
+        const traverse = (segment: Segment) => {
+            // base of the segment
+            const base = segment.position.clone();
+            // tip of the segment (along local +Y)
+            const tip = new THREE.Vector3(0, segment.stem.per_segment_length, 0)
+                .applyQuaternion(segment.rotation).add(base);
+            const dif = new THREE.Vector3().subVectors(base,tip);
+            const geometry = new THREE.CylinderGeometry(0.2/(1+segment.stem.level), 0.2/(1+segment.stem.level), dif.length(), 8, 8, true);
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.add(base);
+            mesh.rotation.setFromQuaternion(segment.rotation);
+            cylinders.push(mesh);
+
+            for (const child of segment.children) {
+                traverse(child);
+            }
+        };
+        traverse(this.root);
+        return cylinders;
+    }
+
     randFloat (min : number, max : number) : number {
         //mullberry32
         var t = this.seed += 0x6D2B79F5;
