@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as T from './penn.ts'
-import { CABlackOak, QuakingAspen } from './garden.ts';
+import { QuakingAspen } from './garden.ts';
 // import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import GUI from 'lil-gui'; 
 
@@ -32,10 +32,12 @@ const level_colors : THREE.LineBasicMaterialParameters[] = [{color: 0xffffff}, {
 var tree_lines : THREE.Line[] = [];
 
 const basic_mesh_mat : THREE.Material = new THREE.MeshPhongMaterial();
-var tree_mesh = tree.build_mesh(basic_mesh_mat);
-for (let i = 0; i < tree_mesh.length; i++) {
-    scene.add(tree_mesh[i]);
-}
+//var tree_mesh = tree.build_mesh(basic_mesh_mat);
+var tree_mesh = tree.build_single_geometry(new THREE.MeshBasicMaterial());
+scene.add(tree_mesh);
+//for (let i = 0; i < tree_mesh.length; i++) {
+//    scene.add(tree_mesh[i]);
+//}
 
 for (let level = 0; level < 4; level++) {
     const line_material = new THREE.LineBasicMaterial(level_colors[level]);
@@ -114,12 +116,13 @@ tree_controls.onChange(
             const line = tree_lines[level]
             scene.remove(line);
         }
-        for (let i = 0; i < tree_mesh.length; i++) {
-            scene.remove(tree_mesh[i]);
-        }
+        //for (let i = 0; i < tree_mesh.length; i++) {
+        //    scene.remove(tree_mesh[i]);
+        //}
+        scene.remove(tree_mesh);
         tree = new T.pennTree(tree_params, seed.Seed);
         tree_points = tree.get_points();
-        tree_mesh = tree.build_mesh(basic_mesh_mat)
+        tree_mesh = tree.build_single_geometry(basic_mesh_mat)
         tree_lines = [];
         for (let level = 0; level < 4; level++) {
             const line_material = new THREE.LineBasicMaterial(level_colors[level]);
@@ -128,16 +131,18 @@ tree_controls.onChange(
             tree_lines.push(tree_line);
             scene.add(tree_line);
         }
-        for (let i = 0; i < tree_mesh.length; i++) {
-            scene.add(tree_mesh[i]);
-        }
+        //for (let i = 0; i < tree_mesh.length; i++) {
+        //    scene.add(tree_mesh[i]);
+        //}
+        scene.add(tree_mesh)
     }
 );
 
 function animate() {
     renderer.render( scene, camera );
-    // for (const line of tree_lines) {
-    //     line.rotation.y += 0.01;
-    // }
+    for (const line of tree_lines) {
+        line.rotation.y += 0.01;
+    }
+    tree_mesh.rotation.y += 0.01;
 }
 renderer.setAnimationLoop( animate );

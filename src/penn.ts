@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as Mesh from './mesh.ts'
 
 export class pennTree {
     seed : number;
@@ -60,6 +61,12 @@ export class pennTree {
         traverse(this.root);
         return cylinders;
     }
+
+    build_single_geometry (material : THREE.Material) : THREE.Mesh {
+       const buffer_geometry = Mesh.build_tree_geometry(this.root);
+       const mesh = new THREE.Mesh(buffer_geometry, material);
+       return mesh;
+    } 
 
     randFloat (min : number, max : number) : number {
         //mullberry32
