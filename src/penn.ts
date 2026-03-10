@@ -47,7 +47,7 @@ export class pennTree {
             const tip = new THREE.Vector3(0, segment.stem.per_segment_length, 0)
                 .applyQuaternion(segment.rotation).add(base);
             const dif = new THREE.Vector3().subVectors(base,tip);
-            const geometry = new THREE.CylinderGeometry(0.2/(1+segment.stem.level), 0.2/(1+segment.stem.level), dif.length(), 8, 8, true);
+            const geometry = new THREE.CylinderGeometry(segment.stem.radius, segment.stem.radius, dif.length(), 8, 8, true);
             const mesh = new THREE.Mesh(geometry, material);
             mesh.position.add(base);
             mesh.rotation.setFromQuaternion(segment.rotation);
@@ -74,6 +74,7 @@ export class pennTree {
 class Stem {
     level : number = 0;
     length : number = 0;
+    radius : number = 0;
     children : number = 0;
     last_spawned_child_Y_rotation_angle : number = 0;
     per_segment_length : number = 0;
@@ -102,6 +103,7 @@ export class Segment {
         } else { // trunk
             next_segment.stem.length = tree.processed_params.length_trunk;
             next_segment.stem.per_segment_length = tree.processed_params.per_segment_length_trunk;
+            next_segment.stem.radius = tree.processed_params.length_trunk*tree.params.Ratio*tree.params.Scale0;
         }
         
         const curve_res = tree.params.LevelParam[next_segment.stem.level].CurveRes;
@@ -187,6 +189,9 @@ export class Segment {
         if (child.stem.length <= 0) return;
         child.stem.per_segment_length = child.stem.length/tree.params.LevelParam[child.stem.level].CurveRes;
         
+        // set radius
+        child.stem.radius = parent.stem.radius*(child.stem.length / parent.stem.length)**tree.params.RatioPower;
+
         // child branch rotation
         const DownAngle = tree.params.LevelParam[child.stem.level].DownAngle;
         const DownAngleV = tree.params.LevelParam[child.stem.level].DownAngleV;
