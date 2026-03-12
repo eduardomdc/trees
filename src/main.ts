@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as T from './penn.ts'
-import { BlackTupelo, QuakingAspen } from './garden.ts';
+import { BlackTupelo } from './garden.ts';
 // import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import GUI from 'lil-gui'; 
 
@@ -28,10 +28,10 @@ var tree_params = BlackTupelo;
 var tree = new T.pennTree(tree_params, seed.Seed);
 var tree_points = tree.get_points();
 console.log(tree_points);
-const level_colors : THREE.LineBasicMaterialParameters[] = [{color: 0xffffff}, {color: 0x00ff00}, {color: 0x0000ff}, {color: 0xff0000}];
+//const level_colors : THREE.LineBasicMaterialParameters[] = [{color: 0xffffff}, {color: 0x00ff00}, {color: 0x0000ff}, {color: 0xff0000}];
 var tree_lines : THREE.Line[] = [];
 
-const basic_mesh_mat : THREE.Material = new THREE.MeshPhongMaterial();
+//const basic_mesh_mat : THREE.Material = new THREE.MeshPhongMaterial();
 //var tree_mesh = tree.build_mesh(basic_mesh_mat);
 var tree_mesh = tree.build_single_geometry(new THREE.MeshBasicMaterial());
 scene.add(tree_mesh);
