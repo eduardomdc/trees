@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as T from './penn.ts'
-import { QuakingAspen } from './garden.ts';
+import { BlackTupelo, QuakingAspen } from './garden.ts';
 // import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import GUI from 'lil-gui'; 
 
@@ -24,7 +24,7 @@ scene.add( light );
 
 // tree
 var seed = {Seed : 0};
-var tree_params = QuakingAspen;
+var tree_params = BlackTupelo;
 var tree = new T.pennTree(tree_params, seed.Seed);
 var tree_points = tree.get_points();
 console.log(tree_points);
@@ -39,13 +39,13 @@ scene.add(tree_mesh);
 //    scene.add(tree_mesh[i]);
 //}
 
-for (let level = 0; level < 4; level++) {
-    const line_material = new THREE.LineBasicMaterial(level_colors[level]);
-    const tree_line_geom = new THREE.BufferGeometry().setFromPoints(tree_points[level]);
-    const tree_line = new THREE.LineSegments(tree_line_geom, line_material);
-    tree_lines.push(tree_line);
-    scene.add(tree_line);
-}
+//    for (let level = 0; level < 4; level++) {
+//        const line_material = new THREE.LineBasicMaterial(level_colors[level]);
+//        const tree_line_geom = new THREE.BufferGeometry().setFromPoints(tree_points[level]);
+//        const tree_line = new THREE.LineSegments(tree_line_geom, line_material);
+//        tree_lines.push(tree_line);
+//        scene.add(tree_line);
+//    }
 
 // GUI
 const gui = new GUI();
@@ -112,27 +112,21 @@ tree_params.LevelParam.forEach((level, i) => {
 
 tree_controls.onChange(
     _ => {
-        for (let level = 0; level < 4; level++) {
-            const line = tree_lines[level]
-            scene.remove(line);
-        }
-        //for (let i = 0; i < tree_mesh.length; i++) {
-        //    scene.remove(tree_mesh[i]);
+        //for (let level = 0; level < 4; level++) {
+        //    const line = tree_lines[level]
+        //    scene.remove(line);
         //}
         scene.remove(tree_mesh);
         tree = new T.pennTree(tree_params, seed.Seed);
-        tree_points = tree.get_points();
-        tree_mesh = tree.build_single_geometry(basic_mesh_mat)
-        tree_lines = [];
-        for (let level = 0; level < 4; level++) {
-            const line_material = new THREE.LineBasicMaterial(level_colors[level]);
-            const tree_line_geom = new THREE.BufferGeometry().setFromPoints(tree_points[level]);
-            const tree_line = new THREE.LineSegments(tree_line_geom, line_material);
-            tree_lines.push(tree_line);
-            scene.add(tree_line);
-        }
-        //for (let i = 0; i < tree_mesh.length; i++) {
-        //    scene.add(tree_mesh[i]);
+        //tree_points = tree.get_points();
+        tree_mesh = tree.build_single_geometry(new THREE.MeshBasicMaterial())
+        //tree_lines = [];
+        //for (let level = 0; level < 4; level++) {
+        //    const line_material = new THREE.LineBasicMaterial(level_colors[level]);
+        //    const tree_line_geom = new THREE.BufferGeometry().setFromPoints(tree_points[level]);
+        //    const tree_line = new THREE.LineSegments(tree_line_geom, line_material);
+        //    tree_lines.push(tree_line);
+        //    scene.add(tree_line);
         //}
         scene.add(tree_mesh)
     }
