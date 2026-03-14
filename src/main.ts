@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as T from './penn.ts'
-import { QuakingAspen } from './garden.ts';
+import {QuakingAspen} from './garden.ts';
 // import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import GUI from 'lil-gui'; 
 
@@ -17,9 +17,9 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 camera.position.z = 27;
 camera.position.y = 8;
 
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 2 );
 scene.add( directionalLight );
-const light = new THREE.AmbientLight( 0x404040 ); // soft white light
+const light = new THREE.AmbientLight( 0x303030 ); // soft white light
 scene.add( light );
 
 // tree
@@ -30,7 +30,7 @@ var tree = new T.pennTree(tree_params, seed.Seed);
 //const level_colors : THREE.LineBasicMaterialParameters[] = [{color: 0xffffff}, {color: 0x00ff00}, {color: 0x0000ff}, {color: 0xff0000}];
 var tree_lines : THREE.Line[] = [];
 
-const basic_mesh_mat : THREE.Material = new THREE.MeshBasicMaterial();
+const basic_mesh_mat : THREE.Material = new THREE.MeshPhongMaterial();
 //var tree_mesh = tree.build_mesh(basic_mesh_mat);
 var tree_mesh = tree.build_single_geometry(basic_mesh_mat);
 scene.add(tree_mesh);
@@ -45,6 +45,29 @@ scene.add(tree_mesh);
 //        tree_lines.push(tree_line);
 //        scene.add(tree_line);
 //    }
+
+
+const ambient = new THREE.AmbientLight(0x2a4a3a, 0.4);
+scene.add(ambient);
+
+const sun = new THREE.DirectionalLight(0xfff4cc, 1.2);
+sun.position.set(30, 60, 20);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.near = 0.5;
+sun.shadow.camera.far = 200;
+sun.shadow.camera.left = -50;
+sun.shadow.camera.right = 50;
+sun.shadow.camera.top = 50;
+sun.shadow.camera.bottom = -50;
+sun.shadow.bias = -0.001;
+scene.add(sun);
+
+const skyFill = new THREE.DirectionalLight(0x8ab4d4, 0.3);
+skyFill.position.set(-20, 40, -10);
+scene.add(skyFill);
+
+scene.fog = new THREE.Fog(0x4a6741, 30, 120);
 
 // GUI
 const gui = new GUI();
