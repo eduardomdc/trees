@@ -7,11 +7,6 @@ type Geometry = {
     index : Array<number>;
 };
 
-function push_vertex (array : Array<number>, vert : THREE.Vector3) {
-    array.push(vert.x);
-    array.push(vert.y);
-    array.push(vert.z);
-}
 /*
 function append_to_geometry (geometry : Geometry, append : Geometry) {
     geometry.vertex.push(...append.vertex)
