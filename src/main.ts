@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as T from './penn.ts'
-import { BlackTupelo } from './garden.ts';
+import { QuakingAspen } from './garden.ts';
 // import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import GUI from 'lil-gui'; 
 
@@ -24,16 +24,15 @@ scene.add( light );
 
 // tree
 var seed = {Seed : 0};
-var tree_params = BlackTupelo;
+var tree_params = QuakingAspen;
 var tree = new T.pennTree(tree_params, seed.Seed);
-var tree_points = tree.get_points();
-console.log(tree_points);
+//var tree_points = tree.get_points();
 //const level_colors : THREE.LineBasicMaterialParameters[] = [{color: 0xffffff}, {color: 0x00ff00}, {color: 0x0000ff}, {color: 0xff0000}];
 var tree_lines : THREE.Line[] = [];
 
-//const basic_mesh_mat : THREE.Material = new THREE.MeshPhongMaterial();
+const basic_mesh_mat : THREE.Material = new THREE.MeshBasicMaterial();
 //var tree_mesh = tree.build_mesh(basic_mesh_mat);
-var tree_mesh = tree.build_single_geometry(new THREE.MeshBasicMaterial());
+var tree_mesh = tree.build_single_geometry(basic_mesh_mat);
 scene.add(tree_mesh);
 //for (let i = 0; i < tree_mesh.length; i++) {
 //    scene.add(tree_mesh[i]);
@@ -116,10 +115,14 @@ tree_controls.onChange(
         //    const line = tree_lines[level]
         //    scene.remove(line);
         //}
+        console.log("gem id", tree_mesh.geometry.id)
         scene.remove(tree_mesh);
+        tree_mesh.geometry.dispose()
+        console.log("gem id", tree_mesh.geometry.id)
         tree = new T.pennTree(tree_params, seed.Seed);
         //tree_points = tree.get_points();
-        tree_mesh = tree.build_single_geometry(new THREE.MeshBasicMaterial())
+        tree_mesh = tree.build_single_geometry(basic_mesh_mat)
+        console.log("ngem id", tree_mesh.geometry.id)
         //tree_lines = [];
         //for (let level = 0; level < 4; level++) {
         //    const line_material = new THREE.LineBasicMaterial(level_colors[level]);

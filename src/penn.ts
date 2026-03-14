@@ -63,7 +63,7 @@ export class pennTree {
     }
 
     build_single_geometry (material : THREE.Material) : THREE.Mesh {
-       const buffer_geometry = Mesh.build_tree_geometry(this.root);
+       const buffer_geometry = Mesh.build_tree_geometry(this, this.root);
        const mesh = new THREE.Mesh(buffer_geometry, material);
        return mesh;
     } 
@@ -97,10 +97,14 @@ export class Segment {
     rotation : THREE.Quaternion = new THREE.Quaternion;
     position : THREE.Vector3 = new THREE.Vector3;
 
+    vertex_idx : number = 0;
+    vertex_count : number = 0;
+
     generate_stem_Segments (tree : pennTree, parent : Segment | null) : Segment {
         var next_segment : Segment = new Segment();
 
         if (parent) {
+            next_segment.parent = parent
             next_segment.stem.level = parent.stem.level;
             next_segment.segment_number = parent.segment_number+1;
             next_segment.position = parent.position.clone();
@@ -249,7 +253,6 @@ export class Segment {
         if (this.stem.level < tree.params.Levels-1) {
             const children_branches = tree.params.LevelParam[this.stem.level+1].Branches
             var children_per_segment = children_branches/tree.params.LevelParam[this.stem.level].CurveRes
-            if (this.stem.level == 0) {console.log("1Make", children_per_segment, "children");}
             if (this.stem.level == 0) {
                 const len_base = tree.processed_params.length_base;
                 if (this.length_along_this_stem < len_base) {
@@ -263,7 +266,6 @@ export class Segment {
                 }
                 
             }
-            if (this.stem.level == 0) {console.log("2Make", children_per_segment, "children");}
             const children_whole = Math.floor(children_per_segment);
             const children_fractional = children_per_segment - children_whole;
             for (let i = 0; i < children_whole; i++) {
