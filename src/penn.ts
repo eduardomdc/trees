@@ -86,7 +86,6 @@ class Stem {
     last_spawned_child_Y_rotation_angle : number = 0;
     last_spawned_child_offset : number = 0;
     per_segment_length : number = 0;
-    per_segment_children : number = 0;
 }
 
 export class Segment {
@@ -226,8 +225,15 @@ export class Segment {
         if (child.stem.length <= 0) return;
         child.stem.per_segment_length = child.stem.length/tree.params.LevelParam[child.stem.level].CurveRes;
         
+        // ==== stem setup ====
         // set radius
         child.stem.radius = parent.stem.radius*(child.stem.length / parent.stem.length)**tree.params.RatioPower;
+        // calculate expected number of children branches from this new stem
+        if (child.stem.level == 1) {
+            child.stem.children = tree.params.LevelParam[child.stem.level].Branches * (0.2 + 0.8 * (child.stem.length/parent.stem.length)/length_child_max) 
+        } else {
+            child.stem.children =  tree.params.LevelParam[child.stem.level].Branches * (1.0 - 0.5 * offset_child/parent.stem.length) 
+        }
 
         // child branch rotation
         const DownAngle = tree.params.LevelParam[child.stem.level].DownAngle;
@@ -279,8 +285,13 @@ export class Segment {
     }
 
     generate_children (tree : pennTree) {
-        if (this.stem.level < tree.params.Levels-1) {
-            const children_branches = tree.params.LevelParam[this.stem.level+1].Branches
+        if (this.stem.level < tree.params.Levels) {
+            let children_branches;
+            if (this.stem.level == 0) {
+                children_branches = tree.params.LevelParam[this.stem.level+1].Branches
+            } else {
+                children_branches = this.stem.children
+            }
             var children_per_segment = children_branches/tree.params.LevelParam[this.stem.level].CurveRes
             if (this.stem.level == 0) {
                 const len_base = tree.processed_params.length_base;
