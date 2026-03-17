@@ -196,15 +196,15 @@ export class Segment {
 
         // check if it is in barren trunk base
         var offset_child : number = 0;
-        var bottom_position_cap = 0; // used to cut off bare trunk base
+        //var bottom_position_cap = 0; // used to cut off bare trunk base
         // move child across parent segment
         if (parent.stem.level == 0) { // if they're first branches don't add them on the bare trunk base
             const len_base = tree.processed_params.length_base;
             if (this.length_along_this_stem < len_base) {
                 const diff = this.length_along_this_stem+tree.processed_params.per_segment_length_trunk-tree.processed_params.length_base;
                 if (diff > 0) {
-                    const fraction_out_of_bare_trunk = diff/tree.processed_params.per_segment_length_trunk;
-                    bottom_position_cap = (1-fraction_out_of_bare_trunk);
+                    //const fraction_out_of_bare_trunk = diff/tree.processed_params.per_segment_length_trunk;
+                    //bottom_position_cap = (1-fraction_out_of_bare_trunk);
                 } else {
                     return; // shouldn't even be creating a child here
                 }
