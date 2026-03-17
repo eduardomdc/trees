@@ -14,7 +14,7 @@ const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.inner
 const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 renderer.setSize( window.innerWidth, window.innerHeight );
 
-camera.position.z = 27;
+camera.position.z = 11;
 camera.position.y = 8;
 
 const directionalLight = new THREE.DirectionalLight( 0xffffff, 2 );
@@ -24,7 +24,7 @@ scene.add( light );
 
 // tree
 var seed = {Seed : 0};
-var tree_params = BlackTupelo;
+var tree_params = QuakingAspen;
 var tree = new T.pennTree(tree_params, seed.Seed);
 //var tree_points = tree.get_points();
 //const level_colors : THREE.LineBasicMaterialParameters[] = [{color: 0xffffff}, {color: 0x00ff00}, {color: 0x0000ff}, {color: 0xff0000}];
@@ -97,6 +97,8 @@ tree_controls.add(tree_params, 'Flare', 0, 2);
 tree_controls.add(tree_params, 'Scale0', 0, 5);
 tree_controls.add(tree_params, 'ScaleV0', 0, 5);
 tree_controls.add(tree_params, 'BaseSplits0', 0, 10, 1);
+
+tree_controls.add(tree_params, 'AttractionUp', -5, 5);
 
 const trunk_controls = tree_controls.addFolder('Trunk');
 

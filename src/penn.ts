@@ -151,6 +151,23 @@ export class Segment {
             );
             next_segment.rotation.multiply(randrot).normalize();
 
+            // add the vertical attraction (phototropism) to the orientation
+            // only for level > 1 stems
+            if (next_segment.stem.level > 1) {
+                /* penn & web's
+                const declination = Math.acos(new THREE.Vector3(0,1,0).applyQuaternion(next_segment.rotation).y)
+                const orientation = Math.acos(new THREE.Vector3(1,0,0).applyQuaternion(next_segment.rotation).y)
+                const curve_up = tree.params.AttractionUp * declination * Math.cos(orientation)/tree.params.LevelParam[next_segment.stem.level].CurveRes
+                next_segment.rotation.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1), -curve_up))
+                */
+                const delta = Math.abs(tree.params.AttractionUp)/tree.params.LevelParam[next_segment.stem.level].CurveRes
+                if (tree.params.AttractionUp > 0) { // TCC
+                    next_segment.rotation.rotateTowards(new THREE.Quaternion(), delta)
+                } else {
+                    next_segment.rotation.rotateTowards(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), Math.PI), delta)
+                }
+            }
+
             // grow in the direction of the parent's Y axis
             const growth = new THREE.Vector3(0,next_segment.stem.per_segment_length, 0)// grows in the y axis
             growth.applyQuaternion(parent.rotation);
