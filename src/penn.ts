@@ -84,6 +84,7 @@ class Stem {
     radius : number = 0;
     children : number = 0;
     last_spawned_child_Y_rotation_angle : number = 0;
+    last_spawned_child_offset : number = 0;
     per_segment_length : number = 0;
     per_segment_children : number = 0;
 }
@@ -118,7 +119,14 @@ export class Segment {
         }
         
         const curve_res = tree.params.LevelParam[next_segment.stem.level].CurveRes;
-        if (next_segment.segment_number >= curve_res) return next_segment; // stem end
+        if (next_segment.segment_number >= curve_res) {// stem end
+            /* // experimental - continue segment as child segment
+            if (next_segment.stem.level < tree.params.Levels-1){
+            }
+            else return next_segment;*/
+            return next_segment;
+        }
+
         
         if (parent){
             const curve = tree.params.LevelParam[next_segment.stem.level].Curve;
@@ -127,7 +135,7 @@ export class Segment {
             if (curve_back == 0) {
                 const bendQ = new THREE.Quaternion().setFromAxisAngle(
                     new THREE.Vector3(0, 0, 1), // local Z axis
-                    Math.PI*(curve/curve_res)/180,  // bend angle
+                    Math.PI*(-curve/curve_res)/180,  // bend angle
                 );
                 next_segment.rotation.multiply(bendQ);
             } else if (curve_back > 0) {
@@ -139,7 +147,7 @@ export class Segment {
             const curve_v = tree.params.LevelParam[next_segment.stem.level].CurveV;
             const randrot = new THREE.Quaternion().setFromAxisAngle(
                 new THREE.Vector3(0, 0, 1),
-                tree.randFloat(0,1)*Math.PI*(curve_v/curve_res)/180, 
+                tree.randFloat(-1,1)*Math.PI*(curve_v/curve_res)/180, 
             );
             next_segment.rotation.multiply(randrot).normalize();
 
@@ -159,7 +167,7 @@ export class Segment {
         return next_segment;
     }
 
-    generate_child (tree : pennTree, parent : Segment) {
+    generate_child (tree : pennTree, parent : Segment, offset : number) {
         var child : Segment = new Segment();
         child.parent = parent;
         child.segment_number = 0;
@@ -168,6 +176,7 @@ export class Segment {
         child.length_along_this_stem = 0;
         child.stem.level = parent.stem.level+1;
         
+
         // check if it is in barren trunk base
         var offset_child : number = 0;
         var bottom_position_cap = 0; // used to cut off bare trunk base
@@ -185,7 +194,7 @@ export class Segment {
             }
         }
         // position the child branch
-        const position_across = parent.stem.per_segment_length*tree.randFloat(bottom_position_cap,1);
+        const position_across = offset;//parent.stem.per_segment_length*tree.randFloat(bottom_position_cap,1);
         offset_child = position_across + parent.length_along_this_stem;
         child.position.add(new THREE.Vector3(0,position_across, 0).applyQuaternion(parent.rotation));
         
@@ -209,7 +218,7 @@ export class Segment {
         var a_rotation = new THREE.Quaternion();
         var Y_rotation_angle = 0;
         if (DownAngle >= 0) {
-            const down_angle = Math.PI*(DownAngle + tree.randFloat(0,1)*DownAngleV)/180;
+            const down_angle = Math.PI*(DownAngle + tree.randFloat(-1,1)*DownAngleV)/180;
             
             if (true) { // set Y rotation according to most recent spawned child
                 const Rotate = tree.params.LevelParam[child.stem.level].Rotate;
@@ -240,6 +249,9 @@ export class Segment {
             //todo
         }
         
+        // dislocate child branch from inside parent experimental
+        const parent_radial = new THREE.Vector3(1,0,0).applyQuaternion(parent.rotation).applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(parent.rotation), Y_rotation_angle);
+        child.position.add(parent_radial.multiplyScalar(child.stem.radius-parent.stem.radius));
 
         child.generate_children(tree);
 
@@ -268,11 +280,14 @@ export class Segment {
             }
             const children_whole = Math.floor(children_per_segment);
             const children_fractional = children_per_segment - children_whole;
+            const offset_delta = this.stem.per_segment_length/children_per_segment
+            var offset = 0
             for (let i = 0; i < children_whole; i++) {
-                this.generate_child(tree, this);
+                this.generate_child(tree, this, offset);
+                offset += offset_delta
             }
             // spawn child with probability of fractional part
-            if (tree.randFloat(0, 1) <= children_fractional) this.generate_child(tree, this);
+            if (tree.randFloat(0, 1) <= children_fractional) this.generate_child(tree, this, offset);
         }
     }
 }

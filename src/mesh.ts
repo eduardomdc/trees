@@ -7,12 +7,6 @@ type Geometry = {
     index : Array<number>;
 };
 
-/*
-function append_to_geometry (geometry : Geometry, append : Geometry) {
-    geometry.vertex.push(...append.vertex)
-}
-*/
-
 export function build_tree_geometry (tree : T.pennTree, root_segment : T.Segment) : THREE.BufferGeometry {
     const my_geometry : Geometry = {vertex : [], normal : [], index : []};
     build_segment_geometry(tree, root_segment, my_geometry);
