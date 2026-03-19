@@ -231,8 +231,12 @@ export class Segment {
         if (child.stem.length <= 0) return;
         child.stem.per_segment_length = child.stem.length/tree.params.LevelParam[child.stem.level].CurveRes;
         
-        // set radius
+        // calculate stem radius
         child.stem.radius = parent.stem.radius*(child.stem.length / parent.stem.length)**tree.params.RatioPower;
+        // limit stem radius by radius of parent at that point
+        const parent_radius = parent.stem.radius*(1 - (offset_child/parent.stem.length))
+        child.stem.radius = Math.min(parent_radius, child.stem.radius)
+
         // calculate expected number of children branches from this new stem
         if (child.stem.level == 1) {
             console.log(child.stem.length, parent.stem.length,(child.stem.length/parent.stem.length)/length_child_max)
@@ -240,6 +244,10 @@ export class Segment {
         } else {
             child.stem.children =  tree.params.LevelParam[child.stem.level].Branches * (1.0 - 0.5 * offset_child/parent.stem.length) 
         }
+        // calculate radius
+        const normalized_along_stem = child.length_along_this_stem/child.stem.length;
+        child.radius = child.stem.radius * (1 - normalized_along_stem); // taper as a cone
+        
 
         // child branch rotation
         const DownAngle = tree.params.LevelParam[child.stem.level].DownAngle;
@@ -277,9 +285,6 @@ export class Segment {
         } else {
             //todo
         }
-        // calculate radius
-        const normalized_along_stem = child.length_along_this_stem/child.stem.length;
-        child.radius = child.stem.radius * (1 - normalized_along_stem); // taper as a cone
         
         // dislocate child branch from inside parent experimental
         //const parent_radial = new THREE.Vector3(1,0,0).applyQuaternion(parent.rotation).applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(parent.rotation), Y_rotation_angle);

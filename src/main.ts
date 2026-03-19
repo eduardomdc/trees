@@ -17,10 +17,11 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 camera.position.z = 11;
 camera.position.y = 8;
 
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 2 );
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
 scene.add( directionalLight );
-const light = new THREE.AmbientLight( 0x303030 ); // soft white light
+const light = new THREE.AmbientLight( 0xaaaaff); // soft white light
 scene.add( light );
+//scene.background = new THREE.Color(0x9090ff);
 
 // tree
 var seed = {Seed : 0};
