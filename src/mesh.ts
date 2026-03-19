@@ -25,13 +25,13 @@ function build_segment_geometry (tree : T.pennTree, segment : T.Segment, geometr
     if (segment.segment_number == 0) { // first segment in branch
         // make the base vertices instead of connecting from parent branch
         const base_vert_offset = geometry.vertex.length/3;
-        const points_normals = circle_points_normals(segment.position, segment.rotation, segment.stem.radius, 6)
+        const points_normals = circle_points_normals(segment.position, segment.rotation, segment.radius, 6)
         geometry.vertex.push(...points_normals[0])
         geometry.normal.push(...points_normals[1])
         segment.vertex_idx = base_vert_offset
     } else {
         if (segment.parent != null) {
-            segment.vertex_idx = connect_cylinder_geometry(geometry, segment.position, segment.rotation, segment.stem.radius, 6, segment.parent.vertex_idx)
+            segment.vertex_idx = connect_cylinder_geometry(geometry, segment.position, segment.rotation, segment.radius, 6, segment.parent.vertex_idx)
         }
     }
     
