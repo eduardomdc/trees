@@ -31,7 +31,7 @@ var tree = new T.pennTree(tree_params, seed.Seed);
 //const level_colors : THREE.LineBasicMaterialParameters[] = [{color: 0xffffff}, {color: 0x00ff00}, {color: 0x0000ff}, {color: 0xff0000}];
 var tree_lines : THREE.Line[] = [];
 
-const basic_mesh_mat : THREE.Material = new THREE.MeshPhongMaterial();
+const basic_mesh_mat : THREE.Material = new THREE.MeshStandardMaterial({color:0x8B4513});
 //var tree_mesh = tree.build_mesh(basic_mesh_mat);
 var tree_mesh = tree.build_single_geometry(basic_mesh_mat);
 scene.add(tree_mesh);

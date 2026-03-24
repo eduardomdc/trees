@@ -240,9 +240,9 @@ export class Segment {
         // calculate expected number of children branches from this new stem
         if (child.stem.level == 1) {
             console.log(child.stem.length, parent.stem.length,(child.stem.length/parent.stem.length)/length_child_max)
-            child.stem.children = tree.params.LevelParam[child.stem.level].Branches * (0.2 + 0.8 * (child.stem.length/parent.stem.length)/length_child_max) 
+            child.stem.children = tree.params.LevelParam[child.stem.level+1].Branches * (0.2 + 0.8 * (child.stem.length/parent.stem.length)/length_child_max) 
         } else {
-            child.stem.children =  tree.params.LevelParam[child.stem.level].Branches * (1.0 - 0.5 * offset_child/parent.stem.length) 
+            child.stem.children =  tree.params.LevelParam[child.stem.level+1].Branches * (1.0 - 0.5 * offset_child/parent.stem.length) 
         }
         // calculate radius
         const normalized_along_stem = child.length_along_this_stem/child.stem.length;
@@ -287,8 +287,8 @@ export class Segment {
         }
         
         // dislocate child branch from inside parent experimental
-        //const parent_radial = new THREE.Vector3(1,0,0).applyQuaternion(parent.rotation).applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(parent.rotation), Y_rotation_angle);
-        //child.position.add(parent_radial.multiplyScalar(child.stem.radius-parent.stem.radius));
+        const parent_radial = new THREE.Vector3(1,0,0).applyQuaternion(parent.rotation).applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(parent.rotation), Y_rotation_angle);
+        child.position.add(parent_radial.multiplyScalar(child.stem.radius-parent_radius));
 
         child.generate_children(tree);
 
@@ -306,6 +306,7 @@ export class Segment {
             } else {
                 children_branches = this.stem.children
             }
+            console.log("Spawn ", children_branches, "children for the level", this.stem.level)
             var children_per_segment = children_branches/tree.params.LevelParam[this.stem.level].CurveRes
             if (this.stem.level == 0) {
                 const len_base = tree.processed_params.length_base;
