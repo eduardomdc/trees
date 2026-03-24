@@ -254,38 +254,40 @@ export class Segment {
         const DownAngleV = tree.params.LevelParam[child.stem.level].DownAngleV;
         var a_rotation = new THREE.Quaternion();
         var Y_rotation_angle = 0;
-        if (DownAngle >= 0) {
-            const down_angle = Math.PI*(DownAngle + tree.randFloat(-1,1)*DownAngleV)/180;
-            
-            if (true) { // set Y rotation according to most recent spawned child
-                const Rotate = tree.params.LevelParam[child.stem.level].Rotate;
-                const RotateV = tree.params.LevelParam[child.stem.level].RotateV;
-                if (tree.params.LevelParam[child.stem.level].Rotate > 0) { // helical distribution
-                    
-                    Y_rotation_angle = parent.stem.last_spawned_child_Y_rotation_angle; // rotate by previous child
-
-                    // then a bit more
-                    Y_rotation_angle += Math.PI*(Rotate + tree.randFloat(-1,1)*RotateV)/180;
-                    a_rotation.setFromAxisAngle(
-                        new THREE.Vector3(0, 1, 0), // local Y axis
-                        Y_rotation_angle,  // bend angle
-                    );
-                    // apply Y rotation to child rotation
-                    child.rotation.multiply(a_rotation).normalize();
-                } else { // todo
-
-                }
-            }
-            // then rotate down
-            a_rotation.setFromAxisAngle(
-                new THREE.Vector3(0, 0, 1), // local Z axis
-                down_angle,  // bend angle
-            );
-            child.rotation.multiply(a_rotation).normalize();
+        var down_angle = 0;
+        if (DownAngleV >= 0) {
+            down_angle = Math.PI*(DownAngle + tree.randFloat(-1,1)*DownAngleV)/180;
         } else {
-            //todo
+            // if down angle v is negative special case
+            down_angle = Math.PI*(DownAngle + tree.randFloat(-1, 1)*( DownAngleV*( 1-2*ShapeRatio( 0, (parent.stem.length-offset_child)/(parent.stem.length) ) ) ) )/180
         }
-        
+            
+        if (true) { // set Y rotation according to most recent spawned child
+            const Rotate = tree.params.LevelParam[child.stem.level].Rotate;
+            const RotateV = tree.params.LevelParam[child.stem.level].RotateV;
+            if (tree.params.LevelParam[child.stem.level].Rotate > 0) { // helical distribution
+                
+                Y_rotation_angle = parent.stem.last_spawned_child_Y_rotation_angle; // rotate by previous child
+
+                // then a bit more
+                Y_rotation_angle += Math.PI*(Rotate + tree.randFloat(-1,1)*RotateV)/180;
+                a_rotation.setFromAxisAngle(
+                    new THREE.Vector3(0, 1, 0), // local Y axis
+                    Y_rotation_angle,  // bend angle
+                );
+                // apply Y rotation to child rotation
+                child.rotation.multiply(a_rotation).normalize();
+            } else { // todo
+
+            }
+        }
+        // then rotate down
+        a_rotation.setFromAxisAngle(
+            new THREE.Vector3(0, 0, 1), // local Z axis
+            down_angle,  // bend angle
+        );
+        child.rotation.multiply(a_rotation).normalize();
+    
         // dislocate child branch from inside parent experimental
         const parent_radial = new THREE.Vector3(1,0,0).applyQuaternion(parent.rotation).applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(parent.rotation), Y_rotation_angle);
         child.position.add(parent_radial.multiplyScalar(child.stem.radius-parent_radius));
