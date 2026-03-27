@@ -21,24 +21,25 @@ export function build_tree_geometry (tree : T.pennTree, root_segment : T.Segment
 }
 
 function build_segment_geometry (tree : T.pennTree, segment : T.Segment, geometry : Geometry) {
+    const resolution = tree.params.MeshQuality[segment.stem.level];
     // check if segment is the first in the branch
     if (segment.segment_number == 0) { // first segment in branch
         // make the base vertices instead of connecting from parent branch
         const base_vert_offset = geometry.vertex.length/3;
-        const points_normals = circle_points_normals(segment.position, segment.rotation, segment.radius, 6)
+        const points_normals = circle_points_normals(segment.position, segment.rotation, segment.radius, resolution)
         geometry.vertex.push(...points_normals[0])
         geometry.normal.push(...points_normals[1])
         segment.vertex_idx = base_vert_offset
     } else {
         if (segment.parent != null) {
-            segment.vertex_idx = connect_cylinder_geometry(geometry, segment.position, segment.rotation, segment.radius, 6, segment.parent.vertex_idx)
+            segment.vertex_idx = connect_cylinder_geometry(geometry, segment.position, segment.rotation, segment.radius, resolution, segment.parent.vertex_idx)
         }
     }
     
     if (segment.segment_number == tree.params.LevelParam[segment.stem.level].CurveRes-1 ) {
         console.log('make ti')
         const tip = new THREE.Vector3(0, segment.stem.per_segment_length, 0).applyQuaternion(segment.rotation).add(segment.position);
-        connect_circle_to_point_geometry(geometry, tip, new THREE.Vector3(0, 1, 0).applyQuaternion(segment.rotation), 6, segment.vertex_idx)
+        connect_circle_to_point_geometry(geometry, tip, new THREE.Vector3(0, 1, 0).applyQuaternion(segment.rotation), resolution, segment.vertex_idx)
     }
     
     for (const child of segment.children) {

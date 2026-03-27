@@ -81,7 +81,7 @@ const tree_controls = gui.addFolder('Tree');
 
 tree_controls.add(seed, 'Seed', 0, 1000);
 tree_controls.add(tree_params, 'Shape', 0, 10, 1);
-tree_controls.add(tree_params, 'BaseSize', 0, 2);
+tree_controls.add(tree_params, 'BaseSize', 0, 1);
 tree_controls.add(tree_params, 'Scale', 0, 100);
 tree_controls.add(tree_params, 'ScaleV', 0, 20);
 tree_controls.add(tree_params, 'ZScale', 0, 5);

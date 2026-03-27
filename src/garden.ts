@@ -18,6 +18,8 @@ export const TestAspen: TreeParams = {
   ScaleV0: 0,
   BaseSplits0: 0,
 
+  MeshQuality : [10,6,3,3],
+
   LevelParam: [
     // level 0 (trunk)
     {
@@ -119,7 +121,9 @@ export const QuakingAspen: TreeParams = {
   Lobes: 5,
   LobeDepth: 0.07,
   Flare: 0.6,
-
+  
+  MeshQuality : [10,6,3,3],
+  
   Scale0: 1,
   ScaleV0: 0,
   BaseSplits0: 0,
@@ -224,6 +228,8 @@ export const BlackTupelo: TreeParams = {
   Lobes: 3,
   LobeDepth: 0.1,
   Flare: 1,
+
+  MeshQuality : [10,6,3,3],
 
   Scale0: 1,
   ScaleV0: 0,
@@ -331,6 +337,8 @@ export const WeepingWillow: TreeParams = {
   LobeDepth: 0.03,
   Flare: 0.75,
 
+  MeshQuality : [10,6,3,3],
+
   Scale0: 1,
   ScaleV0: 0,
   BaseSplits0: 2,
@@ -436,6 +444,8 @@ export const CABlackOak: TreeParams = {
   Lobes: 5,
   LobeDepth: 0.1,
   Flare: 1.2,
+
+  MeshQuality : [10,6,3,3],
 
   Scale0: 1,
   ScaleV0: 0,

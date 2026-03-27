@@ -12,7 +12,6 @@ export class pennTree {
         this.seed = seed;
         this.params = params;
         this.processed_params = new ProcessedTreeParams(this);
-        console.log("generating penn tree");
         this.root = new Segment();
         this.root = this.root.generate_stem_Segments(this, null);
     }
@@ -201,24 +200,19 @@ export class Segment {
         // check if it is in barren trunk base
         var offset_child : number = 0;
         //var bottom_position_cap = 0; // used to cut off bare trunk base
-        // move child across parent segment
-        if (parent.stem.level == 0) { // if they're first branches don't add them on the bare trunk base
-            const len_base = tree.processed_params.length_base;
-            if (this.length_along_this_stem < len_base) {
-                const diff = this.length_along_this_stem+tree.processed_params.per_segment_length_trunk-tree.processed_params.length_base;
-                if (diff > 0) {
-                    //const fraction_out_of_bare_trunk = diff/tree.processed_params.per_segment_length_trunk;
-                    //bottom_position_cap = (1-fraction_out_of_bare_trunk);
-                } else {
-                    return; // shouldn't even be creating a child here
-                }
-            }
-        }
-        // position the child branch
         const position_across = offset;//parent.stem.per_segment_length*tree.randFloat(bottom_position_cap,1);
         offset_child = position_across + parent.length_along_this_stem;
         child.position.add(new THREE.Vector3(0,position_across, 0).applyQuaternion(parent.rotation));
         
+        if (parent.stem.level == 0) { // if they're first branches don't add them on the bare trunk base
+            const len_base = tree.processed_params.length_base;
+            if (this.length_along_this_stem < len_base) {
+                const diff = this.length_along_this_stem+offset_child-tree.processed_params.length_base;
+                if (diff < 0) {
+                    return; // shouldn't even be creating a child here
+                }
+            }
+        }
         
         // ==== stem setup ====
         // set length
@@ -266,9 +260,7 @@ export class Segment {
             const Rotate = tree.params.LevelParam[child.stem.level].Rotate;
             const RotateV = tree.params.LevelParam[child.stem.level].RotateV;
             if (tree.params.LevelParam[child.stem.level].Rotate > 0) { // helical distribution
-                
                 Y_rotation_angle = parent.stem.last_spawned_child_Y_rotation_angle; // rotate by previous child
-
                 // then a bit more
                 Y_rotation_angle += Math.PI*(Rotate + tree.randFloat(-1,1)*RotateV)/180;
                 a_rotation.setFromAxisAngle(
@@ -302,37 +294,40 @@ export class Segment {
 
     generate_children (tree : pennTree) {
         if (this.stem.level < tree.params.Levels) {
-            let children_branches;
+            let total_stem_children;
             if (this.stem.level == 0) {
-                children_branches = tree.params.LevelParam[this.stem.level+1].Branches
+                total_stem_children = tree.params.LevelParam[1].Branches
             } else {
-                children_branches = this.stem.children
+                total_stem_children = this.stem.children
             }
-            console.log("Spawn ", children_branches, "children for the level", this.stem.level)
-            var children_per_segment = children_branches/tree.params.LevelParam[this.stem.level].CurveRes
+            let offset = 0, children_count = 0, offset_delta = 0;
+            
             if (this.stem.level == 0) {
                 const len_base = tree.processed_params.length_base;
-                if (this.length_along_this_stem < len_base) {
-                    const diff = this.length_along_this_stem+tree.processed_params.per_segment_length_trunk-tree.processed_params.length_base;
-                    if (diff > 0) {
-                        const fraction_out_of_bare_trunk = diff/tree.processed_params.per_segment_length_trunk;
-                        children_per_segment = children_per_segment*fraction_out_of_bare_trunk;
-                    } else {
-                        children_per_segment = 0;
-                    }
-                }
+                const child_bearing_length = this.stem.length - len_base;
                 
+                offset_delta = child_bearing_length/total_stem_children
+                const diff = this.length_along_this_stem+this.stem.per_segment_length-len_base;
+                if (diff > 0) { // there's a part that is not bare trunk
+                    //const fraction_out_of_bare_trunk = diff/this.stem.per_segment_length;
+                    offset = Math.max(0, len_base-this.length_along_this_stem)
+                    const children_per_unit_len = total_stem_children/child_bearing_length;
+                    const children_bearing_len = this.stem.per_segment_length-offset
+                    children_count = children_per_unit_len * children_bearing_len;
+                } else { // it's all bare trunk, no children for this segment
+                    return;
+                }
+            } else {
+                children_count = total_stem_children / tree.params.LevelParam[this.stem.level].CurveRes
+                offset_delta = this.stem.length/total_stem_children
             }
-            const children_whole = Math.floor(children_per_segment);
-            const children_fractional = children_per_segment - children_whole;
-            const offset_delta = this.stem.per_segment_length/children_per_segment
-            var offset = 0
+            var children_whole = Math.floor(children_count);
+            //const children_fractional = children_count - children_whole;
+            //if (tree.randFloat(0, 1) <= children_fractional) {children_whole+=1}// spawn child with probability of fractional part
             for (let i = 0; i < children_whole; i++) {
                 this.generate_child(tree, this, offset);
                 offset += offset_delta
             }
-            // spawn child with probability of fractional part
-            if (tree.randFloat(0, 1) <= children_fractional) this.generate_child(tree, this, offset);
         }
     }
 }
@@ -350,6 +345,8 @@ export type TreeParams = {
 
     BaseSplits0 : number, // dichotomous branching at the base
     
+    MeshQuality : number[], // dictates resolution of circular cross-sections of stems
+
     LevelParam : LevelParam[], // array of level-specific parameters indexed by level
 
     Leaves : number, // number of leaves per parent
