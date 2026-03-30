@@ -1,9 +1,12 @@
 import * as THREE from 'three';
 import * as Mesh from './mesh.ts'
 
+const quality = 1;
+
 export class pennTree {
     seed : number;
     root : Segment;
+    leaf_count : number = 0;
 
     params : TreeParams;
     processed_params : ProcessedTreeParams; // parameters in a more useful format for segment-based generation
@@ -38,34 +41,15 @@ export class pennTree {
         return points;
     }
 
-    build_mesh (material : THREE.Material) : THREE.Mesh[] {
-        const cylinders : THREE.Mesh[] = [];
-        const traverse = (segment: Segment) => {
-            // base of the segment
-            const base = segment.position.clone();
-            // tip of the segment (along local +Y)
-            const tip = new THREE.Vector3(0, segment.stem.per_segment_length, 0)
-                .applyQuaternion(segment.rotation).add(base);
-            const dif = new THREE.Vector3().subVectors(base,tip);
-            const geometry = new THREE.CylinderGeometry(segment.stem.radius, segment.stem.radius, dif.length(), 8, 8, true);
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.position.add(base);
-            mesh.rotation.setFromQuaternion(segment.rotation);
-            cylinders.push(mesh);
-
-            for (const child of segment.children) {
-                traverse(child);
-            }
-        };
-        traverse(this.root);
-        return cylinders;
-    }
-
-    build_single_geometry (material : THREE.Material) : THREE.Mesh {
+    build_tree_geometry (material : THREE.Material) : THREE.Mesh {
        const buffer_geometry = Mesh.build_tree_geometry(this, this.root);
        const mesh = new THREE.Mesh(buffer_geometry, material);
        return mesh;
     } 
+    
+    build_leaves (material : THREE.Material) : THREE.InstancedMesh {
+        return Mesh.build_leaves_mesh(this, material);
+    }
 
     randFloat (min : number, max : number) : number {
         //mullberry32
@@ -82,6 +66,8 @@ class Stem {
     length : number = 0;
     radius : number = 0;
     children : number = 0;
+    leaves_in_this_stem : number = 0;
+    per_segment_leaves : number = 0;
     last_spawned_child_Y_rotation_angle : number = 0;
     last_spawned_child_offset : number = 0;
     per_segment_length : number = 0;
@@ -90,6 +76,7 @@ class Stem {
 export class Segment {
     children : Segment[] = [];
     parent : Segment | null = null;
+    leaves : THREE.Matrix4[] = [];
     segment_number : number = 0;
     length_along_this_stem : number = 0; // used for calculating offset_child of this segment
     stem : Stem = new Stem();
@@ -183,8 +170,38 @@ export class Segment {
         if (parent) parent.children.push(next_segment);
         // console.log("new segment:", next_segment);
 
+        next_segment.generate_leaves(tree);
+
         this.generate_stem_Segments(tree, next_segment);
         return next_segment;
+    }
+    
+    compute_child_rotation( tree: pennTree, parent: Segment, child_level: number, offset_child: number): THREE.Quaternion {
+        const levelParams = tree.params.LevelParam[child_level];
+        const { DownAngle, DownAngleV, Rotate, RotateV } = levelParams;
+
+        const down_angle = Math.PI * (DownAngleV >= 0
+            ? DownAngle + tree.randFloat(-1, 1) * DownAngleV
+            : DownAngle + tree.randFloat(-1, 1) * (DownAngleV * (1 - 2 * ShapeRatio(0, (parent.stem.length - offset_child) / parent.stem.length)))
+        ) / 180;
+
+        const rotation = new THREE.Quaternion();
+        const a_rotation = new THREE.Quaternion();
+
+        if (Rotate > 0) {
+            const Y_rotation_angle = parent.stem.last_spawned_child_Y_rotation_angle
+                + Math.PI * (Rotate + tree.randFloat(-1, 1) * RotateV) / 180;
+
+            parent.stem.last_spawned_child_Y_rotation_angle = Y_rotation_angle;
+
+            a_rotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Y_rotation_angle);
+            rotation.multiply(a_rotation).normalize();
+        }
+
+        a_rotation.setFromAxisAngle(new THREE.Vector3(0, 0, 1), down_angle);
+        rotation.multiply(a_rotation).normalize();
+
+        return rotation;
     }
 
     generate_child (tree : pennTree, parent : Segment, offset : number) {
@@ -238,56 +255,31 @@ export class Segment {
         } else {
             child.stem.children =  tree.params.LevelParam[child.stem.level+1].Branches * (1.0 - 0.5 * offset_child/parent.stem.length) 
         }
+        // calculate leaf count
+        if (tree.params.Leaves != 0) {
+            if (child.stem.level == tree.params.Levels - 1) {
+                child.stem.leaves_in_this_stem = tree.params.Leaves * (ShapeRatio(4, offset_child/parent.stem.length) * quality );
+                child.stem.per_segment_leaves = child.stem.leaves_in_this_stem / tree.params.LevelParam[child.stem.level].CurveRes;
+            }
+        } 
+        
+        // ==== child segment ======
         // calculate radius
         const normalized_along_stem = child.length_along_this_stem/child.stem.length;
         child.radius = child.stem.radius * (1 - normalized_along_stem); // taper as a cone
         
 
         // child branch rotation
-        const DownAngle = tree.params.LevelParam[child.stem.level].DownAngle;
-        const DownAngleV = tree.params.LevelParam[child.stem.level].DownAngleV;
-        var a_rotation = new THREE.Quaternion();
-        var Y_rotation_angle = 0;
-        var down_angle = 0;
-        if (DownAngleV >= 0) {
-            down_angle = Math.PI*(DownAngle + tree.randFloat(-1,1)*DownAngleV)/180;
-        } else {
-            // if down angle v is negative special case
-            down_angle = Math.PI*(DownAngle + tree.randFloat(-1, 1)*( DownAngleV*( 1-2*ShapeRatio( 0, (parent.stem.length-offset_child)/(parent.stem.length) ) ) ) )/180
-        }
-            
-        if (true) { // set Y rotation according to most recent spawned child
-            const Rotate = tree.params.LevelParam[child.stem.level].Rotate;
-            const RotateV = tree.params.LevelParam[child.stem.level].RotateV;
-            if (tree.params.LevelParam[child.stem.level].Rotate > 0) { // helical distribution
-                Y_rotation_angle = parent.stem.last_spawned_child_Y_rotation_angle; // rotate by previous child
-                // then a bit more
-                Y_rotation_angle += Math.PI*(Rotate + tree.randFloat(-1,1)*RotateV)/180;
-                a_rotation.setFromAxisAngle(
-                    new THREE.Vector3(0, 1, 0), // local Y axis
-                    Y_rotation_angle,  // bend angle
-                );
-                // apply Y rotation to child rotation
-                child.rotation.multiply(a_rotation).normalize();
-            } else { // todo
-
-            }
-        }
-        // then rotate down
-        a_rotation.setFromAxisAngle(
-            new THREE.Vector3(0, 0, 1), // local Z axis
-            down_angle,  // bend angle
-        );
-        child.rotation.multiply(a_rotation).normalize();
+        child.rotation.multiply(this.compute_child_rotation(tree, parent, child.stem.level, offset_child)).normalize();
     
         // dislocate child branch from inside parent experimental
-        const parent_radial = new THREE.Vector3(1,0,0).applyQuaternion(parent.rotation).applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(parent.rotation), Y_rotation_angle);
+        const parent_radial = new THREE.Vector3(1,0,0).applyQuaternion(parent.rotation).applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(parent.rotation), parent.stem.last_spawned_child_Y_rotation_angle);
         child.position.add(parent_radial.multiplyScalar(child.stem.radius-parent_radius));
 
         child.generate_children(tree);
+        child.generate_leaves(tree);
 
         parent.children.push(child);
-        parent.stem.last_spawned_child_Y_rotation_angle = Y_rotation_angle;
         // console.log("new child", child);
         this.generate_stem_Segments(tree, child);
     }
@@ -321,13 +313,30 @@ export class Segment {
                 children_count = total_stem_children / tree.params.LevelParam[this.stem.level].CurveRes
                 offset_delta = this.stem.length/total_stem_children
             }
-            var children_whole = Math.floor(children_count);
-            //const children_fractional = children_count - children_whole;
-            //if (tree.randFloat(0, 1) <= children_fractional) {children_whole+=1}// spawn child with probability of fractional part
+            var children_whole = Math.floor(children_count) + (tree.randFloat(0, 1) <= children_count-Math.floor(children_count) ? 1:0);
             for (let i = 0; i < children_whole; i++) {
                 this.generate_child(tree, this, offset);
                 offset += offset_delta
             }
+        }
+    }
+
+    generate_leaves (tree : pennTree) {
+        if (this.stem.leaves_in_this_stem == 0) return;
+        const offset_delta = this.stem.per_segment_length/this.stem.per_segment_leaves;
+        let offset = 0;
+        const along_stem_vec = new THREE.Vector3(0,1,0).applyQuaternion(this.rotation);
+        const leaf_position = this.position.clone();
+        const leaf_count = Math.floor(this.stem.per_segment_leaves) + ( ( tree.randFloat(0, 1) <= (this.stem.per_segment_leaves-Math.floor(this.stem.per_segment_leaves)) ) ? 1 : 0 );
+        for (let i = 0; i < leaf_count; i+=1) {
+            const leaf_orientation = this.rotation.clone().multiply(this.compute_child_rotation(tree, this, this.stem.level+1, offset));
+            const leaf_length = tree.params.LeafScale;
+            const leaf_width = leaf_length*tree.params.LeafScaleX;
+            const mat4 = new THREE.Matrix4().compose(leaf_position, leaf_orientation, new THREE.Vector3(leaf_length,leaf_width,1)); 
+            this.leaves.push(mat4);
+            tree.leaf_count += 1;
+            leaf_position.addScaledVector(along_stem_vec, offset_delta);
+            offset += offset_delta;
         }
     }
 }

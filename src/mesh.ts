@@ -20,6 +20,26 @@ export function build_tree_geometry (tree : T.pennTree, root_segment : T.Segment
     return buffer_geometry
 }
 
+export function build_leaves_mesh (tree : T.pennTree, material : THREE.Material) : THREE.InstancedMesh {
+    const geometry = new THREE.PlaneGeometry(1.0, 1.0);
+    const count = tree.leaf_count;
+    const mesh = new THREE.InstancedMesh(geometry, material, count);
+    let index = 0;
+    get_segment_leaves(tree.root, mesh, index);
+    return mesh;
+}
+
+function get_segment_leaves (segment : T.Segment, mesh : THREE.InstancedMesh, index : number) : number {
+    for (const leaf of segment.leaves) {
+        mesh.setMatrixAt(index, leaf);
+        index+=1;
+    }
+    for (const child of segment.children) {
+        index = get_segment_leaves(child, mesh, index);
+    }
+    return index;
+}
+
 function build_segment_geometry (tree : T.pennTree, segment : T.Segment, geometry : Geometry) {
     const resolution = tree.params.MeshQuality[segment.stem.level];
     // check if segment is the first in the branch

@@ -32,9 +32,14 @@ var tree = new T.pennTree(tree_params, seed.Seed);
 var tree_lines : THREE.Line[] = [];
 
 const basic_mesh_mat : THREE.Material = new THREE.MeshStandardMaterial({color:0x8B4513});
-//var tree_mesh = tree.build_mesh(basic_mesh_mat);
-var tree_mesh = tree.build_single_geometry(basic_mesh_mat);
+var tree_mesh = tree.build_tree_geometry(basic_mesh_mat);
 scene.add(tree_mesh);
+
+const basic_leaf_mat = new THREE.MeshStandardMaterial({color:0x00ff00, side : THREE.DoubleSide});
+var tree_leaves = tree.build_leaves(basic_leaf_mat);
+scene.add(tree_leaves);
+
+
 //for (let i = 0; i < tree_mesh.length; i++) {
 //    scene.add(tree_mesh[i]);
 //}
@@ -68,7 +73,7 @@ const skyFill = new THREE.DirectionalLight(0x8ab4d4, 0.3);
 skyFill.position.set(-20, 40, -10);
 scene.add(skyFill);
 
-scene.fog = new THREE.Fog(0x4a6741, 30, 120);
+// scene.fog = new THREE.Fog(0x4a6741, 30, 120);
 
 // GUI
 const gui = new GUI();
@@ -100,6 +105,8 @@ tree_controls.add(tree_params, 'ScaleV0', 0, 5);
 tree_controls.add(tree_params, 'BaseSplits0', 0, 10, 1);
 
 tree_controls.add(tree_params, 'AttractionUp', -5, 5);
+
+tree_controls.add(tree_params, 'Leaves', 0, 100);
 
 const trunk_controls = tree_controls.addFolder('Trunk');
 
@@ -141,14 +148,20 @@ tree_controls.onChange(
         //    const line = tree_lines[level]
         //    scene.remove(line);
         //}
-        console.log("gem id", tree_mesh.geometry.id)
+        //tree_points = tree.get_points();
+        
+        tree = new T.pennTree(tree_params, seed.Seed);
+        
         scene.remove(tree_mesh);
         tree_mesh.geometry.dispose()
-        console.log("gem id", tree_mesh.geometry.id)
-        tree = new T.pennTree(tree_params, seed.Seed);
-        //tree_points = tree.get_points();
-        tree_mesh = tree.build_single_geometry(basic_mesh_mat)
-        console.log("ngem id", tree_mesh.geometry.id)
+        tree_mesh = tree.build_tree_geometry(basic_mesh_mat)
+        scene.add(tree_mesh)
+        
+        scene.remove(tree_leaves);
+        tree_leaves.geometry.dispose();
+        tree_leaves = tree.build_leaves(basic_leaf_mat);
+        scene.add(tree_leaves);
+        
         //tree_lines = [];
         //for (let level = 0; level < 4; level++) {
         //    const line_material = new THREE.LineBasicMaterial(level_colors[level]);
@@ -157,7 +170,7 @@ tree_controls.onChange(
         //    tree_lines.push(tree_line);
         //    scene.add(tree_line);
         //}
-        scene.add(tree_mesh)
+        
     }
 );
 
@@ -167,5 +180,6 @@ function animate() {
         line.rotation.y += 0.01;
     }
     tree_mesh.rotation.y += 0.01;
+    tree_leaves.rotation.y += 0.01;
 }
 renderer.setAnimationLoop( animate );
