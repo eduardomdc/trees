@@ -120,7 +120,7 @@ export class Segment {
             // curve the new segment's coordinate frame a little
             if (curve_back == 0) {
                 const bendQ = new THREE.Quaternion().setFromAxisAngle(
-                    new THREE.Vector3(0, 0, 1), // local Z axis
+                    new THREE.Vector3(1, 0, 0), // local Z axis
                     Math.PI*(-curve/curve_res)/180,  // bend angle
                 );
                 next_segment.rotation.multiply(bendQ);
@@ -132,7 +132,7 @@ export class Segment {
             // in either case, a random rotation of magnitude (nCurveV/nCurveRes ) is also added for each segment
             const curve_v = tree.params.LevelParam[next_segment.stem.level].CurveV;
             const randrot = new THREE.Quaternion().setFromAxisAngle(
-                new THREE.Vector3(0, 0, 1),
+                new THREE.Vector3(1, 0, 0),
                 tree.randFloat(-1,1)*Math.PI*(curve_v/curve_res)/180, 
             );
             next_segment.rotation.multiply(randrot).normalize();
@@ -198,7 +198,7 @@ export class Segment {
             rotation.multiply(a_rotation).normalize();
         }
 
-        a_rotation.setFromAxisAngle(new THREE.Vector3(0, 0, 1), down_angle);
+        a_rotation.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -down_angle);
         rotation.multiply(a_rotation).normalize();
 
         return rotation;
@@ -326,16 +326,20 @@ export class Segment {
         const offset_delta = this.stem.per_segment_length/this.stem.per_segment_leaves;
         let offset = 0;
         const along_stem_vec = new THREE.Vector3(0,1,0).applyQuaternion(this.rotation);
-        const leaf_position = this.position.clone();
         const leaf_count = Math.floor(this.stem.per_segment_leaves) + ( ( tree.randFloat(0, 1) <= (this.stem.per_segment_leaves-Math.floor(this.stem.per_segment_leaves)) ) ? 1 : 0 );
         for (let i = 0; i < leaf_count; i+=1) {
-            const leaf_orientation = this.rotation.clone().multiply(this.compute_child_rotation(tree, this, this.stem.level+1, offset));
             const leaf_length = tree.params.LeafScale;
             const leaf_width = leaf_length*tree.params.LeafScaleX;
+
+            const leaf_position = this.position.clone().addScaledVector(along_stem_vec, offset);
+            const parent_radial = new THREE.Vector3(1,0,0).applyQuaternion(this.rotation).applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(this.rotation), this.stem.last_spawned_child_Y_rotation_angle);
+            leaf_position.add(parent_radial.multiplyScalar(leaf_width/2));
+            
+            const leaf_orientation = this.rotation.clone().multiply(this.compute_child_rotation(tree, this, this.stem.level+1, offset+this.length_along_this_stem));
+            
             const mat4 = new THREE.Matrix4().compose(leaf_position, leaf_orientation, new THREE.Vector3(leaf_length,leaf_width,1)); 
             this.leaves.push(mat4);
             tree.leaf_count += 1;
-            leaf_position.addScaledVector(along_stem_vec, offset_delta);
             offset += offset_delta;
         }
     }

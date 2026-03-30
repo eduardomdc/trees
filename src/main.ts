@@ -107,6 +107,8 @@ tree_controls.add(tree_params, 'BaseSplits0', 0, 10, 1);
 tree_controls.add(tree_params, 'AttractionUp', -5, 5);
 
 tree_controls.add(tree_params, 'Leaves', 0, 100);
+tree_controls.add(tree_params, 'LeafScale', 0, 1);
+tree_controls.add(tree_params, 'LeafScaleX', 0, 6); 
 
 const trunk_controls = tree_controls.addFolder('Trunk');
 
