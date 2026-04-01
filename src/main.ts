@@ -1,21 +1,20 @@
 import * as THREE from 'three';
 import * as T from './penn.ts'
 import {QuakingAspen} from './garden.ts';
+import {createOrbitalCamera} from './camera.ts';
 // import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import GUI from 'lil-gui'; 
 
-const canvas = document.querySelector('#render-canvas');
+export const canvas = document.querySelector('#render-canvas') as HTMLCanvasElement;
 if (!canvas) {
     throw new Error("Failed to get render canvas");
 }
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
 const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 renderer.setSize( window.innerWidth, window.innerHeight );
 
-camera.position.z = 11;
-camera.position.y = 8;
+const { camera, updateCamera, dispose } = createOrbitalCamera(canvas, {initialRadius: 15, sensitivity: 0.008, target: new THREE.Vector3(0,10,0),});
 
 const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
 scene.add( directionalLight );
@@ -23,35 +22,22 @@ const light = new THREE.AmbientLight( 0xaaaaff); // soft white light
 scene.add( light );
 //scene.background = new THREE.Color(0x9090ff);
 
+const loader = new THREE.TextureLoader();
 // tree
 var seed = {Seed : 0};
 var tree_params = QuakingAspen;
 var tree = new T.pennTree(tree_params, seed.Seed);
-//var tree_points = tree.get_points();
-//const level_colors : THREE.LineBasicMaterialParameters[] = [{color: 0xffffff}, {color: 0x00ff00}, {color: 0x0000ff}, {color: 0xff0000}];
-var tree_lines : THREE.Line[] = [];
 
-const basic_mesh_mat : THREE.Material = new THREE.MeshStandardMaterial({color:0x8B4513});
+const bark_tex = loader.load(import.meta.env.BASE_URL+'/assets/bark.jpg');
+const basic_mesh_mat : THREE.Material = new THREE.MeshStandardMaterial({map: bark_tex});
 var tree_mesh = tree.build_tree_geometry(basic_mesh_mat);
 scene.add(tree_mesh);
 
-const basic_leaf_mat = new THREE.MeshStandardMaterial({color:0x00ff00, side : THREE.DoubleSide});
+// leaves
+const leaf_tex = loader.load(import.meta.env.BASE_URL+'/assets/leaf.png');
+const basic_leaf_mat = new THREE.MeshPhongMaterial({side : THREE.DoubleSide, map: leaf_tex, transparent: true, alphaTest:0.75});
 var tree_leaves = tree.build_leaves(basic_leaf_mat);
 scene.add(tree_leaves);
-
-
-//for (let i = 0; i < tree_mesh.length; i++) {
-//    scene.add(tree_mesh[i]);
-//}
-
-//    for (let level = 0; level < 4; level++) {
-//        const line_material = new THREE.LineBasicMaterial(level_colors[level]);
-//        const tree_line_geom = new THREE.BufferGeometry().setFromPoints(tree_points[level]);
-//        const tree_line = new THREE.LineSegments(tree_line_geom, line_material);
-//        tree_lines.push(tree_line);
-//        scene.add(tree_line);
-//    }
-
 
 const ambient = new THREE.AmbientLight(0x2a4a3a, 0.4);
 scene.add(ambient);
@@ -177,11 +163,7 @@ tree_controls.onChange(
 );
 
 function animate() {
+    updateCamera();
     renderer.render( scene, camera );
-    for (const line of tree_lines) {
-        line.rotation.y += 0.01;
-    }
-    tree_mesh.rotation.y += 0.01;
-    tree_leaves.rotation.y += 0.01;
 }
 renderer.setAnimationLoop( animate );
