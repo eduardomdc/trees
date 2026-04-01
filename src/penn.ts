@@ -44,11 +44,16 @@ export class pennTree {
     build_tree_geometry (material : THREE.Material) : THREE.Mesh {
        const buffer_geometry = Mesh.build_tree_geometry(this, this.root);
        const mesh = new THREE.Mesh(buffer_geometry, material);
+       mesh.castShadow = true;
+       mesh.receiveShadow = true;
        return mesh;
     } 
     
     build_leaves (material : THREE.Material) : THREE.InstancedMesh {
-        return Mesh.build_leaves_mesh(this, material);
+        const mesh = Mesh.build_leaves_mesh(this, material);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        return mesh;
     }
 
     randFloat (min : number, max : number) : number {

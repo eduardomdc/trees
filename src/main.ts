@@ -13,53 +13,49 @@ const scene = new THREE.Scene();
 
 const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.shadowMap.enabled = true;
 
-const { camera, updateCamera, dispose } = createOrbitalCamera(canvas, {initialRadius: 15, sensitivity: 0.008, target: new THREE.Vector3(0,10,0),});
+const { camera, updateCamera} = createOrbitalCamera(canvas, {initialRadius: 15, sensitivity: 0.008, target: new THREE.Vector3(0,10,0),});
 
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 2 );
+directionalLight.castShadow = true;
+directionalLight.position.set(5, 12, 0);
+directionalLight.shadow.camera.near = 0.1;
+directionalLight.shadow.camera.far = 100;
+directionalLight.shadow.camera.left = -10;
+directionalLight.shadow.camera.right = 10;
+directionalLight.shadow.camera.top = 10;
+directionalLight.shadow.camera.bottom = -10;
 scene.add( directionalLight );
-const light = new THREE.AmbientLight( 0xaaaaff); // soft white light
+const light = new THREE.AmbientLight( 0xaaaaff, 1); // soft white light
 scene.add( light );
 //scene.background = new THREE.Color(0x9090ff);
 
 const loader = new THREE.TextureLoader();
+const bark_tex = loader.load(import.meta.env.BASE_URL+'/assets/bark.jpg');
+const leaf_tex = loader.load(import.meta.env.BASE_URL+'/assets/leaf.png');
+const ground_tex = loader.load(import.meta.env.BASE_URL+'/assets/ground.jpg');
+ground_tex.wrapS = THREE.RepeatWrapping;
+ground_tex.wrapT = THREE.RepeatWrapping;
+ground_tex.repeat.set(50,50);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(1000,1000), new THREE.MeshStandardMaterial({map:ground_tex}) );
+ground.rotateX(-Math.PI/2);
+ground.receiveShadow = true;
+scene.add(ground);
+
 // tree
 var seed = {Seed : 0};
 var tree_params = QuakingAspen;
 var tree = new T.pennTree(tree_params, seed.Seed);
 
-const bark_tex = loader.load(import.meta.env.BASE_URL+'/assets/bark.jpg');
 const basic_mesh_mat : THREE.Material = new THREE.MeshStandardMaterial({map: bark_tex});
 var tree_mesh = tree.build_tree_geometry(basic_mesh_mat);
 scene.add(tree_mesh);
 
 // leaves
-const leaf_tex = loader.load(import.meta.env.BASE_URL+'/assets/leaf.png');
-const basic_leaf_mat = new THREE.MeshPhongMaterial({side : THREE.DoubleSide, map: leaf_tex, transparent: true, alphaTest:0.75});
+const basic_leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: leaf_tex, transparent: true, alphaTest:0.75});
 var tree_leaves = tree.build_leaves(basic_leaf_mat);
 scene.add(tree_leaves);
-
-const ambient = new THREE.AmbientLight(0x2a4a3a, 0.4);
-scene.add(ambient);
-
-const sun = new THREE.DirectionalLight(0xfff4cc, 1.2);
-sun.position.set(30, 60, 20);
-sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
-sun.shadow.camera.near = 0.5;
-sun.shadow.camera.far = 200;
-sun.shadow.camera.left = -50;
-sun.shadow.camera.right = 50;
-sun.shadow.camera.top = 50;
-sun.shadow.camera.bottom = -50;
-sun.shadow.bias = -0.001;
-scene.add(sun);
-
-const skyFill = new THREE.DirectionalLight(0x8ab4d4, 0.3);
-skyFill.position.set(-20, 40, -10);
-scene.add(skyFill);
-
-// scene.fog = new THREE.Fog(0x4a6741, 30, 120);
 
 // GUI
 const gui = new GUI();
