@@ -33,7 +33,7 @@ scene.add( light );
 
 const loader = new THREE.TextureLoader();
 const bark_tex = loader.load(import.meta.env.BASE_URL+'/assets/bark.jpg');
-const leaf_tex = loader.load(import.meta.env.BASE_URL+'/assets/leaf.png');
+const leaf_tex = loader.load(import.meta.env.BASE_URL+'/assets/greenleaf.png');
 const ground_tex = loader.load(import.meta.env.BASE_URL+'/assets/ground.jpg');
 ground_tex.wrapS = THREE.RepeatWrapping;
 ground_tex.wrapT = THREE.RepeatWrapping;
@@ -128,11 +128,6 @@ tree_params.LevelParam.forEach((level, i) => {
 
 tree_controls.onChange(
     _ => {
-        //for (let level = 0; level < 4; level++) {
-        //    const line = tree_lines[level]
-        //    scene.remove(line);
-        //}
-        //tree_points = tree.get_points();
         
         tree = new T.pennTree(tree_params, seed.Seed);
         
@@ -145,16 +140,6 @@ tree_controls.onChange(
         tree_leaves.geometry.dispose();
         tree_leaves = tree.build_leaves(basic_leaf_mat);
         scene.add(tree_leaves);
-        
-        //tree_lines = [];
-        //for (let level = 0; level < 4; level++) {
-        //    const line_material = new THREE.LineBasicMaterial(level_colors[level]);
-        //    const tree_line_geom = new THREE.BufferGeometry().setFromPoints(tree_points[level]);
-        //    const tree_line = new THREE.LineSegments(tree_line_geom, line_material);
-        //    tree_lines.push(tree_line);
-        //    scene.add(tree_line);
-        //}
-        
     }
 );
 
