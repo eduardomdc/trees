@@ -23,7 +23,7 @@ export function createOrbitalCamera(
   const {
     initialRadius = 5,
     minRadius = 1.5,
-    maxRadius = 20,
+    maxRadius = 100,
     sensitivity = 0.01,
     zoomSpeed = 0.01,
     target = new THREE.Vector3(0, 0, 0),

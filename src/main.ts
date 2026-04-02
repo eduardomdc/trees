@@ -53,7 +53,7 @@ var tree_mesh = tree.build_tree_geometry(basic_mesh_mat);
 scene.add(tree_mesh);
 
 // leaves
-const basic_leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: leaf_tex, transparent: true, alphaTest:0.75});
+const basic_leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: leaf_tex, transparent: true, alphaTest:0.5});
 var tree_leaves = tree.build_leaves(basic_leaf_mat);
 scene.add(tree_leaves);
 

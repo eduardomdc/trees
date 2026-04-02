@@ -7,6 +7,34 @@ type Geometry = {
     index : Array<number>;
 };
 
+const leafGeometry = new THREE.BufferGeometry();
+const vertices = new Float32Array([
+  -0.5, 0.0, 0,  //  bottom left
+   0.5, 0.0, 0,  //  bottom right
+   0.5, 1.0, 0,  //  top right
+  -0.5, 1.0, 0,  //  top left
+]);
+const indices = [
+  0, 1, 2,
+  0, 2, 3,
+];
+const uvs = new Float32Array([
+  0, 0,
+  1, 0,
+  1, 1,
+  0, 1,
+]);
+const normals = new Float32Array([
+  0, 0, 1,  // bottom left  - front face
+  0, 0, 1,  // bottom right - front face
+  0, 0, 1,  // top right    - front face
+  0, 0, 1,  // top left     - front face
+]);
+leafGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+leafGeometry.setAttribute('uv',       new THREE.BufferAttribute(uvs, 2));
+leafGeometry.setAttribute('normal',   new THREE.BufferAttribute(normals, 3));
+leafGeometry.setIndex(indices);
+
 export function build_tree_geometry (tree : T.pennTree, root_segment : T.Segment) : THREE.BufferGeometry {
     const my_geometry : Geometry = {vertex : [], normal : [], index : []};
     build_segment_geometry(tree, root_segment, my_geometry);
@@ -21,9 +49,8 @@ export function build_tree_geometry (tree : T.pennTree, root_segment : T.Segment
 }
 
 export function build_leaves_mesh (tree : T.pennTree, material : THREE.Material) : THREE.InstancedMesh {
-    const geometry = new THREE.PlaneGeometry(1.0, 1.0);
     const count = tree.leaf_count;
-    const mesh = new THREE.InstancedMesh(geometry, material, count);
+    const mesh = new THREE.InstancedMesh(leafGeometry, material, count);
     let index = 0;
     get_segment_leaves(tree.root, mesh, index);
     return mesh;

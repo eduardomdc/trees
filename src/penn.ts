@@ -8,6 +8,8 @@ export class pennTree {
     root : Segment;
     leaf_count : number = 0;
 
+    stem_split_error: number[] = [0,0,0,0];
+
     params : TreeParams;
     processed_params : ProcessedTreeParams; // parameters in a more useful format for segment-based generation
 
@@ -111,14 +113,9 @@ export class Segment {
         
         const curve_res = tree.params.LevelParam[next_segment.stem.level].CurveRes;
         if (next_segment.segment_number >= curve_res) {// stem end
-            /* // experimental - continue segment as child segment
-            if (next_segment.stem.level < tree.params.Levels-1){
-            }
-            else return next_segment;*/
             return next_segment;
         }
 
-        
         if (parent){
             const curve = tree.params.LevelParam[next_segment.stem.level].Curve;
             const curve_back = tree.params.LevelParam[next_segment.stem.level].CurveBack;
@@ -145,12 +142,6 @@ export class Segment {
             // add the vertical attraction (phototropism) to the orientation
             // only for level > 1 stems
             if (next_segment.stem.level > 1) {
-                /* penn & web's
-                const declination = Math.acos(new THREE.Vector3(0,1,0).applyQuaternion(next_segment.rotation).y)
-                const orientation = Math.acos(new THREE.Vector3(1,0,0).applyQuaternion(next_segment.rotation).y)
-                const curve_up = tree.params.AttractionUp * declination * Math.cos(orientation)/tree.params.LevelParam[next_segment.stem.level].CurveRes
-                next_segment.rotation.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1), -curve_up))
-                */
                 const delta = Math.abs(tree.params.AttractionUp)/tree.params.LevelParam[next_segment.stem.level].CurveRes
                 if (tree.params.AttractionUp > 0) { // TCC
                     next_segment.rotation.rotateTowards(new THREE.Quaternion(), delta)
@@ -173,11 +164,11 @@ export class Segment {
         next_segment.generate_children(tree);
 
         if (parent) parent.children.push(next_segment);
-        // console.log("new segment:", next_segment);
 
         next_segment.generate_leaves(tree);
 
         this.generate_stem_Segments(tree, next_segment);
+
         return next_segment;
     }
     
@@ -280,14 +271,18 @@ export class Segment {
         child.rotation.multiply(this.compute_child_rotation(tree, parent, child.stem.level, offset_child)).normalize();
     
         // dislocate child branch from inside parent experimental
-        const parent_radial = new THREE.Vector3(1,0,0).applyQuaternion(parent.rotation).applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(parent.rotation), parent.stem.last_spawned_child_Y_rotation_angle);
-        child.position.add(parent_radial.multiplyScalar(child.stem.radius-parent_radius));
+        //const parent_radial = new THREE.Vector3(0,0,1).applyQuaternion(parent.rotation).applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(parent.rotation), parent.stem.last_spawned_child_Y_rotation_angle);
+        //const parent_radial = new THREE.Vector3(0,1,0);
+        const out_of_stem = new THREE.Vector3(0,0,1).applyQuaternion(parent.rotation);
+        out_of_stem.applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(parent.rotation), this.stem.last_spawned_child_Y_rotation_angle);
+        //parent_radial.applyQuaternion(parent.rotation)
+        
+        child.position.addScaledVector(out_of_stem, (child.stem.radius-parent_radius));
 
         child.generate_children(tree);
         child.generate_leaves(tree);
 
         parent.children.push(child);
-        // console.log("new child", child);
         this.generate_stem_Segments(tree, child);
     }
 
@@ -332,21 +327,20 @@ export class Segment {
         let offset = 0;
         const along_stem_vec = new THREE.Vector3(0,1,0).applyQuaternion(this.rotation);
         const leaf_count = Math.floor(this.stem.per_segment_leaves) + ( ( tree.randFloat(0, 1) <= (this.stem.per_segment_leaves-Math.floor(this.stem.per_segment_leaves)) ) ? 1 : 0 );
-        const correction = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), Math.PI)
         for (let i = 0; i < leaf_count; i+=1) {
             const leaf_length = tree.params.LeafScale;
             const leaf_width = leaf_length*tree.params.LeafScaleX;
 
-            const leaf_position = this.position.clone().addScaledVector(along_stem_vec, offset);
-            const branch_radius = this.stem.radius*(1 - (offset+this.length_along_this_stem/this.stem.length))
-            const parent_radial = new THREE.Vector3(1,0,0).applyQuaternion(this.rotation).applyAxisAngle(along_stem_vec, this.stem.last_spawned_child_Y_rotation_angle);
-            leaf_position.addScaledVector(parent_radial, branch_radius);
-            
-            const leaf_orientation = this.rotation.clone().multiply(correction).multiply(this.compute_child_rotation(tree, this, this.stem.level+1, offset+this.length_along_this_stem));
+            const leaf_orientation = this.rotation.clone().multiply(this.compute_child_rotation(tree, this, this.stem.level+1, offset+this.length_along_this_stem));
 
-            leaf_position.addScaledVector(new THREE.Vector3(0,1,0).applyQuaternion(leaf_orientation), -leaf_width/2);
+            const leaf_position = this.position.clone().addScaledVector(along_stem_vec, offset);
+            const out_of_stem = new THREE.Vector3(0,0,1).applyQuaternion(this.rotation);
+            out_of_stem.applyAxisAngle(along_stem_vec, this.stem.last_spawned_child_Y_rotation_angle);
+            const branch_radius = this.stem.radius*(1 - (offset+this.length_along_this_stem)/this.stem.length)
+            leaf_position.addScaledVector(out_of_stem, -branch_radius);
             
-            const mat4 = new THREE.Matrix4().compose(leaf_position, leaf_orientation, new THREE.Vector3(leaf_length,leaf_width,1)); 
+
+            const mat4 = new THREE.Matrix4().compose(leaf_position, leaf_orientation, new THREE.Vector3(leaf_width,leaf_length,1)); 
             this.leaves.push(mat4);
             tree.leaf_count += 1;
             offset += offset_delta;
