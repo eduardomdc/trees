@@ -67,31 +67,6 @@ function build_segment_geometry (tree : T.pennTree, segment : T.Segment, geometr
     }
 }
 
-// builds cyllinder mesh from a to b
-// returns vertex offsets of each base tip segment
-/*
-function cylinder_geometry (geometry : Geometry, position_base : THREE.Vector3, orientation_base : THREE.Quaternion, radius_base : number, position_tip : THREE.Vector3, orientation_tip : THREE.Quaternion, radius_tip : number, radial_sections : number) : Array<number> {
-    const base_vert_offset = geometry.vertex.length/3;
-    const tip_vert_offset = base_vert_offset+radial_sections;
-    const base_points = circle_points(position_base, orientation_base, radius_base, radial_sections)
-    const tip_points = circle_points(position_tip, orientation_tip, radius_tip, radial_sections)
-    geometry.vertex.push(...base_points);
-    geometry.vertex.push(...tip_points);
-    for (let i = 0; i < radial_sections; i += 1) {
-        const idx = i;
-        const idx_n = (i+1) % radial_sections;
-        // base to tip triangle
-        geometry.index.push(idx + base_vert_offset);
-        geometry.index.push(idx_n + base_vert_offset);
-        geometry.index.push(idx + tip_vert_offset);
-        // tip to base triangle
-        geometry.index.push(idx_n + base_vert_offset);
-        geometry.index.push(idx_n + tip_vert_offset);
-        geometry.index.push(idx + tip_vert_offset);
-    }
-    return [base_vert_offset, tip_vert_offset];
-}
-*/
 // builds cyllinder mesh from connecting existing circle vertices to new circle vertices
 // returns idx vertex offset of new circle
 function connect_cylinder_geometry (geometry : Geometry, position_tip : THREE.Vector3, orientation_tip : THREE.Quaternion, radius_tip : number, radial_sections : number, base_vert_offset : number) : number {

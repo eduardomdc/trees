@@ -325,7 +325,6 @@ export class Segment {
             }
         }
     }
-
     generate_leaves (tree : pennTree) {
         if (this.stem.leaves_in_this_stem == 0) return;
         const offset_delta = this.stem.per_segment_length/this.stem.per_segment_leaves;
@@ -337,10 +336,13 @@ export class Segment {
             const leaf_width = leaf_length*tree.params.LeafScaleX;
 
             const leaf_position = this.position.clone().addScaledVector(along_stem_vec, offset);
-            const parent_radial = new THREE.Vector3(1,0,0).applyQuaternion(this.rotation).applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(this.rotation), this.stem.last_spawned_child_Y_rotation_angle);
-            leaf_position.add(parent_radial.multiplyScalar(leaf_width/2));
+            const branch_radius = this.stem.radius*(1 - (offset+this.length_along_this_stem/this.stem.length))
+            const parent_radial = new THREE.Vector3(1,0,0).applyQuaternion(this.rotation).applyAxisAngle(along_stem_vec, this.stem.last_spawned_child_Y_rotation_angle);
+            leaf_position.addScaledVector(parent_radial, branch_radius);
             
             const leaf_orientation = this.rotation.clone().multiply(this.compute_child_rotation(tree, this, this.stem.level+1, offset+this.length_along_this_stem));
+
+            leaf_position.addScaledVector(new THREE.Vector3(0,1,0).applyQuaternion(leaf_orientation), -leaf_length/2);
             
             const mat4 = new THREE.Matrix4().compose(leaf_position, leaf_orientation, new THREE.Vector3(leaf_length,leaf_width,1)); 
             this.leaves.push(mat4);
