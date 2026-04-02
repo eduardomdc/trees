@@ -182,6 +182,7 @@ export class Segment {
     }
     
     compute_child_rotation( tree: pennTree, parent: Segment, child_level: number, offset_child: number): THREE.Quaternion {
+        child_level = Math.min(child_level, tree.params.Levels-1);
         const levelParams = tree.params.LevelParam[child_level];
         const { DownAngle, DownAngleV, Rotate, RotateV } = levelParams;
 
@@ -258,7 +259,8 @@ export class Segment {
             console.log(child.stem.length, parent.stem.length,(child.stem.length/parent.stem.length)/length_child_max)
             child.stem.children = tree.params.LevelParam[child.stem.level+1].Branches * (0.2 + 0.8 * (child.stem.length/parent.stem.length)/length_child_max) 
         } else {
-            child.stem.children =  tree.params.LevelParam[child.stem.level+1].Branches * (1.0 - 0.5 * offset_child/parent.stem.length) 
+            const next_level = Math.min(child.stem.level+1, tree.params.Levels-1);
+            child.stem.children =  tree.params.LevelParam[next_level].Branches * (1.0 - 0.5 * offset_child/parent.stem.length) 
         }
         // calculate leaf count
         if (tree.params.Leaves != 0) {
@@ -290,39 +292,38 @@ export class Segment {
     }
 
     generate_children (tree : pennTree) {
-        if (this.stem.level < tree.params.Levels) {
-            let total_stem_children;
-            if (this.stem.level == 0) {
-                total_stem_children = tree.params.LevelParam[1].Branches
-            } else {
-                total_stem_children = this.stem.children
-            }
-            let offset = 0, children_count = 0, offset_delta = 0;
+        if (this.stem.level >= tree.params.Levels-1) {return}
+        let total_stem_children;
+        if (this.stem.level == 0) {
+            total_stem_children = tree.params.LevelParam[1].Branches
+        } else {
+            total_stem_children = this.stem.children
+        }
+        let offset = 0, children_count = 0, offset_delta = 0;
+        
+        if (this.stem.level == 0) {
+            const len_base = tree.processed_params.length_base;
+            const child_bearing_length = this.stem.length - len_base;
             
-            if (this.stem.level == 0) {
-                const len_base = tree.processed_params.length_base;
-                const child_bearing_length = this.stem.length - len_base;
-                
-                offset_delta = child_bearing_length/total_stem_children
-                const diff = this.length_along_this_stem+this.stem.per_segment_length-len_base;
-                if (diff > 0) { // there's a part that is not bare trunk
-                    //const fraction_out_of_bare_trunk = diff/this.stem.per_segment_length;
-                    offset = Math.max(0, len_base-this.length_along_this_stem)
-                    const children_per_unit_len = total_stem_children/child_bearing_length;
-                    const children_bearing_len = this.stem.per_segment_length-offset
-                    children_count = children_per_unit_len * children_bearing_len;
-                } else { // it's all bare trunk, no children for this segment
-                    return;
-                }
-            } else {
-                children_count = total_stem_children / tree.params.LevelParam[this.stem.level].CurveRes
-                offset_delta = this.stem.length/total_stem_children
+            offset_delta = child_bearing_length/total_stem_children
+            const diff = this.length_along_this_stem+this.stem.per_segment_length-len_base;
+            if (diff > 0) { // there's a part that is not bare trunk
+                //const fraction_out_of_bare_trunk = diff/this.stem.per_segment_length;
+                offset = Math.max(0, len_base-this.length_along_this_stem)
+                const children_per_unit_len = total_stem_children/child_bearing_length;
+                const children_bearing_len = this.stem.per_segment_length-offset
+                children_count = children_per_unit_len * children_bearing_len;
+            } else { // it's all bare trunk, no children for this segment
+                return;
             }
-            var children_whole = Math.floor(children_count) + (tree.randFloat(0, 1) <= children_count-Math.floor(children_count) ? 1:0);
-            for (let i = 0; i < children_whole; i++) {
-                this.generate_child(tree, this, offset);
-                offset += offset_delta
-            }
+        } else {
+            children_count = total_stem_children / tree.params.LevelParam[this.stem.level].CurveRes
+            offset_delta = this.stem.length/total_stem_children
+        }
+        var children_whole = Math.floor(children_count) + (tree.randFloat(0, 1) <= children_count-Math.floor(children_count) ? 1:0);
+        for (let i = 0; i < children_whole; i++) {
+            this.generate_child(tree, this, offset);
+            offset += offset_delta
         }
     }
     generate_leaves (tree : pennTree) {
@@ -331,6 +332,7 @@ export class Segment {
         let offset = 0;
         const along_stem_vec = new THREE.Vector3(0,1,0).applyQuaternion(this.rotation);
         const leaf_count = Math.floor(this.stem.per_segment_leaves) + ( ( tree.randFloat(0, 1) <= (this.stem.per_segment_leaves-Math.floor(this.stem.per_segment_leaves)) ) ? 1 : 0 );
+        const correction = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), Math.PI)
         for (let i = 0; i < leaf_count; i+=1) {
             const leaf_length = tree.params.LeafScale;
             const leaf_width = leaf_length*tree.params.LeafScaleX;
@@ -340,9 +342,9 @@ export class Segment {
             const parent_radial = new THREE.Vector3(1,0,0).applyQuaternion(this.rotation).applyAxisAngle(along_stem_vec, this.stem.last_spawned_child_Y_rotation_angle);
             leaf_position.addScaledVector(parent_radial, branch_radius);
             
-            const leaf_orientation = this.rotation.clone().multiply(this.compute_child_rotation(tree, this, this.stem.level+1, offset+this.length_along_this_stem));
+            const leaf_orientation = this.rotation.clone().multiply(correction).multiply(this.compute_child_rotation(tree, this, this.stem.level+1, offset+this.length_along_this_stem));
 
-            leaf_position.addScaledVector(new THREE.Vector3(0,1,0).applyQuaternion(leaf_orientation), -leaf_length/2);
+            leaf_position.addScaledVector(new THREE.Vector3(0,1,0).applyQuaternion(leaf_orientation), -leaf_width/2);
             
             const mat4 = new THREE.Matrix4().compose(leaf_position, leaf_orientation, new THREE.Vector3(leaf_length,leaf_width,1)); 
             this.leaves.push(mat4);
