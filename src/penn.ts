@@ -173,9 +173,15 @@ export class Segment {
     }
     
     compute_child_rotation( tree: pennTree, parent: Segment, child_level: number, offset_child: number): THREE.Quaternion {
-        child_level = Math.min(child_level, tree.params.Levels-1);
-        const levelParams = tree.params.LevelParam[child_level];
-        const { DownAngle, DownAngleV, Rotate, RotateV } = levelParams;
+        const isLeaf = tree.params.Levels === child_level;
+        const src = isLeaf
+            ? tree.params.LeavesParam
+            : tree.params.LevelParam[child_level];
+
+        let DownAngle = src.DownAngle;
+        let DownAngleV = src.DownAngleV;
+        let Rotate = src.Rotate;
+        let RotateV = src.RotateV;
 
         const down_angle = Math.PI * (DownAngleV >= 0
             ? DownAngle + tree.randFloat(-1, 1) * DownAngleV
@@ -247,18 +253,15 @@ export class Segment {
 
         // calculate expected number of children branches from this new stem
         if (child.stem.level == 1) {
-            console.log(child.stem.length, parent.stem.length,(child.stem.length/parent.stem.length)/length_child_max)
             child.stem.children = tree.params.LevelParam[child.stem.level+1].Branches * (0.2 + 0.8 * (child.stem.length/parent.stem.length)/length_child_max) 
         } else {
             const next_level = Math.min(child.stem.level+1, tree.params.Levels-1);
             child.stem.children =  tree.params.LevelParam[next_level].Branches * (1.0 - 0.5 * offset_child/parent.stem.length) 
         }
         // calculate leaf count
-        if (tree.params.Leaves != 0) {
-            if (child.stem.level == tree.params.Levels - 1) {
-                child.stem.leaves_in_this_stem = tree.params.Leaves * (ShapeRatio(4, offset_child/parent.stem.length) * quality );
-                child.stem.per_segment_leaves = child.stem.leaves_in_this_stem / tree.params.LevelParam[child.stem.level].CurveRes;
-            }
+        if (child.stem.level == tree.params.Levels - 1 && tree.params.LeavesParam.Amount != 0) {
+            child.stem.leaves_in_this_stem = tree.params.LeavesParam.Amount * (ShapeRatio(4, offset_child/parent.stem.length) * quality );
+            child.stem.per_segment_leaves = child.stem.leaves_in_this_stem / tree.params.LevelParam[child.stem.level].CurveRes;
         } 
         
         // ==== child segment ======
@@ -270,12 +273,8 @@ export class Segment {
         // child branch rotation
         child.rotation.multiply(this.compute_child_rotation(tree, parent, child.stem.level, offset_child)).normalize();
     
-        // dislocate child branch from inside parent experimental
-        //const parent_radial = new THREE.Vector3(0,0,1).applyQuaternion(parent.rotation).applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(parent.rotation), parent.stem.last_spawned_child_Y_rotation_angle);
-        //const parent_radial = new THREE.Vector3(0,1,0);
         const out_of_stem = new THREE.Vector3(0,0,1).applyQuaternion(parent.rotation);
         out_of_stem.applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(parent.rotation), this.stem.last_spawned_child_Y_rotation_angle);
-        //parent_radial.applyQuaternion(parent.rotation)
         
         child.position.addScaledVector(out_of_stem, (child.stem.radius-parent_radius));
 
@@ -328,8 +327,8 @@ export class Segment {
         const along_stem_vec = new THREE.Vector3(0,1,0).applyQuaternion(this.rotation);
         const leaf_count = Math.floor(this.stem.per_segment_leaves) + ( ( tree.randFloat(0, 1) <= (this.stem.per_segment_leaves-Math.floor(this.stem.per_segment_leaves)) ) ? 1 : 0 );
         for (let i = 0; i < leaf_count; i+=1) {
-            const leaf_length = tree.params.LeafScale;
-            const leaf_width = leaf_length*tree.params.LeafScaleX;
+            const leaf_length = tree.params.LeavesParam.LeafScale;
+            const leaf_width = leaf_length*tree.params.LeavesParam.LeafScaleX;
 
             const leaf_orientation = this.rotation.clone().multiply(this.compute_child_rotation(tree, this, this.stem.level+1, offset+this.length_along_this_stem));
 
@@ -339,7 +338,6 @@ export class Segment {
             const branch_radius = this.stem.radius*(1 - (offset+this.length_along_this_stem)/this.stem.length)
             leaf_position.addScaledVector(out_of_stem, -branch_radius);
             
-
             const mat4 = new THREE.Matrix4().compose(leaf_position, leaf_orientation, new THREE.Vector3(leaf_width,leaf_length,1)); 
             this.leaves.push(mat4);
             tree.leaf_count += 1;
@@ -364,10 +362,7 @@ export type TreeParams = {
     MeshQuality : number[], // dictates resolution of circular cross-sections of stems
 
     LevelParam : LevelParam[], // array of level-specific parameters indexed by level
-
-    Leaves : number, // number of leaves per parent
-    LeafShape : number, // shape id
-    LeafScale : number,LeafScaleX : number, //leaf length, relative x scale
+    LeavesParam : LeavesParam,
     AttractionUp : number, //upward growth tendency
     PruneRation: number, //fractional effect of pruning
     PruneWidth : number,PruneWidthPeak: number, // width, position of envelope peak
@@ -380,22 +375,13 @@ class ProcessedTreeParams {
     length_base : number; //(BaseSize*scale tree ) 
     scale_tree : number; // (Scale±ScaleV)
     per_segment_length_trunk : number;
-    level_param : ProcessedLevelParam[];
 
     constructor(t: pennTree){
         this.scale_tree = (t.params.Scale + t.randFloat(0,1)*t.params.ScaleV);
         this.length_trunk = (t.params.LevelParam[0].Length)*this.scale_tree;
         this.per_segment_length_trunk = this.length_trunk/t.params.LevelParam[0].CurveRes,
         this.length_base = (t.params.BaseSize*t.params.Scale);
-        this.level_param = [];
-        const plp : ProcessedLevelParam = {
-            
-        }
-        this.level_param[0] = plp;
     }
-}
-
-type ProcessedLevelParam = {
 }
 
 export type LevelParam = {
@@ -405,6 +391,12 @@ export type LevelParam = {
     Length : number, LengthV:number, Taper:number // relative length of children to parent, cross-section scaling
     CurveRes:number,Curve:number,CurveBack:number,CurveV:number, // curvature resolution and angles
     SegSplits:number,SplitAngle:number,SplitAngleV:number, // dichotomous branching parameters
+}
+export type LeavesParam = {
+    DownAngle : number, DownAngleV : number, // angle from parent
+    Rotate : number, RotateV : number,  // spiraling angle
+    Amount : number, // # of branches
+    LeafScale : number, LeafScaleX : number,
 }
 
 enum ShapeID {

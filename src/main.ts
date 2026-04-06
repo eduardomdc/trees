@@ -59,10 +59,6 @@ scene.add(tree_leaves);
 
 // GUI
 const gui = new GUI();
-const camera_controls = gui.addFolder('Camera');
-camera_controls.add( camera.position, 'z', 0, 40);
-camera_controls.add( camera.position, 'y', 0, 40);
-camera_controls.add( camera.position, 'x', -20, 20);
 
 const tree_controls = gui.addFolder('Tree');
 
@@ -88,10 +84,6 @@ tree_controls.add(tree_params, 'BaseSplits0', 0, 10, 1);
 
 tree_controls.add(tree_params, 'AttractionUp', -5, 5);
 
-tree_controls.add(tree_params, 'Leaves', 0, 100);
-tree_controls.add(tree_params, 'LeafScale', 0, 1);
-tree_controls.add(tree_params, 'LeafScaleX', 0, 6); 
-
 const trunk_controls = tree_controls.addFolder('Trunk');
 
 trunk_controls.add(tree_params, 'Scale0', 0, 5);
@@ -102,6 +94,7 @@ const levels_folder = tree_controls.addFolder('Levels');
 
 tree_params.LevelParam.forEach((level, i) => {
   const f = levels_folder.addFolder(`Level ${i}`);
+  f.close();
 
   f.add(level, 'DownAngle', -180, 180);
   f.add(level, 'DownAngleV', -180, 180);
@@ -125,10 +118,18 @@ tree_params.LevelParam.forEach((level, i) => {
   f.add(level, 'CurveV', 0, 180);
 });
 
+const leaves_folder = tree_controls.addFolder('Leaves');
+const leaves_param = tree_params.LeavesParam;
+leaves_folder.add(leaves_param, 'Amount', 0, 100);
+leaves_folder.add(leaves_param, 'DownAngle', -180, 180);
+leaves_folder.add(leaves_param, 'DownAngleV', -180, 180);
+leaves_folder.add(leaves_param, 'Rotate', 0, 360);
+leaves_folder.add(leaves_param, 'RotateV', 0, 360);
+leaves_folder.add(leaves_param, 'LeafScale', 0, 2);
+leaves_folder.add(leaves_param, 'LeafScaleX', 0, 2);
 
 tree_controls.onChange(
     _ => {
-        
         tree = new T.pennTree(tree_params, seed.Seed);
         
         scene.remove(tree_mesh);

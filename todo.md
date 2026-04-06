@@ -1,0 +1,14 @@
+- weird behaviour on down angle v param
+- trunk uvs
+- segment splitting
+- base size for all recursive levels
+- leaf phototropic orientations
+- tree quality slider
+- per-level seed rng
+- save/load parameters
+- export tree mesh
+- upload textures for trunk/leaves/roots
+- root generation
+- vine generation
+- orchid-like plants generation
+- fruits and flowers
