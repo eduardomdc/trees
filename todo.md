@@ -12,3 +12,5 @@
 - vine generation
 - orchid-like plants generation
 - fruits and flowers
+- palm tree parameters
+- parameter tool tips

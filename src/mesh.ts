@@ -131,16 +131,19 @@ function connect_circle_to_point_geometry (geometry : Geometry, position_tip : T
     }
 }
 
-function circle_points_normals (position : THREE.Vector3, orientation : THREE.Quaternion, radius : number, sections : number) : [Array<number>,Array<number>] {
+function circle_points_normals (position : THREE.Vector3, orientation : THREE.Quaternion, radius : number, sections : number) : [Array<number>,Array<number>,Array<number>] {
     const angle = 2*Math.PI/sections;
     const points = new Array<number>
     const normals = new Array<number>
-    const radial = new THREE.Vector3(1, 0, 0).applyQuaternion(orientation)// radial vector from base along segment length (local X)
+    const uvs = new Array<number>
+    const radial = new THREE.Vector3(1, 0, 0).applyQuaternion(orientation); // radial vector from base along segment length (local X)
+    let rotated_radial = radial.clone();
+    const y_vec = new THREE.Vector3(0,1,0).applyQuaternion(orientation);
     for (let i = 0; i < sections; i += 1) {
-        const rotated_radial = radial.clone().applyAxisAngle(new THREE.Vector3(0,1,0).applyQuaternion(orientation), i*angle);
+        rotated_radial.applyAxisAngle(y_vec, angle);
         const vertex = rotated_radial.clone().multiplyScalar(radius).add(position)
         points.push(...vertex)
         normals.push(...rotated_radial)
     }
-    return [points,normals]
+    return [points,normals, uvs]
 }
