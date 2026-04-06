@@ -4,6 +4,7 @@ import * as T from './penn.ts'
 type Geometry = {
     vertex : Array<number>;
     normal : Array<number>;
+    uv     : Array<number>;
     index : Array<number>;
 };
 
@@ -36,15 +37,22 @@ leafGeometry.setAttribute('normal',   new THREE.BufferAttribute(normals, 3));
 leafGeometry.setIndex(indices);
 
 export function build_tree_geometry (tree : T.pennTree, root_segment : T.Segment) : THREE.BufferGeometry {
-    const my_geometry : Geometry = {vertex : [], normal : [], index : []};
+    const my_geometry : Geometry = {vertex : [], normal : [], uv : [], index : []};
     build_segment_geometry(tree, root_segment, my_geometry);
     console.log("Built tree geometry!", my_geometry.vertex.length/3, " Vertices")
     const buffer_geometry = new THREE.BufferGeometry();
+    
     const vertex_buffer = new Float32Array(my_geometry.vertex);
     buffer_geometry.setAttribute('position', new THREE.BufferAttribute(vertex_buffer, 3));
+    
     const normal_buffer = new Float32Array(my_geometry.normal);
     buffer_geometry.setAttribute('normal', new THREE.BufferAttribute(normal_buffer, 3)); 
+    
+    const uv_buffer = new Float32Array(my_geometry.uv);
+    buffer_geometry.setAttribute('uv', new THREE.BufferAttribute(uv_buffer, 2));
+    
     buffer_geometry.setIndex(my_geometry.index);
+
     return buffer_geometry
 }
 
@@ -76,10 +84,11 @@ function build_segment_geometry (tree : T.pennTree, segment : T.Segment, geometr
         const points_normals = circle_points_normals(segment.position, segment.rotation, segment.radius, resolution)
         geometry.vertex.push(...points_normals[0])
         geometry.normal.push(...points_normals[1])
+        geometry.uv.push(...points_normals[2])
         segment.vertex_idx = base_vert_offset
     } else {
         if (segment.parent != null) {
-            segment.vertex_idx = connect_cylinder_geometry(geometry, segment.position, segment.rotation, segment.radius, resolution, segment.parent.vertex_idx)
+            segment.vertex_idx = connect_cylinder_geometry(geometry, segment.position, segment.rotation, segment.radius, resolution, segment.parent.vertex_idx, segment.segment_number%2)
         }
     }
     
@@ -94,56 +103,89 @@ function build_segment_geometry (tree : T.pennTree, segment : T.Segment, geometr
     }
 }
 
-// builds cyllinder mesh from connecting existing circle vertices to new circle vertices
+// builds cylinder mesh from connecting existing circle vertices to new circle vertices
 // returns idx vertex offset of new circle
-function connect_cylinder_geometry (geometry : Geometry, position_tip : THREE.Vector3, orientation_tip : THREE.Quaternion, radius_tip : number, radial_sections : number, base_vert_offset : number) : number {
-    const tip_vert_offset = geometry.vertex.length/3;
-    const tip_points_normals = circle_points_normals(position_tip, orientation_tip, radius_tip, radial_sections)
-    geometry.vertex.push(...tip_points_normals[0]);
-    geometry.normal.push(...tip_points_normals[1]);
-    for (let i = 0; i < radial_sections; i += 1) {
-        const idx = i;
-        const idx_n = (i+1) % radial_sections;
-        // base to tip triangle
-        geometry.index.push(idx + base_vert_offset);
-        geometry.index.push(idx_n + base_vert_offset);
-        geometry.index.push(idx + tip_vert_offset);
-        // tip to base triangle
-        geometry.index.push(idx_n + base_vert_offset);
-        geometry.index.push(idx_n + tip_vert_offset);
-        geometry.index.push(idx + tip_vert_offset);
+function connect_cylinder_geometry(
+    geometry: Geometry,
+    position_tip: THREE.Vector3,
+    orientation_tip: THREE.Quaternion,
+    radius_tip: number,
+    radial_sections: number,
+    base_vert_offset: number,
+    v_tip: number     // vertical UV for the new ring
+): number {
+    const tip_vert_offset = geometry.vertex.length / 3;
+    const [tip_points, tip_normals, tip_uvs] = circle_points_normals(position_tip, orientation_tip, radius_tip, radial_sections, v_tip);
+    geometry.vertex.push(...tip_points);
+    geometry.normal.push(...tip_normals);
+    geometry.uv.push(...tip_uvs);
+
+    // radial_sections quads; the extra (sections+1)-th vertex closes the seam cleanly
+    for (let i = 0; i < radial_sections; i++) {
+        const b0 = i     + base_vert_offset;  // base current
+        const b1 = i + 1 + base_vert_offset;  // base next  (the extra vertex, not wrapped)
+        const t0 = i     + tip_vert_offset;   // tip  current
+        const t1 = i + 1 + tip_vert_offset;   // tip  next
+
+        // base-to-tip triangle
+        geometry.index.push(b0, b1, t0);
+        // tip-to-base triangle
+        geometry.index.push(b1, t1, t0);
     }
     return tip_vert_offset;
 }
 
 // pushes a single vertex to be the tip of a cone
-function connect_circle_to_point_geometry (geometry : Geometry, position_tip : THREE.Vector3, normal_tip : THREE.Vector3, vert_count : number, vert_offset : number) {
-    const tip_offset = geometry.vertex.length/3;
-    geometry.vertex.push(...position_tip);
-    geometry.normal.push(...normal_tip);
-    for (let i = 0; i < vert_count; i += 1) {
-        const idx = i;
-        const idx_n = (i+1) % vert_count;
-        // base to tip triangle
-        geometry.index.push(idx + vert_offset);
-        geometry.index.push(idx_n + vert_offset);
-        geometry.index.push(tip_offset);
+function connect_circle_to_point_geometry(
+    geometry: Geometry,
+    position_tip: THREE.Vector3,
+    normal_tip: THREE.Vector3,
+    vert_count: number,
+    vert_offset: number,
+    v_tip: number = 1.0   // vertical UV for the cone apex
+) {
+    const tip_offset = geometry.vertex.length / 3;
+    geometry.vertex.push(position_tip.x, position_tip.y, position_tip.z);
+    geometry.normal.push(normal_tip.x, normal_tip.y, normal_tip.z);
+    geometry.uv.push(0.5, v_tip);  // apex sits at U=0.5
+
+    for (let i = 0; i < vert_count; i++) {
+        const b0 = i     + vert_offset;
+        const b1 = i + 1 + vert_offset;  // extra vertex, no wrap needed
+
+        geometry.index.push(b0, b1, tip_offset);
     }
 }
 
-function circle_points_normals (position : THREE.Vector3, orientation : THREE.Quaternion, radius : number, sections : number) : [Array<number>,Array<number>,Array<number>] {
-    const angle = 2*Math.PI/sections;
-    const points = new Array<number>
-    const normals = new Array<number>
-    const uvs = new Array<number>
-    const radial = new THREE.Vector3(1, 0, 0).applyQuaternion(orientation); // radial vector from base along segment length (local X)
+// Returns [positions, normals, uvs] for a ring of (sections+1) vertices.
+// The extra vertex duplicates index 0 in position/normal but carries U=1,
+// giving a clean UV seam without a visible geometric crack.
+function circle_points_normals(
+    position: THREE.Vector3,
+    orientation: THREE.Quaternion,
+    radius: number,
+    sections: number,
+    v: number = 0.0   // vertical UV coordinate for this ring
+): [number[], number[], number[]] {
+    const angle = (2 * Math.PI) / sections;
+    const points:  number[] = [];
+    const normals: number[] = [];
+    const uvs:     number[] = [];
+
+    const radial  = new THREE.Vector3(1, 0, 0).applyQuaternion(orientation);
+    const y_vec   = new THREE.Vector3(0, 1, 0).applyQuaternion(orientation);
     let rotated_radial = radial.clone();
-    const y_vec = new THREE.Vector3(0,1,0).applyQuaternion(orientation);
-    for (let i = 0; i < sections; i += 1) {
+
+    for (let i = 0; i <= sections; i++) {   // <= gives the extra closing vertex
         rotated_radial.applyAxisAngle(y_vec, angle);
-        const vertex = rotated_radial.clone().multiplyScalar(radius).add(position)
-        points.push(...vertex)
-        normals.push(...rotated_radial)
+
+        const vertex = rotated_radial.clone().multiplyScalar(radius).add(position);
+        points.push(vertex.x, vertex.y, vertex.z);
+        normals.push(rotated_radial.x, rotated_radial.y, rotated_radial.z);
+
+        const u = i / sections;             // 0 → 1 inclusive
+        uvs.push(u, v);
     }
-    return [points,normals, uvs]
+
+    return [points, normals, uvs];
 }
