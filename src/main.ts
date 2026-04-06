@@ -70,7 +70,7 @@ tree_controls.add(tree_params, 'ScaleV', 0, 20);
 tree_controls.add(tree_params, 'ZScale', 0, 5);
 tree_controls.add(tree_params, 'ZScaleV', 0, 5);
 
-tree_controls.add(tree_params, 'Levels', 0, 4, 1);
+tree_controls.add(tree_params, 'Levels', 1, 4, 1);
 
 tree_controls.add(tree_params, 'Ratio', 0, 0.1);
 tree_controls.add(tree_params, 'RatioPower', 0, 5);

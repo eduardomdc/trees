@@ -1,5 +1,4 @@
 - weird behaviour on down angle v param
-- trunk uvs
 - segment splitting
 - base size for all recursive levels
 - leaf phototropic orientations
