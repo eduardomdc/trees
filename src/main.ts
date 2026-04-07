@@ -96,8 +96,8 @@ tree_params.LevelParam.forEach((level, i) => {
   const f = levels_folder.addFolder(`Level ${i}`);
   f.close();
 
-  f.add(level, 'DownAngle', -180, 180);
-  f.add(level, 'DownAngleV', -180, 180);
+  f.add(level, 'DownAngle', 0, 180);
+  f.add(level, 'DownAngleV', -90, 90);
   f.add(level, 'Rotate', 0, 360);
   f.add(level, 'RotateV', 0, 360);
 
@@ -121,8 +121,8 @@ tree_params.LevelParam.forEach((level, i) => {
 const leaves_folder = tree_controls.addFolder('Leaves');
 const leaves_param = tree_params.LeavesParam;
 leaves_folder.add(leaves_param, 'Amount', 0, 100);
-leaves_folder.add(leaves_param, 'DownAngle', -180, 180);
-leaves_folder.add(leaves_param, 'DownAngleV', -180, 180);
+leaves_folder.add(leaves_param, 'DownAngle', 0, 180);
+leaves_folder.add(leaves_param, 'DownAngleV', -90, 90);
 leaves_folder.add(leaves_param, 'Rotate', 0, 360);
 leaves_folder.add(leaves_param, 'RotateV', 0, 360);
 leaves_folder.add(leaves_param, 'LeafScale', 0, 2);

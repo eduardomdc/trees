@@ -1,5 +1,7 @@
-- weird behaviour on down angle v param
+- weird behaviour on down angle v param ( looks correct according to paper..)
+- curve back param
 - segment splitting
+- taper control
 - base size for all recursive levels
 - leaf phototropic orientations
 - tree quality slider
