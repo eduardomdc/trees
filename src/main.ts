@@ -111,6 +111,7 @@ tree_params.LevelParam.forEach((level, i) => {
   f.add(level, 'SegSplits', 0, 10, 1);
   f.add(level, 'SplitAngle', 0, 180);
   f.add(level, 'SplitAngleV', 0, 180);
+  f.add(level, 'SplitRotationV', 0, 360);
 
   f.add(level, 'CurveRes', 1, 10, 1);
   f.add(level, 'Curve', -180, 180);

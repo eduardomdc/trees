@@ -147,25 +147,7 @@ export class Segment {
 
         const next_params = tree.params.LevelParam[next_segment.stem.level]  
         if (parent){
-            // rotate away from z if it has split
-            if (seg_splits != 0) {
-                
-                // split apart from other clones as well
-                //let split_apart_angle = (20 + 0.75 * (10) * randFloat(0, 1)**2)*Math.PI/180;
-                let split_apart_angle = ( 360.0/(seg_splits+1) * split_number )*Math.PI/180;
-                //if (tree.randFloat(-1,1) < 0) {split_apart_angle *= -1}
-                const apart_quart = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), split_apart_angle);
-                next_segment.rotation.multiply(apart_quart)
-                
-                // rotate away from parent's Y axis
-                let split_out_angle = (next_params.SplitAngle + tree.randFloat(-1, 1)*next_params.SplitAngleV)*Math.PI/180;
-                //if (tree.randFloat(-1,1) < 0) {split_out_angle *= -1}
-                const split_out_quart = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), split_out_angle);
-                next_segment.rotation.multiply(split_out_quart)
-                
-                // reduce number of children this stem can create
-                next_segment.stem.children = next_segment.stem.children/(seg_splits+1);
-            }
+            
             const curve = tree.params.LevelParam[next_segment.stem.level].Curve;
             const curve_back = tree.params.LevelParam[next_segment.stem.level].CurveBack;
             // curve the new segment's coordinate frame a little
@@ -188,6 +170,31 @@ export class Segment {
             );
             next_segment.rotation.multiply(randrot).normalize();
 
+            // rotate away from z if it has split
+            if (seg_splits != 0) {
+                // split apart from other clones as well
+                //let split_apart_angle = (20 + 0.75 * (10) * randFloat(0, 1)**2)*Math.PI/180;
+                let split_apart_angle = 0;
+                if (split_number == 0) {
+                    split_apart_angle = ( 360.0/(seg_splits+1) * split_number)*Math.PI/180;
+                } else {
+                    split_apart_angle = ( 360.0/(seg_splits+1) * split_number + tree.randFloat(-1, 1)*next_params.SplitRotationV )*Math.PI/180;
+                }
+                //if (tree.randFloat(-1,1) < 0) {split_apart_angle *= -1}
+                const apart_quart = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), split_apart_angle);
+                next_segment.rotation.multiply(apart_quart)
+                
+                // rotate away from parent's Y axis
+                let split_out_angle = (next_params.SplitAngle + tree.randFloat(-1, 1)*next_params.SplitAngleV)*Math.PI/180;
+                //if (tree.randFloat(-1,1) < 0) {split_out_angle *= -1}
+                const split_out_quart = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), split_out_angle);
+                next_segment.rotation.multiply(split_out_quart)
+                
+                
+                // reduce number of children this stem can create
+                next_segment.stem.children = next_segment.stem.children/(seg_splits+1);
+            }
+
             // add the vertical attraction (phototropism) to the orientation
             // only for level > 1 stems
             if (next_segment.stem.level > 1) {
@@ -198,6 +205,8 @@ export class Segment {
                     next_segment.rotation.rotateTowards(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), Math.PI), delta)
                 }
             }
+
+
 
             const growth = new THREE.Vector3(0,next_segment.stem.per_segment_length, 0)// grows in the y axis
             // grow in the direction of the parent's Y axis
@@ -453,7 +462,7 @@ export type LevelParam = {
     Branches : number, // # of branches
     Length : number, LengthV:number, Taper:number // relative length of children to parent, cross-section scaling
     CurveRes:number,Curve:number,CurveBack:number,CurveV:number, // curvature resolution and angles
-    SegSplits:number,SplitAngle:number,SplitAngleV:number, // dichotomous branching parameters
+    SegSplits:number,SplitAngle:number,SplitAngleV:number, SplitRotationV:number// dichotomous branching parameters
 }
 export type LeavesParam = {
     DownAngle : number, DownAngleV : number, // angle from parent
