@@ -114,6 +114,10 @@ export class Segment {
         const level_param = tree.params.LevelParam[level]
         if (level_param.SegSplits > 0) {
             const splits :Segment[] = [];
+            const splits_chance = level_param.SplitsAmount/level_param.CurveRes;
+            if (splits_chance < tree.randFloat(0, 1)) { // replace for error diffusion
+                return [this.generate_a_segment(tree, parent)]// no split occured
+            }
             for (let i :number = 0; i < level_param.SegSplits+1; i += 1) {
                splits.push(this.generate_a_segment(tree, parent, level_param.SegSplits, i)) 
             }
@@ -462,7 +466,7 @@ export type LevelParam = {
     Branches : number, // # of branches
     Length : number, LengthV:number, Taper:number // relative length of children to parent, cross-section scaling
     CurveRes:number,Curve:number,CurveBack:number,CurveV:number, // curvature resolution and angles
-    SegSplits:number,SplitAngle:number,SplitAngleV:number, SplitRotationV:number// dichotomous branching parameters
+    SplitsAmount:number, SegSplits:number,SplitAngle:number,SplitAngleV:number, SplitRotationV:number// dichotomous branching parameters
 }
 export type LeavesParam = {
     DownAngle : number, DownAngleV : number, // angle from parent
