@@ -93,7 +93,6 @@ function build_segment_geometry (tree : T.pennTree, segment : T.Segment, geometr
     }
     
     if (segment.segment_number == tree.params.LevelParam[segment.stem.level].CurveRes-1 ) {
-        console.log('make ti')
         const tip = new THREE.Vector3(0, segment.stem.per_segment_length, 0).applyQuaternion(segment.rotation).add(segment.position);
         connect_circle_to_point_geometry(geometry, tip, new THREE.Vector3(0, 1, 0).applyQuaternion(segment.rotation), resolution, segment.vertex_idx)
     }
