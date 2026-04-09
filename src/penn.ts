@@ -437,7 +437,6 @@ export type TreeParams = {
     Scale : number,ScaleV : number,ZScale : number,ZScaleV : number,//size and scaling of tree
     Levels : number, // levels of recursion
     Ratio : number, RatioPower : number, //radius/length ratio, reduction
-    Lobes : number, LobeDepth : number // sinusoidal cross-section variation
     Flare : number, //exponential expansion at base of tree
     // trunk (level 0) only params
     Scale0 : number, ScaleV0 :number, //extra trunk scaling

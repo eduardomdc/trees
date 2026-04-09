@@ -63,7 +63,16 @@ const gui = new GUI();
 const tree_controls = gui.addFolder('Tree');
 
 tree_controls.add(seed, 'Seed', 0, 1000);
-tree_controls.add(tree_params, 'Shape', 0, 10, 1);
+tree_controls.add(tree_params, 'Shape', {
+    Conical : 0,
+    Spherical : 1,
+    Hemispherical : 2,
+    Cylindrical : 3,
+    TaperedCylindrical : 4,
+    Flame : 5,
+    InverseConical : 6,
+    TendFlame : 7,
+    Envelope : 8,});
 tree_controls.add(tree_params, 'BaseSize', 0, 1);
 tree_controls.add(tree_params, 'Scale', 0, 100);
 tree_controls.add(tree_params, 'ScaleV', 0, 20);
@@ -77,10 +86,6 @@ tree_controls.add(tree_params, 'RatioPower', 0, 5);
 tree_controls.add(tree_params, 'Lobes', 0, 10, 1);
 tree_controls.add(tree_params, 'LobeDepth', 0, 0.5);
 tree_controls.add(tree_params, 'Flare', 0, 2);
-
-tree_controls.add(tree_params, 'Scale0', 0, 5);
-tree_controls.add(tree_params, 'ScaleV0', 0, 5);
-tree_controls.add(tree_params, 'BaseSplits0', 0, 10, 1);
 
 tree_controls.add(tree_params, 'AttractionUp', -5, 5);
 

@@ -1,4 +1,5 @@
 - weird behaviour on down angle v param ( looks correct according to paper..)
+- curve correction after split!
 - curve back param
 - segment splitting error difusion
 - gnarlyness

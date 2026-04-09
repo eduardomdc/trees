@@ -36,7 +36,7 @@ export const QuakingAspen: TreeParams = {
       SplitAngle: 0,
       SplitAngleV: 0,
       SplitRotationV: 10,
-      CurveRes: 3,
+      CurveRes: 20,
       Curve: 0,
       CurveBack: 0,
       CurveV: 20,
