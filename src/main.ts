@@ -83,46 +83,58 @@ tree_controls.add(tree_params, 'Levels', 1, 4, 1);
 
 tree_controls.add(tree_params, 'Ratio', 0, 0.1);
 tree_controls.add(tree_params, 'RatioPower', 0, 5);
-tree_controls.add(tree_params, 'Lobes', 0, 10, 1);
-tree_controls.add(tree_params, 'LobeDepth', 0, 0.5);
 tree_controls.add(tree_params, 'Flare', 0, 2);
 
 tree_controls.add(tree_params, 'AttractionUp', -5, 5);
 
-const trunk_controls = tree_controls.addFolder('Trunk');
+const trunk_controls = tree_controls.addFolder('Trunk Options');
 
 trunk_controls.add(tree_params, 'Scale0', 0, 5);
 trunk_controls.add(tree_params, 'ScaleV0', 0, 5);
-trunk_controls.add(tree_params, 'BaseSplits0', 0, 10, 1);
+trunk_controls.add(tree_params, 'BaseSplits0', 0, 10);
+const trunk_level = tree_params.LevelParam[0];
+trunk_controls.add(trunk_level, 'Length', 0, 2);
+trunk_controls.add(trunk_level, 'LengthV', 0, 2);
+trunk_controls.add(trunk_level, 'Taper', 0, 2);
+trunk_controls.add(trunk_level, 'SplitsAmount', 0, 10);
+trunk_controls.add(trunk_level, 'SegSplits', 0, 10);
+trunk_controls.add(trunk_level, 'SplitAngle', 0, 180);
+trunk_controls.add(trunk_level, 'SplitAngleV', 0, 180);
+trunk_controls.add(trunk_level, 'SplitRotationV', 0, 360);
+trunk_controls.add(trunk_level, 'CurveRes', 1, 30, 1);
+trunk_controls.add(trunk_level, 'Curve', -180, 180);
+trunk_controls.add(trunk_level, 'CurveBack', -180, 180);
+trunk_controls.add(trunk_level, 'CurveV', 0, 180);
 
-const levels_folder = tree_controls.addFolder('Levels');
+const levels_folder = tree_controls.addFolder('Branches');
 
 tree_params.LevelParam.forEach((level, i) => {
-  const f = levels_folder.addFolder(`Level ${i}`);
-  f.close();
+    if (i == 0) {return}
+    const f = levels_folder.addFolder(`Level ${i}`);
+    f.close();
 
-  f.add(level, 'DownAngle', 0, 180);
-  f.add(level, 'DownAngleV', -90, 90);
-  f.add(level, 'Rotate', 0, 360);
-  f.add(level, 'RotateV', 0, 360);
+    f.add(level, 'DownAngle', 0, 180);
+    f.add(level, 'DownAngleV', -90, 90);
+    f.add(level, 'Rotate', 0, 360);
+    f.add(level, 'RotateV', 0, 360);
 
-  f.add(level, 'Branches', 0, 100, 1);
+    f.add(level, 'Branches', 0, 100, 1);
 
-  f.add(level, 'Length', 0, 2);
-  f.add(level, 'LengthV', 0, 2);
+    f.add(level, 'Length', 0, 2);
+    f.add(level, 'LengthV', 0, 2);
 
-  f.add(level, 'Taper', 0, 2);
+    f.add(level, 'Taper', 0, 2);
 
-  f.add(level, 'SplitsAmount', 0, 10);
-  f.add(level, 'SegSplits', 0, 10, 1);
-  f.add(level, 'SplitAngle', 0, 180);
-  f.add(level, 'SplitAngleV', 0, 180);
-  f.add(level, 'SplitRotationV', 0, 360);
+    f.add(level, 'SplitsAmount', 0, 10);
+    f.add(level, 'SegSplits', 0, 10, 1);
+    f.add(level, 'SplitAngle', 0, 180);
+    f.add(level, 'SplitAngleV', 0, 180);
+    f.add(level, 'SplitRotationV', 0, 360);
 
-  f.add(level, 'CurveRes', 1, 30, 1);
-  f.add(level, 'Curve', -180, 180);
-  f.add(level, 'CurveBack', -180, 180);
-  f.add(level, 'CurveV', 0, 180);
+    f.add(level, 'CurveRes', 1, 30, 1);
+    f.add(level, 'Curve', -180, 180);
+    f.add(level, 'CurveBack', -180, 180);
+    f.add(level, 'CurveV', 0, 180);
 });
 
 const leaves_folder = tree_controls.addFolder('Leaves');
