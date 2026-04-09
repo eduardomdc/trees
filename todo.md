@@ -1,6 +1,7 @@
 - weird behaviour on down angle v param ( looks correct according to paper..)
 - curve back param
-- segment splitting frequency based on length
+- segment splitting error difusion
+- gnarlyness
 - taper control
 - base size for all recursive levels
 - leaf phototropic orientations

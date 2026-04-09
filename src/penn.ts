@@ -78,6 +78,7 @@ class Stem {
     last_spawned_child_Y_rotation_angle : number = 0;
     last_spawned_child_offset : number = 0;
     per_segment_length : number = 0;
+    per_segment_split_chance : number = 0;
 
     clone(): Stem {
         const s = new Stem();
@@ -90,6 +91,7 @@ class Stem {
         s.last_spawned_child_Y_rotation_angle = this.last_spawned_child_Y_rotation_angle;
         s.last_spawned_child_offset = this.last_spawned_child_offset;
         s.per_segment_length = this.per_segment_length;
+        s.per_segment_split_chance = this.per_segment_split_chance;
         return s;
     }
 }
@@ -110,12 +112,13 @@ export class Segment {
 
     generate_stem_Segments (tree : pennTree, parent : Segment | null) : Segment[] {
         let level = 0;
-        if (parent) {level = parent.stem.level;}
+        let split_chance = 0;
+        if (parent) {level = parent.stem.level; split_chance = parent.stem.per_segment_split_chance}
+        else {split_chance = tree.params.LevelParam[0].SplitsAmount/tree.params.LevelParam[0].CurveRes}
         const level_param = tree.params.LevelParam[level]
         if (level_param.SegSplits > 0) {
             const splits :Segment[] = [];
-            const splits_chance = level_param.SplitsAmount/level_param.CurveRes;
-            if (splits_chance < tree.randFloat(0, 1)) { // replace for error diffusion
+            if (split_chance < tree.randFloat(0, 1)) { // replace for error diffusion
                 return [this.generate_a_segment(tree, parent)]// no split occured
             }
             for (let i :number = 0; i < level_param.SegSplits+1; i += 1) {
@@ -196,7 +199,10 @@ export class Segment {
                 
                 
                 // reduce number of children this stem can create
-                next_segment.stem.children = next_segment.stem.children/(seg_splits+1);
+                next_segment.stem.children /= seg_splits+1;
+
+                // reduce chance of further splits this stem can have
+                next_segment.stem.per_segment_split_chance /= seg_splits+1
             }
 
             // add the vertical attraction (phototropism) to the orientation
@@ -363,6 +369,9 @@ export class Segment {
                 stem.per_segment_leaves = stem.leaves_in_this_stem / tree.params.LevelParam[stem.level].CurveRes;
             }
         }
+
+        // calculate expected split chance per segment in this stem
+        stem.per_segment_split_chance = tree.params.LevelParam[stem.level].SplitsAmount/tree.params.LevelParam[stem.level].CurveRes;
     }
 
     generate_children (tree : pennTree) {
