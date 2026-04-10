@@ -79,6 +79,7 @@ class Stem {
     last_spawned_child_offset : number = 0;
     per_segment_length : number = 0;
     per_segment_split_chance : number = 0;
+    per_segment_split_angle_correction : number = 0;
 
     clone(): Stem {
         const s = new Stem();
@@ -175,7 +176,14 @@ export class Segment {
                 new THREE.Vector3(1, 0, 0),
                 tree.randFloat(-1,1)*Math.PI*(curve_v/curve_res)/180, 
             );
-            next_segment.rotation.multiply(randrot).normalize();
+            next_segment.rotation.multiply(randrot);
+
+            // correct rotation if there's a split correction to be done
+            if (next_segment.stem.per_segment_split_angle_correction != 0) {
+                const split_correction = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), -next_segment.stem.per_segment_split_angle_correction);
+                next_segment.rotation.multiply(split_correction);
+            }
+
 
             // rotate away from z if it has split
             if (seg_splits != 0) {
@@ -191,18 +199,21 @@ export class Segment {
                 const apart_quart = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), split_apart_angle);
                 next_segment.rotation.multiply(apart_quart)
                 
-                // rotate away from parent's Y axis
                 let split_out_angle = (next_params.SplitAngle + tree.randFloat(-1, 1)*next_params.SplitAngleV)*Math.PI/180;
                 //if (tree.randFloat(-1,1) < 0) {split_out_angle *= -1}
                 const split_out_quart = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), split_out_angle);
                 next_segment.rotation.multiply(split_out_quart)
+
+                // add out angle to split angle correction so the stem gets re-orientated after splitting out
+                const remaining_segments_in_stem = curve_res - next_segment.segment_number
+                next_segment.stem.per_segment_split_angle_correction += (split_out_angle/(remaining_segments_in_stem == 0 ? 1 : remaining_segments_in_stem))
                 
                 
                 // reduce number of children this stem can create
                 next_segment.stem.children /= seg_splits+1;
 
                 // reduce chance of further splits this stem can have
-                next_segment.stem.per_segment_split_chance /= seg_splits+1
+                next_segment.stem.per_segment_split_chance /= (seg_splits+1)**2 // squaring produced better predictable results
             }
 
             // add the vertical attraction (phototropism) to the orientation
