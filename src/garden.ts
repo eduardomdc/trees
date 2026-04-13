@@ -10,8 +10,6 @@ export const QuakingAspen: TreeParams = {
   Levels: 3,
   Ratio: 0.015,
   RatioPower: 1.2,
-  Lobes: 5,
-  LobeDepth: 0.07,
   Flare: 0.6,
   
   MeshQuality : [10,6,3,3],
