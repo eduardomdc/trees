@@ -184,7 +184,6 @@ export class Segment {
                 next_segment.rotation.multiply(split_correction);
             }
 
-
             // rotate away from z if it has split
             if (seg_splits != 0) {
                 // split apart from other clones as well
@@ -215,19 +214,22 @@ export class Segment {
                 // reduce chance of further splits this stem can have
                 next_segment.stem.per_segment_split_chance /= (seg_splits+1)**2 // squaring produced better predictable results
             }
-
-            // add the vertical attraction (phototropism) to the orientation
-            // only for level > 1 stems
+             
+            const forward = new THREE.Vector3(0,1,0).applyQuaternion(next_segment.rotation)
+            const right = new THREE.Vector3(0,0,1).applyQuaternion(next_segment.rotation)
+            const declination = Math.acos(forward.y);
+            const right_orientation = Math.acos(right.y);
             if (next_segment.stem.level > 0) {
                 const delta = Math.abs(tree.params.AttractionUp)/tree.params.LevelParam[next_segment.stem.level].CurveRes
+                const correction_angle = declination * delta * Math.cos(right_orientation)
                 if (tree.params.AttractionUp > 0) { // TCC
-                    next_segment.rotation.rotateTowards(new THREE.Quaternion(), delta)
+                    const Q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), correction_angle)
+                    next_segment.rotation.multiply(Q)
                 } else {
-                    next_segment.rotation.rotateTowards(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), Math.PI), delta)
+                    const Q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), -correction_angle)
+                    next_segment.rotation.multiply(Q)
                 }
             }
-
-
 
             const growth = new THREE.Vector3(0,next_segment.stem.per_segment_length, 0)// grows in the y axis
             // grow in the direction of the parent's Y axis
