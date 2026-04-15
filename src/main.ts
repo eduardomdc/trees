@@ -73,7 +73,6 @@ tree_controls.add(tree_params, 'Shape', {
     InverseConical : 6,
     TendFlame : 7,
     Envelope : 8,});
-tree_controls.add(tree_params, 'BaseSize', 0, 1);
 tree_controls.add(tree_params, 'Scale', 0, 100);
 tree_controls.add(tree_params, 'ScaleV', 0, 20);
 tree_controls.add(tree_params, 'ZScale', 0, 5);
@@ -93,6 +92,7 @@ trunk_controls.add(tree_params, 'Scale0', 0, 5);
 trunk_controls.add(tree_params, 'ScaleV0', 0, 5);
 trunk_controls.add(tree_params, 'BaseSplits0', 0, 10);
 const trunk_level = tree_params.LevelParam[0];
+trunk_controls.add(trunk_level, 'BaseSize', 0, 1);
 trunk_controls.add(trunk_level, 'Length', 0, 2);
 trunk_controls.add(trunk_level, 'LengthV', 0, 2);
 trunk_controls.add(trunk_level, 'Taper', 0, 2);
@@ -113,6 +113,7 @@ tree_params.LevelParam.forEach((level, i) => {
     const f = levels_folder.addFolder(`Level ${i}`);
     f.close();
 
+    f.add(level, 'BaseSize', 0, 1);
     f.add(level, 'DownAngle', 0, 180);
     f.add(level, 'DownAngleV', -90, 90);
     f.add(level, 'Rotate', 0, 360);

@@ -218,7 +218,7 @@ export class Segment {
 
             // add the vertical attraction (phototropism) to the orientation
             // only for level > 1 stems
-            if (next_segment.stem.level > 1) {
+            if (next_segment.stem.level > 0) {
                 const delta = Math.abs(tree.params.AttractionUp)/tree.params.LevelParam[next_segment.stem.level].CurveRes
                 if (tree.params.AttractionUp > 0) { // TCC
                     next_segment.rotation.rotateTowards(new THREE.Quaternion(), delta)
@@ -302,16 +302,15 @@ export class Segment {
         const position_across = offset;//parent.stem.per_segment_length*tree.randFloat(bottom_position_cap,1);
         offset_child = position_across + parent.length_along_this_stem;
         child.position.add(new THREE.Vector3(0,position_across, 0).applyQuaternion(parent.rotation));
-        
-        if (parent.stem.level == 0) { // if they're first branches don't add them on the bare trunk base
-            const len_base = tree.processed_params.length_base;
-            if (this.length_along_this_stem < len_base) {
-                const diff = this.length_along_this_stem+offset_child-tree.processed_params.length_base;
-                if (diff < 0) {
-                    return; // shouldn't even be creating a child here
-                }
+       
+        /*
+        const len_base = tree.processed_params.length_base[parent.stem.level]*parent.stem.length;
+        if (this.length_along_this_stem < len_base) {
+            const diff = this.length_along_this_stem+offset_child-len_base;
+            if (diff < 0) {
+                return; // shouldn't even be creating a child here
             }
-        }
+        }*/
         this.setup_stem(tree, child.stem, parent.stem, offset_child) 
         
         // ==== child segment ======
@@ -345,7 +344,7 @@ export class Segment {
             stem.per_segment_length = tree.processed_params.per_segment_length_trunk;
         } else {
             if (stem.level == 1) {
-                stem.length = tree.processed_params.length_trunk * length_child_max * ShapeRatio(tree.params.Shape, (tree.processed_params.length_trunk-offset_child)/(tree.processed_params.length_trunk-tree.processed_params.length_base) );
+                stem.length = tree.processed_params.length_trunk * length_child_max * ShapeRatio(tree.params.Shape, (tree.processed_params.length_trunk-offset_child)/(tree.processed_params.length_trunk-tree.processed_params.length_base[parent_stem.level]) );
             } else {
                 stem.length = length_child_max * (parent_stem.length - 0.6 * offset_child);
             }
@@ -390,26 +389,26 @@ export class Segment {
         let total_stem_children = this.stem.children
         let offset = 0, children_count = 0, offset_delta = 0;
         
-        if (this.stem.level == 0) {
-            const len_base = tree.processed_params.length_base;
-            const child_bearing_length = this.stem.length - len_base;
-            console.log(total_stem_children)
-            
-            offset_delta = child_bearing_length/total_stem_children
-            const diff = this.length_along_this_stem+this.stem.per_segment_length-len_base;
-            if (diff > 0) { // there's a part that is not bare trunk
-                //const fraction_out_of_bare_trunk = diff/this.stem.per_segment_length;
-                offset = Math.max(0, len_base-this.length_along_this_stem)
-                const children_per_unit_len = total_stem_children/child_bearing_length;
-                const children_bearing_len = this.stem.per_segment_length-offset
-                children_count = children_per_unit_len * children_bearing_len;
-            } else { // it's all bare trunk, no children for this segment
-                return;
-            }
-        } else {
-            children_count = total_stem_children / tree.params.LevelParam[this.stem.level].CurveRes
-            offset_delta = this.stem.length/total_stem_children
+        //if (this.stem.level == 0) {
+        const len_base = tree.params.LevelParam[this.stem.level].BaseSize*this.stem.length;
+        const child_bearing_length = this.stem.length - len_base;
+        
+        offset_delta = child_bearing_length/total_stem_children
+        const diff = this.length_along_this_stem+this.stem.per_segment_length-len_base;
+        if (child_bearing_length < 0.001) {return}
+        if (diff > 0) { // there's a part that is not bare trunk
+            //const fraction_out_of_bare_trunk = diff/this.stem.per_segment_length;
+            offset = Math.max(0, len_base-this.length_along_this_stem)
+            const children_per_unit_len = total_stem_children/child_bearing_length;
+            const this_seg_children_bearing_len = this.stem.per_segment_length-offset
+            children_count = children_per_unit_len * this_seg_children_bearing_len;
+        } else { // it's all bare trunk, no children for this segment
+            return;
         }
+        //} else {
+        //    children_count = total_stem_children / tree.params.LevelParam[this.stem.level].CurveRes
+        //    offset_delta = this.stem.length/total_stem_children
+        //}
         var children_whole = Math.floor(children_count) + (tree.randFloat(0, 1) <= children_count-Math.floor(children_count) ? 1:0);
         for (let i = 0; i < children_whole; i++) {
             this.generate_child(tree, this, offset);
@@ -418,10 +417,25 @@ export class Segment {
     }
     generate_leaves (tree : pennTree) {
         if (this.stem.leaves_in_this_stem == 0) return;
-        const offset_delta = this.stem.per_segment_length/this.stem.per_segment_leaves;
-        let offset = 0;
+        let offset = 0
+        const len_base = tree.params.LevelParam[this.stem.level].BaseSize*this.stem.length;
+        const child_bearing_length = this.stem.length - len_base;
+        if (child_bearing_length < 0.001) {return}
+        const offset_delta = child_bearing_length/this.stem.leaves_in_this_stem
+        const diff = this.length_along_this_stem+this.stem.per_segment_length-len_base;
+        let leaf_count = 0;
+        if (diff > 0) {
+            offset = Math.max(0, len_base-this.length_along_this_stem)
+            const leaves_per_unit_len = this.stem.leaves_in_this_stem/child_bearing_length;
+            const this_segment_leaf_bearing_len = this.stem.per_segment_length-offset;
+            leaf_count = leaves_per_unit_len * this_segment_leaf_bearing_len;
+        } else {
+            return;
+        }
+        //const offset_delta = this.stem.per_segment_length/this.stem.per_segment_leaves;
+        
         const along_stem_vec = new THREE.Vector3(0,1,0).applyQuaternion(this.rotation);
-        const leaf_count = Math.floor(this.stem.per_segment_leaves) + ( ( tree.randFloat(0, 1) <= (this.stem.per_segment_leaves-Math.floor(this.stem.per_segment_leaves)) ) ? 1 : 0 );
+        //const leaf_count = Math.floor(this.stem.per_segment_leaves) + ( ( tree.randFloat(0, 1) <= (this.stem.per_segment_leaves-Math.floor(this.stem.per_segment_leaves)) ) ? 1 : 0 );
         for (let i = 0; i < leaf_count; i+=1) {
             const leaf_length = tree.params.LeavesParam.LeafScale;
             const leaf_width = leaf_length*tree.params.LeavesParam.LeafScaleX;
@@ -444,7 +458,6 @@ export class Segment {
 
 export type TreeParams = {
     Shape : number, // general tree shape id
-    BaseSize : number, // fractional branchless area at tree base
     Scale : number,ScaleV : number,ZScale : number,ZScaleV : number,//size and scaling of tree
     Levels : number, // levels of recursion
     Ratio : number, RatioPower : number, //radius/length ratio, reduction
@@ -467,7 +480,7 @@ export type TreeParams = {
 
 class ProcessedTreeParams {
     length_trunk : number; // length of full trunk ( 0Length ± 0LengthV )*scale_tree
-    length_base : number; //(BaseSize*scale tree ) 
+    length_base : number[]; //(BaseSize*scale tree ) 
     scale_tree : number; // (Scale±ScaleV)
     per_segment_length_trunk : number;
 
@@ -475,7 +488,7 @@ class ProcessedTreeParams {
         this.scale_tree = (t.params.Scale + t.randFloat(0,1)*t.params.ScaleV);
         this.length_trunk = (t.params.LevelParam[0].Length)*this.scale_tree;
         this.per_segment_length_trunk = this.length_trunk/t.params.LevelParam[0].CurveRes,
-        this.length_base = (t.params.BaseSize*t.params.Scale);
+        this.length_base = [(t.params.LevelParam[0].BaseSize*t.params.Scale),(t.params.LevelParam[1].BaseSize*t.params.Scale),(t.params.LevelParam[2].BaseSize*t.params.Scale),(t.params.LevelParam[3].BaseSize*t.params.Scale)];
     }
 }
 
@@ -486,6 +499,8 @@ export type LevelParam = {
     Length : number, LengthV:number, Taper:number // relative length of children to parent, cross-section scaling
     CurveRes:number,Curve:number,CurveBack:number,CurveV:number, // curvature resolution and angles
     SplitsAmount:number, SegSplits:number,SplitAngle:number,SplitAngleV:number, SplitRotationV:number// dichotomous branching parameters
+    // new params
+    BaseSize : number,
 }
 export type LeavesParam = {
     DownAngle : number, DownAngleV : number, // angle from parent

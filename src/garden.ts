@@ -2,7 +2,6 @@ import type {TreeParams} from './penn.ts'
 
 export const QuakingAspen: TreeParams = {
   Shape: 7,
-  BaseSize: 0.4,
   Scale: 13,
   ScaleV: 3,
   ZScale: 1,
@@ -38,6 +37,7 @@ export const QuakingAspen: TreeParams = {
       Curve: 0,
       CurveBack: 0,
       CurveV: 20,
+      BaseSize: 0.4,
     },
     // level 1
     {
@@ -58,6 +58,7 @@ export const QuakingAspen: TreeParams = {
       Curve: -40,
       CurveBack: 0,
       CurveV: 50,
+      BaseSize: 0,
     },
     // level 2
     {
@@ -78,6 +79,7 @@ export const QuakingAspen: TreeParams = {
       Curve: -40,
       CurveBack: 0,
       CurveV: 75,
+      BaseSize: 0,
     },
     // level 3
     {
@@ -98,6 +100,7 @@ export const QuakingAspen: TreeParams = {
       Curve: 0,
       CurveBack: 0,
       CurveV: 0,
+      BaseSize: 0,
     },],
 
     LeavesParam : {

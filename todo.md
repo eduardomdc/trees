@@ -1,10 +1,8 @@
 - weird behaviour on down angle v param ( looks correct according to paper..)
-- curve correction after split!
+- check order of apply attraction up
 - curve back param
-- segment splitting error difusion
 - gnarlyness
 - taper control
-- base size for all recursive levels
 - leaf phototropic orientations
 - tree quality slider
 - per-level seed rng
