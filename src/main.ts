@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import * as T from './penn.ts'
-import {QuakingAspen} from './garden.ts';
+import {QuakingAspen, Acer} from './garden.ts';
 import {createOrbitalCamera} from './camera.ts';
 // import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
-import GUI from 'lil-gui'; 
+import * as GUI from 'lil-gui'; 
 
 export const canvas = document.querySelector('#render-canvas') as HTMLCanvasElement;
 if (!canvas) {
@@ -45,7 +45,15 @@ scene.add(ground);
 
 // tree
 var seed = {Seed : 0};
-var tree_params = QuakingAspen;
+function cloneTreeParams(p: T.TreeParams): T.TreeParams {
+    return {
+        ...p,
+        MeshQuality: [...p.MeshQuality],
+        LevelParam: p.LevelParam.map(l => ({ ...l })),
+        LeavesParam: { ...p.LeavesParam },
+    };
+}
+var tree_params : T.TreeParams = cloneTreeParams(QuakingAspen);
 var tree = new T.pennTree(tree_params, seed.Seed);
 
 const basic_mesh_mat : THREE.Material = new THREE.MeshStandardMaterial({map: bark_tex});
@@ -58,7 +66,105 @@ var tree_leaves = tree.build_leaves(basic_leaf_mat);
 scene.add(tree_leaves);
 
 // GUI
-const gui = new GUI();
+const gui = new GUI.GUI();
+
+// Load controls
+const loadControls = {
+    Preset : QuakingAspen,
+}
+
+function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
+    preset.Shape = input.Shape;
+    preset.Scale = input.Scale;
+    preset.ScaleV = input.ScaleV;
+    preset.ZScale = input.ZScale;
+    preset.ZScaleV = input.ZScaleV;
+    preset.Levels = input.Levels;
+    preset.Ratio = input.Ratio;
+    preset.RatioPower = input.RatioPower;
+    preset.Flare = input.Flare;
+
+    preset.Scale0 = input.Scale0;
+    preset.ScaleV0 = input.ScaleV0;
+    preset.BaseSplits0 = input.BaseSplits0;
+
+    preset.AttractionUp = input.AttractionUp;
+    preset.PruneRation = input.PruneRation;
+    preset.PruneWidth = input.PruneWidth;
+    preset.PruneWidthPeak = input.PruneWidthPeak;
+    preset.PrunePowerLow = input.PrunePowerLow;
+    preset.PrunePowerHigh = input.PrunePowerHigh;
+
+    preset.MeshQuality.length = input.MeshQuality.length;
+    for (let i = 0; i < input.MeshQuality.length; i++) {
+        preset.MeshQuality[i] = input.MeshQuality[i];
+    }
+
+    preset.LevelParam.length = input.LevelParam.length;
+
+    for (let i = 0; i < input.LevelParam.length; i++) {
+        const src = input.LevelParam[i];
+
+        if (!preset.LevelParam[i]) {
+            preset.LevelParam[i] = {} as T.LevelParam;
+        }
+
+        const dst = preset.LevelParam[i];
+
+        dst.BaseSize = src.BaseSize;
+        dst.DownAngle = src.DownAngle;
+        dst.DownAngleV = src.DownAngleV;
+        dst.Rotate = src.Rotate;
+        dst.RotateV = src.RotateV;
+        dst.Branches = src.Branches;
+        dst.Length = src.Length;
+        dst.LengthV = src.LengthV;
+        dst.Taper = src.Taper;
+        dst.SplitsAmount = src.SplitsAmount;
+        dst.SegSplits = src.SegSplits;
+        dst.SplitAngle = src.SplitAngle;
+        dst.SplitAngleV = src.SplitAngleV;
+        dst.SplitRotationV = src.SplitRotationV;
+        dst.CurveRes = src.CurveRes;
+        dst.Curve = src.Curve;
+        dst.CurveBack = src.CurveBack;
+        dst.CurveV = src.CurveV;
+    }
+
+    preset.LeavesParam.DownAngle = input.LeavesParam.DownAngle;
+    preset.LeavesParam.DownAngleV = input.LeavesParam.DownAngleV;
+    preset.LeavesParam.Rotate = input.LeavesParam.Rotate;
+    preset.LeavesParam.RotateV = input.LeavesParam.RotateV;
+    preset.LeavesParam.Amount = input.LeavesParam.Amount;
+    preset.LeavesParam.LeafScale = input.LeavesParam.LeafScale;
+    preset.LeavesParam.LeafScaleX = input.LeavesParam.LeafScaleX;
+}
+
+const load_controls = gui.addFolder('Load');
+load_controls.add( loadControls, 'Preset', {QuakingAspen, Acer}).onChange( _ => {
+    applyPreset(tree_params, loadControls.Preset)
+    tree_controls.controllers.forEach( (value : GUI.Controller) => {
+        value.updateDisplay(); 
+    })
+    trunk_controls.controllers.forEach( (value : GUI.Controller) => {
+        value.updateDisplay(); 
+    })
+    leaves_folder.controllers.forEach( (value : GUI.Controller) => {
+        value.updateDisplay(); 
+    })
+    levels_folder.controllers.forEach( (value : GUI.Controller) => {
+        value.updateDisplay(); 
+    })
+    levels_folder.folders.forEach( (folder) => {
+        folder.controllers.forEach( (controller) => {
+            controller.updateDisplay();
+        })
+    })
+    rebuild_tree()
+})
+
+
+// Tree controls
 
 const tree_controls = gui.addFolder('Tree');
 
@@ -150,19 +256,23 @@ leaves_folder.add(leaves_param, 'LeafScaleX', 0, 2);
 
 tree_controls.onChange(
     _ => {
-        tree = new T.pennTree(tree_params, seed.Seed);
-        
-        scene.remove(tree_mesh);
-        tree_mesh.geometry.dispose()
-        tree_mesh = tree.build_tree_geometry(basic_mesh_mat)
-        scene.add(tree_mesh)
-        
-        scene.remove(tree_leaves);
-        tree_leaves.geometry.dispose();
-        tree_leaves = tree.build_leaves(basic_leaf_mat);
-        scene.add(tree_leaves);
+        rebuild_tree()
     }
 );
+
+function rebuild_tree () {
+    tree = new T.pennTree(tree_params, seed.Seed);
+    
+    scene.remove(tree_mesh);
+    tree_mesh.geometry.dispose()
+    tree_mesh = tree.build_tree_geometry(basic_mesh_mat)
+    scene.add(tree_mesh)
+    
+    scene.remove(tree_leaves);
+    tree_leaves.geometry.dispose();
+    tree_leaves = tree.build_leaves(basic_leaf_mat);
+    scene.add(tree_leaves);
+}
 
 function animate() {
     updateCamera();

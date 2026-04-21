@@ -1,5 +1,6 @@
 import type {TreeParams} from './penn.ts'
 
+
 export const QuakingAspen: TreeParams = {
   Shape: 7,
   Scale: 13,
@@ -119,3 +120,130 @@ export const QuakingAspen: TreeParams = {
   PrunePowerLow: 0.5,
   PrunePowerHigh: 0.5,
 };
+
+export const Acer: TreeParams = {
+  Shape: 4,
+  Scale: 10,
+  ScaleV: 1,
+  ZScale: 1,
+  ZScaleV: 0,
+  Levels: 3,
+  Ratio: 0.025,
+  RatioPower: 1.5,
+  Flare: 0.6,
+
+  MeshQuality : [10,6,3,3],
+
+  Scale0: 1,
+  ScaleV0: 0,
+  BaseSplits0: -2,
+
+  LevelParam: [
+    // level 0 (trunk)
+    {
+      DownAngle: 0,
+      DownAngleV: 0,
+      Rotate: 0,
+      RotateV: 0,
+      Branches: 1,
+      Length: 1,
+      LengthV: 0,
+      Taper: 1,
+      SplitsAmount: 0,
+      SegSplits: 1.5,
+      SplitAngle: 50,
+      SplitAngleV: 5,
+      SplitRotationV: 0,
+      CurveRes: 6,
+      Curve: 0,
+      CurveBack: 0,
+      CurveV: 200,
+      BaseSize: 0.1,
+    },
+
+    // level 1
+    {
+      DownAngle: 50,
+      DownAngleV: 5,
+      Rotate: 140,
+      RotateV: 0,
+      Branches: 6,
+      Length: 0.7,
+      LengthV: 0.05,
+      Taper: 1,
+      SplitsAmount: 0,
+      SegSplits: 1.5,
+      SplitAngle: 50,
+      SplitAngleV: 5,
+      SplitRotationV: 0,
+      CurveRes: 5,
+      Curve: 0,
+      CurveBack: 0,
+      CurveV: 100,
+      BaseSize: 0.4,
+    },
+
+    // level 2
+    {
+      DownAngle: 50,
+      DownAngleV: 5,
+      Rotate: 140,
+      RotateV: 0,
+      Branches: 20,
+      Length: 0.3,
+      LengthV: 0.05,
+      Taper: 1,
+      SplitsAmount: 0,
+      SegSplits: 0,
+      SplitAngle: 0,
+      SplitAngleV: 0,
+      SplitRotationV: 0,
+      CurveRes: 3,
+      Curve: 0,
+      CurveBack: 0,
+      CurveV: 100,
+      BaseSize: 0.02,
+    },
+
+    // level 3
+    {
+      DownAngle: 45,
+      DownAngleV: 10,
+      Rotate: 77,
+      RotateV: 0,
+      Branches: 5,
+      Length: 0,
+      LengthV: 0,
+      Taper: 1,
+      SplitsAmount: 0,
+      SegSplits: 0,
+      SplitAngle: 0,
+      SplitAngleV: 0,
+      SplitRotationV: 0,
+      CurveRes: 0,
+      Curve: 0,
+      CurveBack: 0,
+      CurveV: 0,
+      BaseSize: 0.02,
+    },
+  ],
+
+  LeavesParam: {
+    DownAngle: 45,
+    DownAngleV: 10,
+    Rotate: 77,
+    RotateV: 0,
+    Amount: 30,
+    LeafScale: 0.2,
+    LeafScaleX: 1,
+  },
+
+  AttractionUp: 0,
+  PruneRation: 0,
+  PruneWidth: 0.5,
+  PruneWidthPeak: 0.5,
+  PrunePowerLow: 0.5,
+  PrunePowerHigh: 0.5,
+};
+
+export const preset_params : TreeParams[] = [QuakingAspen, Acer];
