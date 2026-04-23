@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import * as T from './penn.ts'
+import * as T from './penn.ts';
+import * as Tex from './texture.ts';
 import {QuakingAspen, Acer} from './garden.ts';
 import {createOrbitalCamera} from './camera.ts';
 // import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
@@ -32,8 +33,6 @@ scene.add( light );
 //scene.background = new THREE.Color(0x9090ff);
 
 const loader = new THREE.TextureLoader();
-const bark_tex = loader.load(import.meta.env.BASE_URL+'/assets/bark.jpg');
-const leaf_tex = loader.load(import.meta.env.BASE_URL+'/assets/greenleaf.png');
 const ground_tex = loader.load(import.meta.env.BASE_URL+'/assets/ground.jpg');
 ground_tex.wrapS = THREE.RepeatWrapping;
 ground_tex.wrapT = THREE.RepeatWrapping;
@@ -51,17 +50,18 @@ function cloneTreeParams(p: T.TreeParams): T.TreeParams {
         MeshQuality: [...p.MeshQuality],
         LevelParam: p.LevelParam.map(l => ({ ...l })),
         LeavesParam: { ...p.LeavesParam },
+        TextureParam: {...p.TextureParam },
     };
 }
 var tree_params : T.TreeParams = cloneTreeParams(QuakingAspen);
 var tree = new T.pennTree(tree_params, seed.Seed);
 
-const basic_mesh_mat : THREE.Material = new THREE.MeshStandardMaterial({map: bark_tex});
+const basic_mesh_mat : THREE.Material = new THREE.MeshStandardMaterial({map: tree_params.TextureParam.BarkTexture});
 var tree_mesh = tree.build_tree_geometry(basic_mesh_mat);
 scene.add(tree_mesh);
 
 // leaves
-const basic_leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: leaf_tex, transparent: true, alphaTest:0.5});
+const basic_leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: tree_params.TextureParam.LeafTexture, transparent: true, alphaTest:0.5});
 var tree_leaves = tree.build_leaves(basic_leaf_mat);
 scene.add(tree_leaves);
 
@@ -138,10 +138,13 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.LeavesParam.Amount = input.LeavesParam.Amount;
     preset.LeavesParam.LeafScale = input.LeavesParam.LeafScale;
     preset.LeavesParam.LeafScaleX = input.LeavesParam.LeafScaleX;
+
+    preset.TextureParam.LeafTexture = input.TextureParam.LeafTexture
+    preset.TextureParam.BarkTexture = input.TextureParam.BarkTexture
 }
 
 const load_controls = gui.addFolder('Load');
-load_controls.add( loadControls, 'Preset', {QuakingAspen, Acer}).onChange( _ => {
+load_controls.add( loadControls, 'Preset', {QuakingAspen, Acer}).onChange( (_ : any) => {
     applyPreset(tree_params, loadControls.Preset)
     tree_controls.controllers.forEach( (value : GUI.Controller) => {
         value.updateDisplay(); 
@@ -260,17 +263,26 @@ tree_controls.onChange(
     }
 );
 
+// Texture controls
+const texture_folder = tree_controls.addFolder('Textures');
+const texture_params = tree_params.TextureParam;
+texture_folder.add(texture_params, 'LeafTexture', Tex.LeafTextures);
+texture_folder.add(texture_params, 'BarkTexture', Tex.BarkTextures);
+
+
 function rebuild_tree () {
     tree = new T.pennTree(tree_params, seed.Seed);
+    const trunk_mat = new THREE.MeshStandardMaterial({map: tree_params.TextureParam.BarkTexture});
+    const leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: tree_params.TextureParam.LeafTexture, transparent: true, alphaTest:0.5});
     
     scene.remove(tree_mesh);
     tree_mesh.geometry.dispose()
-    tree_mesh = tree.build_tree_geometry(basic_mesh_mat)
+    tree_mesh = tree.build_tree_geometry(trunk_mat)
     scene.add(tree_mesh)
     
     scene.remove(tree_leaves);
     tree_leaves.geometry.dispose();
-    tree_leaves = tree.build_leaves(basic_leaf_mat);
+    tree_leaves = tree.build_leaves(leaf_mat);
     scene.add(tree_leaves);
 }
 

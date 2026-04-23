@@ -1,5 +1,5 @@
 - weird behaviour on down angle v param ( looks correct according to paper..)
-- check order of apply attraction up
+- initial rotation param
 - curve back param
 - gnarlyness
 - taper control

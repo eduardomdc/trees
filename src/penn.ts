@@ -477,6 +477,7 @@ export type TreeParams = {
     PruneRation: number, //fractional effect of pruning
     PruneWidth : number,PruneWidthPeak: number, // width, position of envelope peak
     PrunePowerLow : number,PrunePowerHigh : number, // curvature of envelope
+    TextureParam : TextureParam,
 }
 
 
@@ -509,6 +510,12 @@ export type LeavesParam = {
     Rotate : number, RotateV : number,  // spiraling angle
     Amount : number, // # of branches
     LeafScale : number, LeafScaleX : number,
+}
+
+
+export type TextureParam = {
+    LeafTexture : THREE.Texture,
+    BarkTexture : THREE.Texture,
 }
 
 enum ShapeID {

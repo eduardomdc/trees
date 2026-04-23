@@ -1,4 +1,5 @@
-import type {TreeParams} from './penn.ts'
+import {type TreeParams} from './penn.ts'
+import * as Textures from './texture.ts'
 
 
 export const QuakingAspen: TreeParams = {
@@ -119,6 +120,10 @@ export const QuakingAspen: TreeParams = {
   PruneWidthPeak: 0.5,
   PrunePowerLow: 0.5,
   PrunePowerHigh: 0.5,
+  TextureParam : {
+      LeafTexture : Textures.LeafTextures['CommonGreen'],
+      BarkTexture : Textures.BarkTextures['CommonBark'],
+  }
 };
 
 export const Acer: TreeParams = {
@@ -220,7 +225,7 @@ export const Acer: TreeParams = {
       SplitAngle: 0,
       SplitAngleV: 0,
       SplitRotationV: 0,
-      CurveRes: 0,
+      CurveRes: 1,
       Curve: 0,
       CurveBack: 0,
       CurveV: 0,
@@ -244,6 +249,10 @@ export const Acer: TreeParams = {
   PruneWidthPeak: 0.5,
   PrunePowerLow: 0.5,
   PrunePowerHigh: 0.5,
+  TextureParam : {
+      LeafTexture : Textures.LeafTextures['MapleRed'],
+      BarkTexture : Textures.BarkTextures['CommonBark'],
+  }
 };
 
 export const preset_params : TreeParams[] = [QuakingAspen, Acer];
