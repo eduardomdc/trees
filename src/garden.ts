@@ -1,6 +1,4 @@
 import {type TreeParams} from './penn.ts'
-import * as Textures from './texture.ts'
-
 
 export const QuakingAspen: TreeParams = {
   Shape: 7,
