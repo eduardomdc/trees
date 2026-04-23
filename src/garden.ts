@@ -121,8 +121,8 @@ export const QuakingAspen: TreeParams = {
   PrunePowerLow: 0.5,
   PrunePowerHigh: 0.5,
   TextureParam : {
-      LeafTexture : Textures.LeafTextures['CommonGreen'],
-      BarkTexture : Textures.BarkTextures['CommonBark'],
+      LeafTexture : 'CommonGreen',
+      BarkTexture : 'CommonBark',
   }
 };
 
@@ -250,8 +250,8 @@ export const Acer: TreeParams = {
   PrunePowerLow: 0.5,
   PrunePowerHigh: 0.5,
   TextureParam : {
-      LeafTexture : Textures.LeafTextures['MapleRed'],
-      BarkTexture : Textures.BarkTextures['CommonBark'],
+      LeafTexture : 'MapleRed',
+      BarkTexture : 'CommonBark',
   }
 };
 

@@ -56,22 +56,19 @@ function cloneTreeParams(p: T.TreeParams): T.TreeParams {
 var tree_params : T.TreeParams = cloneTreeParams(QuakingAspen);
 var tree = new T.pennTree(tree_params, seed.Seed);
 
-const basic_mesh_mat : THREE.Material = new THREE.MeshStandardMaterial({map: tree_params.TextureParam.BarkTexture});
+const basic_mesh_mat : THREE.Material = new THREE.MeshStandardMaterial({map: Tex.BarkTextures[tree_params.TextureParam.BarkTexture]});
 var tree_mesh = tree.build_tree_geometry(basic_mesh_mat);
 scene.add(tree_mesh);
 
 // leaves
-const basic_leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: tree_params.TextureParam.LeafTexture, transparent: true, alphaTest:0.5});
+const basic_leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: Tex.LeafTextures[tree_params.TextureParam.LeafTexture], transparent: true, alphaTest:0.5});
 var tree_leaves = tree.build_leaves(basic_leaf_mat);
 scene.add(tree_leaves);
 
 // GUI
 const gui = new GUI.GUI();
 
-// Load controls
-const loadControls = {
-    Preset : QuakingAspen,
-}
+
 
 function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.Shape = input.Shape;
@@ -143,9 +140,54 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.TextureParam.BarkTexture = input.TextureParam.BarkTexture
 }
 
+
+// Load controls
+const loadControls = {
+    Preset : QuakingAspen,
+    Download : function downloadAsJSON() {
+          const json = JSON.stringify(tree_params, null, 2);
+          const blob = new Blob([json], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "my_tree.json";
+          a.click();
+          URL.revokeObjectURL(url);
+    },
+    Load : () => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".json";
+
+        input.onchange = () => {
+          const file = input.files?.[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = () => {
+            try {
+              const loaded = JSON.parse(reader.result as string) as T.TreeParams;
+              applyPreset(tree_params, loaded)
+              update_display_and_rebuild_tree()
+            } catch {
+              console.error("Invalid JSON file");
+            }
+          };
+          reader.readAsText(file);
+        };
+
+        input.click();
+  }
+}
+
 const load_controls = gui.addFolder('Load');
-load_controls.add( loadControls, 'Preset', {QuakingAspen, Acer}).onChange( (_ : any) => {
+load_controls.add( loadControls, 'Preset', {QuakingAspen, Acer}).onChange((_ : any) => {
     applyPreset(tree_params, loadControls.Preset)
+    update_display_and_rebuild_tree()
+})
+load_controls.add( loadControls, 'Download').name("Save Tree Configuration")
+load_controls.add( loadControls, 'Load').name("Load Tree Configuration")
+function update_display_and_rebuild_tree () {
     tree_controls.controllers.forEach( (value : GUI.Controller) => {
         value.updateDisplay(); 
     })
@@ -153,6 +195,9 @@ load_controls.add( loadControls, 'Preset', {QuakingAspen, Acer}).onChange( (_ : 
         value.updateDisplay(); 
     })
     leaves_folder.controllers.forEach( (value : GUI.Controller) => {
+        value.updateDisplay(); 
+    })
+    texture_folder.controllers.forEach( (value : GUI.Controller) => {
         value.updateDisplay(); 
     })
     levels_folder.controllers.forEach( (value : GUI.Controller) => {
@@ -164,8 +209,7 @@ load_controls.add( loadControls, 'Preset', {QuakingAspen, Acer}).onChange( (_ : 
         })
     })
     rebuild_tree()
-})
-
+}
 
 // Tree controls
 
@@ -266,14 +310,14 @@ tree_controls.onChange(
 // Texture controls
 const texture_folder = tree_controls.addFolder('Textures');
 const texture_params = tree_params.TextureParam;
-texture_folder.add(texture_params, 'LeafTexture', Tex.LeafTextures);
-texture_folder.add(texture_params, 'BarkTexture', Tex.BarkTextures);
+texture_folder.add(texture_params, 'LeafTexture', Object.keys(Tex.LeafTextures));
+texture_folder.add(texture_params, 'BarkTexture', Object.keys(Tex.BarkTextures));
 
 
 function rebuild_tree () {
     tree = new T.pennTree(tree_params, seed.Seed);
-    const trunk_mat = new THREE.MeshStandardMaterial({map: tree_params.TextureParam.BarkTexture});
-    const leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: tree_params.TextureParam.LeafTexture, transparent: true, alphaTest:0.5});
+    const trunk_mat = new THREE.MeshStandardMaterial({map: Tex.BarkTextures[tree_params.TextureParam.BarkTexture]});
+    const leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: Tex.LeafTextures[tree_params.TextureParam.LeafTexture], transparent: true, alphaTest:0.5});
     
     scene.remove(tree_mesh);
     tree_mesh.geometry.dispose()

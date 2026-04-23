@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as Mesh from './mesh.ts'
+import * as Tex from './texture.ts'
 
 const quality = 1;
 
@@ -514,8 +515,8 @@ export type LeavesParam = {
 
 
 export type TextureParam = {
-    LeafTexture : THREE.Texture,
-    BarkTexture : THREE.Texture,
+    LeafTexture : keyof typeof Tex.LeafTextures,
+    BarkTexture : keyof typeof Tex.BarkTextures,
 }
 
 enum ShapeID {

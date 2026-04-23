@@ -1,4 +1,5 @@
 - weird behaviour on down angle v param ( looks correct according to paper..)
+- texture scaling
 - initial rotation param
 - curve back param
 - gnarlyness
