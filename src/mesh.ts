@@ -171,9 +171,12 @@ function circle_points_normals(
     const normals: number[] = [];
     const uvs:     number[] = [];
 
-    const radial  = new THREE.Vector3(1, 0, 0).applyQuaternion(orientation);
+    //const radial  = new THREE.Vector3(1, 0, 0).applyQuaternion(orientation);
     const y_vec   = new THREE.Vector3(0, 1, 0).applyQuaternion(orientation);
-    let rotated_radial = radial.clone();
+    const up = new THREE.Vector3(0,1,0);
+    //if (Math.abs(y_vec.dot(up)) > 0.99) {up.set(0,0,1)} // guard against singularity
+    //const matrix = new THREE.Matrix4().lookAt(new THREE.Vector3(0,0,0), y_vec, up)
+    let rotated_radial = new THREE.Vector3(1,0,0).applyQuaternion(new THREE.Quaternion().setFromUnitVectors(up, y_vec));
 
     for (let i = 0; i <= sections; i++) {   // <= gives the extra closing vertex
         rotated_radial.applyAxisAngle(y_vec, angle);
