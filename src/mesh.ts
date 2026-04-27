@@ -81,20 +81,20 @@ function build_segment_geometry (tree : T.pennTree, segment : T.Segment, geometr
     if (segment.segment_number == 0) { // first segment in branch
         // make the base vertices instead of connecting from parent branch
         const base_vert_offset = geometry.vertex.length/3;
-        const points_normals = circle_points_normals(segment.position, segment.rotation, segment.radius, resolution)
+        const points_normals = circle_points_normals(segment.position, segment.direction, segment.radius, resolution)
         geometry.vertex.push(...points_normals[0])
         geometry.normal.push(...points_normals[1])
         geometry.uv.push(...points_normals[2])
         segment.vertex_idx = base_vert_offset
     } else {
         if (segment.parent != null) {
-            segment.vertex_idx = connect_cylinder_geometry(geometry, segment.position, segment.rotation, segment.radius, resolution, segment.parent.vertex_idx, segment.segment_number%2)
+            segment.vertex_idx = connect_cylinder_geometry(geometry, segment.position, segment.direction, segment.radius, resolution, segment.parent.vertex_idx, segment.segment_number%2)
         }
     }
     
     if (segment.segment_number == tree.params.LevelParam[segment.stem.level].CurveRes-1 ) {
-        const tip = new THREE.Vector3(0, segment.stem.per_segment_length, 0).applyQuaternion(segment.rotation).add(segment.position);
-        connect_circle_to_point_geometry(geometry, tip, new THREE.Vector3(0, 1, 0).applyQuaternion(segment.rotation), resolution, segment.vertex_idx)
+        const tip = segment.position.clone().add(segment.direction.clone().multiplyScalar(segment.stem.per_segment_length))
+        connect_circle_to_point_geometry(geometry, tip, segment.direction, resolution, segment.vertex_idx)
     }
     
     for (const child of segment.children) {
@@ -107,14 +107,14 @@ function build_segment_geometry (tree : T.pennTree, segment : T.Segment, geometr
 function connect_cylinder_geometry(
     geometry: Geometry,
     position_tip: THREE.Vector3,
-    orientation_tip: THREE.Quaternion,
+    direction_tip: THREE.Vector3,
     radius_tip: number,
     radial_sections: number,
     base_vert_offset: number,
     v_tip: number     // vertical UV for the new ring
 ): number {
     const tip_vert_offset = geometry.vertex.length / 3;
-    const [tip_points, tip_normals, tip_uvs] = circle_points_normals(position_tip, orientation_tip, radius_tip, radial_sections, v_tip);
+    const [tip_points, tip_normals, tip_uvs] = circle_points_normals(position_tip, direction_tip, radius_tip, radial_sections, v_tip);
     geometry.vertex.push(...tip_points);
     geometry.normal.push(...tip_normals);
     geometry.uv.push(...tip_uvs);
@@ -161,7 +161,7 @@ function connect_circle_to_point_geometry(
 // giving a clean UV seam without a visible geometric crack.
 function circle_points_normals(
     position: THREE.Vector3,
-    orientation: THREE.Quaternion,
+    direction: THREE.Vector3,
     radius: number,
     sections: number,
     v: number = 0.0   // vertical UV coordinate for this ring
@@ -171,15 +171,10 @@ function circle_points_normals(
     const normals: number[] = [];
     const uvs:     number[] = [];
 
-    //const radial  = new THREE.Vector3(1, 0, 0).applyQuaternion(orientation);
-    const y_vec   = new THREE.Vector3(0, 1, 0).applyQuaternion(orientation);
-    const up = new THREE.Vector3(0,1,0);
-    //if (Math.abs(y_vec.dot(up)) > 0.99) {up.set(0,0,1)} // guard against singularity
-    //const matrix = new THREE.Matrix4().lookAt(new THREE.Vector3(0,0,0), y_vec, up)
-    let rotated_radial = new THREE.Vector3(1,0,0).applyQuaternion(new THREE.Quaternion().setFromUnitVectors(up, y_vec));
+    let rotated_radial = new THREE.Vector3(1,0,0).applyQuaternion(T.get_quaternion_from_dir(direction));
 
     for (let i = 0; i <= sections; i++) {   // <= gives the extra closing vertex
-        rotated_radial.applyAxisAngle(y_vec, angle);
+        rotated_radial.applyAxisAngle(direction, angle);
 
         const vertex = rotated_radial.clone().multiplyScalar(radius).add(position);
         points.push(vertex.x, vertex.y, vertex.z);
