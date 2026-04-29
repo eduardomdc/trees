@@ -36,8 +36,7 @@ export class Tree {
     }
 
     build_tree_geometry (material : THREE.Material) : THREE.Mesh {
-        if (this.root == null) {return new THREE.Mesh()}
-       const buffer_geometry = Mesh.build_tree_geometry(this, this.root);
+       const buffer_geometry = Mesh.build_tree_geometry(this);
        const mesh = new THREE.Mesh(buffer_geometry, material);
        mesh.castShadow = true;
        mesh.receiveShadow = true;
@@ -330,8 +329,6 @@ export class Segment {
         
 
         // child branch rotation
-        const x_dir = new THREE.Vector3(1,0,0).applyQuaternion(get_quaternion_from_dir(parent.direction)) 
-        console.log(x_dir);
         child.direction.applyQuaternion(this.compute_child_rotation(tree, parent, child.stem.level, offset_child)).normalize();
     
         const parent_quaternion = get_quaternion_from_dir(parent.direction)

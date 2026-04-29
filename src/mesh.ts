@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as T from './penn.ts'
+import * as S from './space-colonization.ts';
 
 type Geometry = {
     vertex : Array<number>;
@@ -36,9 +37,13 @@ leafGeometry.setAttribute('uv',       new THREE.BufferAttribute(uvs, 2));
 leafGeometry.setAttribute('normal',   new THREE.BufferAttribute(normals, 3));
 leafGeometry.setIndex(indices);
 
-export function build_tree_geometry (tree : T.Tree, root_segment : T.Segment) : THREE.BufferGeometry {
+export function build_tree_geometry (tree : T.Tree) : THREE.BufferGeometry {
     const my_geometry : Geometry = {vertex : [], normal : [], uv : [], index : []};
-    build_segment_geometry(tree, root_segment, my_geometry);
+    if (tree.params.SpaceColony) {
+        build_space_colony_geometry(tree, tree.space_colonizer.first_branch, my_geometry);
+    } else {
+        if (tree.root != null) {build_segment_geometry(tree, tree.root, my_geometry);}
+    }
     console.log("Built tree geometry!", my_geometry.vertex.length/3, " Vertices")
     const buffer_geometry = new THREE.BufferGeometry();
     
@@ -100,6 +105,20 @@ function build_segment_geometry (tree : T.Tree, segment : T.Segment, geometry : 
     
     for (const child of segment.children) {
         build_segment_geometry(tree, child, geometry);
+    }
+}
+
+function build_space_colony_geometry (tree : T.Tree, branch : S.SCBranch, geometry : Geometry) {
+    // non shared geometry for now
+    let base_vert_offset = geometry.vertex.length/3;
+    const points_normals = circle_points_normals(branch.start, branch.direction, 0.1, 10)
+    geometry.vertex.push(...points_normals[0])
+    geometry.normal.push(...points_normals[1])
+    geometry.uv.push(...points_normals[2])
+
+    connect_cylinder_geometry(geometry, branch.end, branch.direction, 0.1, 10, base_vert_offset, 1)
+    for (const child of branch.children) {
+        build_space_colony_geometry(tree, child, geometry)
     }
 }
 
