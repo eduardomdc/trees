@@ -463,7 +463,7 @@ export class Segment {
         }
         //const offset_delta = this.stem.per_segment_length/this.stem.per_segment_leaves;
         const this_quart = get_quaternion_from_dir(this.direction) 
-        const up = new THREE.Vector3(0,1,0)
+        //const up = new THREE.Vector3(0,1,0)
         leaf_count = Math.floor(leaf_count) + ( tree.randFloat(0, 1) <= (leaf_count-Math.floor(leaf_count)) ? 1 : 0 );
         for (let i = 0; i < leaf_count; i+=1) {
             const leaf_length = tree.params.LeavesParam.LeafScale;
