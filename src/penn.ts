@@ -463,12 +463,13 @@ export class Segment {
         }
         //const offset_delta = this.stem.per_segment_length/this.stem.per_segment_leaves;
         const this_quart = get_quaternion_from_dir(this.direction) 
+        const up = new THREE.Vector3(0,1,0)
         leaf_count = Math.floor(leaf_count) + ( tree.randFloat(0, 1) <= (leaf_count-Math.floor(leaf_count)) ? 1 : 0 );
         for (let i = 0; i < leaf_count; i+=1) {
             const leaf_length = tree.params.LeavesParam.LeafScale;
             const leaf_width = leaf_length*tree.params.LeavesParam.LeafScaleX;
             
-            const leaf_direction = this.direction.clone().applyQuaternion(this.compute_child_rotation(tree, this, this.stem.level+1, offset+this.length_along_this_stem));
+            const leaf_direction = this.direction.clone().applyQuaternion(this.compute_child_rotation(tree, this, this.stem.level+1, offset+this.length_along_this_stem)).normalize();
 
             const leaf_position = this.position.clone().addScaledVector(this.direction, offset);
             const out_of_stem = new THREE.Vector3(0,0,1).applyQuaternion(this_quart);
@@ -476,7 +477,32 @@ export class Segment {
             const branch_radius = this.stem.radius*(1 - (offset+this.length_along_this_stem)/this.stem.length)
             leaf_position.addScaledVector(out_of_stem, -branch_radius);
             
-            const mat4 = new THREE.Matrix4().compose(leaf_position, get_quaternion_from_dir(leaf_direction), new THREE.Vector3(leaf_width,leaf_length,1)); 
+            // get quaternion with phototropic leaf orientation
+            //const parallel_dir = leaf_direction.clone().sub(this.position.clone().normalize().multiplyScalar(this.position.clone().normalize().dot(leaf_direction))).normalize() // direction parallel to branch from leaf direction
+            //leaf_direction.lerp(parallel_dir, tree.params.LeavesParam.PhototropicBend)
+
+            const leaf_x = new THREE.Vector3().crossVectors(leaf_direction, this.direction).normalize()
+            //const light_dir = new THREE.Vector3().lerpVectors(parallel_dir, up, 0.5)
+            //const leaf_x_for_up = new THREE.Vector3().crossVectors(leaf_direction, parallel_dir).normalize()
+            //leaf_x.lerp(leaf_x_for_up, tree.params.LeavesParam.PhototropicBend)
+            const leaf_z = new THREE.Vector3().crossVectors(leaf_x, leaf_direction).normalize()
+            const quat_mat4 = new THREE.Matrix4().makeBasis(leaf_x, leaf_direction, leaf_z)
+            const leaf_quart = new THREE.Quaternion().setFromRotationMatrix(quat_mat4)
+            
+            /*
+            let leaf_normal = leaf_z
+            const theta_pos = Math.atan2(leaf_position.z, leaf_position.x)
+            const theta_bend =  theta_pos - Math.atan2(leaf_normal.z, leaf_normal.x)
+            const bend1 = new THREE.Quaternion().setFromAxisAngle(up, theta_bend * tree.params.LeavesParam.PhototropicBend)
+            leaf_quart.multiply(bend1)
+            leaf_normal = new THREE.Vector3(0,0,1).applyQuaternion(leaf_quart)
+            let phi_bend = Math.atan2(Math.sqrt(leaf_normal.x**2 + leaf_normal.z**2), leaf_normal.y)
+            if (phi_bend > Math.PI/2) {phi_bend = phi_bend - Math.PI}
+            const bend2 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0).applyQuaternion(leaf_quart), phi_bend* tree.params.LeavesParam.PhototropicBend)
+            leaf_quart.multiply(bend2)
+            */
+
+            const mat4 = new THREE.Matrix4().compose(leaf_position, leaf_quart, new THREE.Vector3(leaf_width,leaf_length,1)); 
             this.leaves.push(mat4);
             tree.leaf_count += 1;
             offset += offset_delta;
@@ -536,6 +562,7 @@ export type LeavesParam = {
     Rotate : number, RotateV : number,  // spiraling angle
     Amount : number, // # of branches
     LeafScale : number, LeafScaleX : number,
+    PhototropicBend : number,
 }
 
 

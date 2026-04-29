@@ -135,6 +135,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.LeavesParam.Amount = input.LeavesParam.Amount;
     preset.LeavesParam.LeafScale = input.LeavesParam.LeafScale;
     preset.LeavesParam.LeafScaleX = input.LeavesParam.LeafScaleX;
+    preset.LeavesParam.PhototropicBend = input.LeavesParam.PhototropicBend;
 
     preset.TextureParam.LeafTexture = input.TextureParam.LeafTexture
     preset.TextureParam.BarkTexture = input.TextureParam.BarkTexture
@@ -300,6 +301,7 @@ leaves_folder.add(leaves_param, 'Rotate', 0, 360);
 leaves_folder.add(leaves_param, 'RotateV', 0, 360);
 leaves_folder.add(leaves_param, 'LeafScale', 0, 2);
 leaves_folder.add(leaves_param, 'LeafScaleX', 0, 2);
+leaves_folder.add(leaves_param, 'PhototropicBend', 0, 1);
 
 tree_controls.onChange(
     _ => {
