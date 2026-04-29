@@ -65,13 +65,19 @@ const basic_leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, 
 var tree_leaves = tree.build_leaves(basic_leaf_mat);
 scene.add(tree_leaves);
 
+// Space Colony
+
+
+var attractors_cloud = tree.space_colonizer.create_attractors_point_cloud(); 
+scene.add(attractors_cloud)
+
 // GUI
 const gui = new GUI.GUI();
 
 
 
 function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
-    preset.Parametric = input.Parametric;
+    preset.SpaceColony = input.SpaceColony;
     preset.Shape = input.Shape;
     preset.Scale = input.Scale;
     preset.ScaleV = input.ScaleV;
@@ -332,6 +338,10 @@ function rebuild_tree () {
     tree_leaves.geometry.dispose();
     tree_leaves = tree.build_leaves(leaf_mat);
     scene.add(tree_leaves);
+
+    scene.remove(attractors_cloud);
+    attractors_cloud = tree.space_colonizer.create_attractors_point_cloud();
+    scene.add(attractors_cloud);
 }
 
 function animate() {

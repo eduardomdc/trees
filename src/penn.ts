@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as Mesh from './mesh.ts'
 import * as Tex from './texture.ts'
+import * as Space from './space-colonization.ts';
 
 const quality = 1;
 
@@ -19,10 +20,13 @@ export class Tree {
     params : TreeParams;
     processed_params : ProcessedTreeParams; // parameters in a more useful format for segment-based generation
 
+    space_colonizer : Space.SpaceColonizer;
+
     constructor (params : TreeParams, seed : number) {
         this.seed = seed;
         this.params = params;
         this.processed_params = new ProcessedTreeParams(this);
+        this.space_colonizer = new Space.SpaceColonizer(this);
         if (!params.SpaceColony) {this.generate_parametric_tree()}
     }
 
