@@ -9,9 +9,9 @@ export function get_quaternion_from_dir (dir : THREE.Vector3) : THREE.Quaternion
     return new THREE.Quaternion().setFromUnitVectors(up, dir);
 }
 
-export class pennTree {
+export class Tree {
     seed : number;
-    root : Segment;
+    root : Segment | null = null;
     leaf_count : number = 0;
 
     stem_split_error: number[] = [0,0,0,0];
@@ -23,34 +23,16 @@ export class pennTree {
         this.seed = seed;
         this.params = params;
         this.processed_params = new ProcessedTreeParams(this);
+        if (!params.SpaceColony) {this.generate_parametric_tree()}
+    }
+
+    generate_parametric_tree () {
         this.root = new Segment();
         this.root = this.root.generate_stem_Segments(this, null)[0];
     }
 
-    /*
-    get_points() : THREE.Vector3[][] {
-        const points: THREE.Vector3[][] = [[],[],[],[]];// one list for each level
-        // for (const segment of this.segments) {
-        //     points.push(segment.position);
-        // }
-        const traverse = (segment: Segment) => {
-            // base of the segment
-            const base = segment.position.clone();
-            // tip of the segment (along local +Y)
-            const tip = new THREE.Vector3(0, segment.stem.per_segment_length, 0)
-                .applyQuaternion(segment.rotation).add(base);
-            
-            points[segment.stem.level].push(base, tip);
-
-            for (const child of segment.children) {
-                traverse(child);
-            }
-        };
-        traverse(this.root);
-        return points;
-    }*/
-
     build_tree_geometry (material : THREE.Material) : THREE.Mesh {
+        if (this.root == null) {return new THREE.Mesh()}
        const buffer_geometry = Mesh.build_tree_geometry(this, this.root);
        const mesh = new THREE.Mesh(buffer_geometry, material);
        mesh.castShadow = true;
@@ -120,7 +102,7 @@ export class Segment {
     vertex_idx : number = 0;
     vertex_count : number = 0;
 
-    generate_stem_Segments (tree : pennTree, parent : Segment | null) : Segment[] {
+    generate_stem_Segments (tree : Tree, parent : Segment | null) : Segment[] {
         let level = 0;
         let split_chance = 0;
         if (parent) {level = parent.stem.level; split_chance = parent.stem.per_segment_split_chance}
@@ -148,7 +130,7 @@ export class Segment {
         }
     }
 
-    generate_a_segment (tree : pennTree, parent : Segment | null, seg_splits : number = 0, split_number : number = 0) : Segment {
+    generate_a_segment (tree : Tree, parent : Segment | null, seg_splits : number = 0, split_number : number = 0) : Segment {
         var next_segment : Segment = new Segment();
 
         if (parent) {
@@ -273,7 +255,7 @@ export class Segment {
         return next_segment;
     }
     
-    compute_child_rotation( tree: pennTree, parent: Segment, child_level: number, offset_child: number): THREE.Quaternion {
+    compute_child_rotation( tree: Tree, parent: Segment, child_level: number, offset_child: number): THREE.Quaternion {
         const isLeaf = tree.params.Levels === child_level;
         const src = isLeaf
             ? tree.params.LeavesParam
@@ -310,7 +292,7 @@ export class Segment {
         return rotation;
     }
 
-    generate_child (tree : pennTree, parent : Segment, offset : number) {
+    generate_child (tree : Tree, parent : Segment, offset : number) {
         var child : Segment = new Segment();
         child.parent = parent;
         child.segment_number = 0;
@@ -362,7 +344,7 @@ export class Segment {
         this.generate_stem_Segments(tree, child);
     }
 
-    setup_stem (tree : pennTree, stem : Stem, parent_segment : Segment | null, offset_child : number) {
+    setup_stem (tree : Tree, stem : Stem, parent_segment : Segment | null, offset_child : number) {
         let parent_stem : Stem | null = null
         if (parent_segment != null) {parent_stem = parent_segment.stem; stem.parent_segment = parent_segment}
         // ==== stem setup ====
@@ -413,7 +395,7 @@ export class Segment {
         stem.per_segment_split_chance = tree.params.LevelParam[stem.level].SplitsAmount/tree.params.LevelParam[stem.level].CurveRes;
     }
 
-    generate_children (tree : pennTree) {
+    generate_children (tree : Tree) {
         if (this.stem.level >= tree.params.Levels-1) {return}
         let total_stem_children = this.stem.children
         let offset = 0, children_count = 0, offset_delta = 0;
@@ -444,7 +426,7 @@ export class Segment {
             offset += offset_delta
         }
     }
-    generate_leaves (tree : pennTree) {
+    generate_leaves (tree : Tree) {
         if (this.stem.leaves_in_this_stem == 0) return;
         let offset = 0
         const len_base = tree.params.LevelParam[this.stem.level].BaseSize*this.stem.length;
@@ -511,6 +493,7 @@ export class Segment {
 }
 
 export type TreeParams = {
+    SpaceColony : boolean,
     Shape : number, // general tree shape id
     Scale : number,ScaleV : number,ZScale : number,ZScaleV : number,//size and scaling of tree
     Levels : number, // levels of recursion
@@ -539,7 +522,7 @@ class ProcessedTreeParams {
     scale_tree : number; // (Scale±ScaleV)
     per_segment_length_trunk : number;
 
-    constructor(t: pennTree){
+    constructor(t: Tree){
         this.scale_tree = (t.params.Scale + t.randFloat(0,1)*t.params.ScaleV);
         this.length_trunk = (t.params.LevelParam[0].Length)*this.scale_tree;
         this.per_segment_length_trunk = this.length_trunk/t.params.LevelParam[0].CurveRes,

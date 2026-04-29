@@ -36,7 +36,7 @@ leafGeometry.setAttribute('uv',       new THREE.BufferAttribute(uvs, 2));
 leafGeometry.setAttribute('normal',   new THREE.BufferAttribute(normals, 3));
 leafGeometry.setIndex(indices);
 
-export function build_tree_geometry (tree : T.pennTree, root_segment : T.Segment) : THREE.BufferGeometry {
+export function build_tree_geometry (tree : T.Tree, root_segment : T.Segment) : THREE.BufferGeometry {
     const my_geometry : Geometry = {vertex : [], normal : [], uv : [], index : []};
     build_segment_geometry(tree, root_segment, my_geometry);
     console.log("Built tree geometry!", my_geometry.vertex.length/3, " Vertices")
@@ -56,9 +56,10 @@ export function build_tree_geometry (tree : T.pennTree, root_segment : T.Segment
     return buffer_geometry
 }
 
-export function build_leaves_mesh (tree : T.pennTree, material : THREE.Material) : THREE.InstancedMesh {
+export function build_leaves_mesh (tree : T.Tree, material : THREE.Material) : THREE.InstancedMesh {
     const count = tree.leaf_count;
     const mesh = new THREE.InstancedMesh(leafGeometry, material, count);
+    if (tree.root == null) return mesh
     let index = 0;
     get_segment_leaves(tree.root, mesh, index);
     return mesh;
@@ -75,7 +76,7 @@ function get_segment_leaves (segment : T.Segment, mesh : THREE.InstancedMesh, in
     return index;
 }
 
-function build_segment_geometry (tree : T.pennTree, segment : T.Segment, geometry : Geometry) {
+function build_segment_geometry (tree : T.Tree, segment : T.Segment, geometry : Geometry) {
     const resolution = tree.params.MeshQuality[segment.stem.level];
     // check if segment is the first in the branch
     if (segment.segment_number == 0) { // first segment in branch

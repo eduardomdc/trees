@@ -54,7 +54,7 @@ function cloneTreeParams(p: T.TreeParams): T.TreeParams {
     };
 }
 var tree_params : T.TreeParams = cloneTreeParams(QuakingAspen);
-var tree = new T.pennTree(tree_params, seed.Seed);
+var tree = new T.Tree(tree_params, seed.Seed);
 
 const basic_mesh_mat : THREE.Material = new THREE.MeshStandardMaterial({map: Tex.BarkTextures[tree_params.TextureParam.BarkTexture]});
 var tree_mesh = tree.build_tree_geometry(basic_mesh_mat);
@@ -71,6 +71,7 @@ const gui = new GUI.GUI();
 
 
 function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
+    preset.Parametric = input.Parametric;
     preset.Shape = input.Shape;
     preset.Scale = input.Scale;
     preset.ScaleV = input.ScaleV;
@@ -217,6 +218,7 @@ function update_display_and_rebuild_tree () {
 const tree_controls = gui.addFolder('Tree');
 
 tree_controls.add(seed, 'Seed', 0, 1000);
+tree_controls.add(tree_params, 'SpaceColony').name("Use Space Colonization");
 tree_controls.add(tree_params, 'Shape', {
     Conical : 0,
     Spherical : 1,
@@ -317,7 +319,7 @@ texture_folder.add(texture_params, 'BarkTexture', Object.keys(Tex.BarkTextures))
 
 
 function rebuild_tree () {
-    tree = new T.pennTree(tree_params, seed.Seed);
+    tree = new T.Tree(tree_params, seed.Seed);
     const trunk_mat = new THREE.MeshStandardMaterial({map: Tex.BarkTextures[tree_params.TextureParam.BarkTexture]});
     const leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: Tex.LeafTextures[tree_params.TextureParam.LeafTexture], transparent: true, alphaTest:0.5});
     

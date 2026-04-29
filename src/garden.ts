@@ -1,6 +1,7 @@
 import {type TreeParams} from './penn.ts'
 
 export const QuakingAspen: TreeParams = {
+    SpaceColony: false,
   Shape: 7,
   Scale: 13,
   ScaleV: 3,
@@ -126,6 +127,7 @@ export const QuakingAspen: TreeParams = {
 };
 
 export const Acer: TreeParams = {
+    SpaceColony: false,
   Shape: 4,
   Scale: 10,
   ScaleV: 1,
