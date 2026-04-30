@@ -110,13 +110,18 @@ function build_segment_geometry (tree : T.Tree, segment : T.Segment, geometry : 
 
 function build_space_colony_geometry (tree : T.Tree, branch : S.SCBranch, geometry : Geometry) {
     // non shared geometry for now
-    let base_vert_offset = geometry.vertex.length/3;
-    const points_normals = circle_points_normals(branch.start, branch.direction, 0.1, 10)
-    geometry.vertex.push(...points_normals[0])
-    geometry.normal.push(...points_normals[1])
-    geometry.uv.push(...points_normals[2])
+    if (branch.parent == null) {
+        let base_vert_offset = geometry.vertex.length/3;
+        const points_normals = circle_points_normals(branch.start, branch.direction, branch.radius, 5)
+        geometry.vertex.push(...points_normals[0])
+        geometry.normal.push(...points_normals[1])
+        geometry.uv.push(...points_normals[2])
+        branch.vertex_offset = base_vert_offset
+    } else {
+        if (branch.extremity) connect_circle_to_point_geometry(geometry, branch.end, branch.direction, 5, branch.parent.vertex_offset)
+        else branch.vertex_offset = connect_cylinder_geometry(geometry, branch.end, branch.direction, branch.radius, 5, branch.parent.vertex_offset, branch.uv_value)
+    }
 
-    connect_cylinder_geometry(geometry, branch.end, branch.direction, 0.1, 10, base_vert_offset, 1)
     for (const child of branch.children) {
         build_space_colony_geometry(tree, child, geometry)
     }

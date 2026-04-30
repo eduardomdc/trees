@@ -341,7 +341,7 @@ function rebuild_tree () {
 
     scene.remove(attractors_cloud);
     attractors_cloud = tree.space_colonizer.create_attractors_point_cloud();
-    scene.add(attractors_cloud);
+    //scene.add(attractors_cloud);
 }
 
 function animate() {
