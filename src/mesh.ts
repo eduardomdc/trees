@@ -100,7 +100,7 @@ function build_segment_geometry (tree : T.Tree, segment : T.Segment, geometry : 
     
     if (segment.segment_number == tree.params.LevelParam[segment.stem.level].CurveRes-1 ) {
         const tip = segment.position.clone().add(segment.direction.clone().multiplyScalar(segment.stem.per_segment_length))
-        connect_circle_to_point_geometry(geometry, tip, segment.direction, resolution, segment.vertex_idx)
+        segment.vertex_idx = connect_cylinder_geometry(geometry, tip, segment.direction, 0, resolution, segment.vertex_idx, (segment.segment_number+1)%2)
     }
     
     for (const child of segment.children) {
@@ -118,7 +118,7 @@ function build_space_colony_geometry (tree : T.Tree, branch : S.SCBranch, geomet
         geometry.uv.push(...points_normals[2])
         branch.vertex_offset = base_vert_offset
     } else {
-        if (branch.extremity) connect_circle_to_point_geometry(geometry, branch.end, branch.direction, 5, branch.parent.vertex_offset)
+        if (branch.extremity) branch.vertex_offset = connect_cylinder_geometry(geometry, branch.end, branch.direction, 0, 5, branch.parent.vertex_offset, branch.uv_value)
         else branch.vertex_offset = connect_cylinder_geometry(geometry, branch.end, branch.direction, branch.radius, 5, branch.parent.vertex_offset, branch.uv_value)
     }
 
@@ -160,6 +160,7 @@ function connect_cylinder_geometry(
 }
 
 // pushes a single vertex to be the tip of a cone
+/*
 function connect_circle_to_point_geometry(
     geometry: Geometry,
     position_tip: THREE.Vector3,
@@ -180,7 +181,7 @@ function connect_circle_to_point_geometry(
         geometry.index.push(b0, b1, tip_offset);
     }
 }
-
+*/
 // Returns [positions, normals, uvs] for a ring of (sections+1) vertices.
 // The extra vertex duplicates index 0 in position/normal but carries U=1,
 // giving a clean UV seam without a visible geometric crack.
