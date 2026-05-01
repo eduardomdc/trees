@@ -2,14 +2,16 @@ import * as T from 'three';
 import * as p from './penn.ts';
 
 const MAX_SC_ITERATIONS = 1550;
-const BRANCH_SIZE = 0.5;
-const ATTRACTION_RANGE = 1.0; 
-const KILL_RANGE = 0.8;
+const BRANCH_SIZE = 0.2;
+const ATTRACTION_RANGE = 1.5; 
+const KILL_RANGE = 1.4;
 const RANDOM = 0.1;
-const ATTRACTORS = 1500;
-const INVERTED_GROWTH_FACTOR = 3.0;
+const ATTRACTORS = 3500;
+const INVERTED_GROWTH_FACTOR = 2.0;
 const GROWTH_FACTOR = 1/INVERTED_GROWTH_FACTOR;
-const EXTREMITY_RADIUS = 0.02;
+const EXTREMITY_RADIUS = 0.01;
+const radius = 5;
+const center_y = 5;
 
 export class SpaceColonizer {
     tree : p.Tree
@@ -29,8 +31,6 @@ export class SpaceColonizer {
 
     generate_attractors () {
         const n = ATTRACTORS;
-        const radius = 5;
-        const center_y = 7;
         
         for (let i: number = 0; i < n; i += 1) {
             // Uniform random point inside sphere
@@ -100,11 +100,8 @@ export class SpaceColonizer {
                 if (attractor.killed) {continue}
                 const distance = branch.end.distanceTo(attractor.pos)
                 if (distance < ATTRACTION_RANGE) {
-                    if (distance < KILL_RANGE) {
-                        attractor.killed = true
-                    } else {
-                        branch.attractors.push(attractor.pos)
-                    }
+                    if (distance < KILL_RANGE) attractor.killed = true
+                    branch.attractors.push(attractor.pos)
                 }
             }
             
@@ -117,6 +114,8 @@ export class SpaceColonizer {
                 }
                 sum_vector.add(new T.Vector3(0).randomDirection().multiplyScalar(RANDOM)) // random direction is not seeded, fix later
                 sum_vector.normalize()
+                //const similarity = sum_vector.dot(branch.direction)
+                //if (similarity > 0.95) continue;
                 const new_branch = new SCBranch(branch.end, sum_vector, branch);
                 this.branches.push(new_branch)
             } else { // no attractors, this branch goes inactive

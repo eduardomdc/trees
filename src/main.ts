@@ -225,7 +225,10 @@ const tree_controls = gui.addFolder('Tree');
 
 tree_controls.add(seed, 'Seed', 0, 1000);
 tree_controls.add(tree_params, 'SpaceColony').name("Use Space Colonization");
-tree_controls.add(tree_params, 'Shape', {
+
+const parametric_controls = tree_controls.addFolder('Parametric Controls');
+
+parametric_controls.add(tree_params, 'Shape', {
     Conical : 0,
     Spherical : 1,
     Hemispherical : 2,
@@ -235,18 +238,18 @@ tree_controls.add(tree_params, 'Shape', {
     InverseConical : 6,
     TendFlame : 7,
     Envelope : 8,});
-tree_controls.add(tree_params, 'Scale', 0, 100);
-tree_controls.add(tree_params, 'ScaleV', 0, 20);
-tree_controls.add(tree_params, 'ZScale', 0, 5);
-tree_controls.add(tree_params, 'ZScaleV', 0, 5);
+parametric_controls.add(tree_params, 'Scale', 0, 100);
+parametric_controls.add(tree_params, 'ScaleV', 0, 20);
+parametric_controls.add(tree_params, 'ZScale', 0, 5);
+parametric_controls.add(tree_params, 'ZScaleV', 0, 5);
 
-tree_controls.add(tree_params, 'Levels', 1, 4, 1);
+parametric_controls.add(tree_params, 'Levels', 1, 4, 1);
 
-tree_controls.add(tree_params, 'Ratio', 0, 0.1);
-tree_controls.add(tree_params, 'RatioPower', 0, 5);
-tree_controls.add(tree_params, 'Flare', 0, 2);
+parametric_controls.add(tree_params, 'Ratio', 0, 0.1);
+parametric_controls.add(tree_params, 'RatioPower', 0, 5);
+parametric_controls.add(tree_params, 'Flare', 0, 2);
 
-tree_controls.add(tree_params, 'AttractionUp', -5, 5);
+parametric_controls.add(tree_params, 'AttractionUp', -5, 5);
 
 const trunk_controls = tree_controls.addFolder('Trunk Options');
 
@@ -314,6 +317,8 @@ leaves_folder.add(leaves_param, 'PhototropicBend', 0, 1);
 tree_controls.onChange(
     _ => {
         rebuild_tree()
+        
+
     }
 );
 
@@ -341,7 +346,18 @@ function rebuild_tree () {
 
     scene.remove(attractors_cloud);
     attractors_cloud = tree.space_colonizer.create_attractors_point_cloud();
-    //scene.add(attractors_cloud);
+    scene.add(attractors_cloud);
+    if (tree.params.SpaceColony) {
+        parametric_controls.hide()
+        trunk_controls.hide()
+        levels_folder.hide()
+        leaves_folder.hide()
+    } else {
+        parametric_controls.show()
+        trunk_controls.show()
+        levels_folder.show()
+        leaves_folder.show()
+    }
 }
 
 function animate() {
