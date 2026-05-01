@@ -2,17 +2,7 @@ import * as T from 'three';
 import * as p from './penn.ts';
 
 /*
-const MAX_SC_ITERATIONS = 1550;
-const BRANCH_SIZE = 0.2;
-const ATTRACTION_RANGE = 1.5; 
-const KILL_RANGE = 1.4;
-const RANDOM = 0.1;
-const ATTRACTORS = 3500;
-const INVERTED_GROWTH_FACTOR = 2.0;
-const GROWTH_FACTOR = 1/INVERTED_GROWTH_FACTOR;
-const EXTREMITY_RADIUS = 0.01;
-const radius = 5;
-const center_y = 5;
+
 */
 
 export class SpaceColonizer {
@@ -126,7 +116,8 @@ export class SpaceColonizer {
                     const direction = attractor.clone().sub(branch.end).normalize() // repeats :90, optimize later
                     sum_vector.add(direction) 
                 }
-                sum_vector.add(new T.Vector3(0).randomDirection().multiplyScalar(randomness)) // random direction is not seeded, fix later
+                //sum_vector.add(new T.Vector3(this.tree.randFloat(-1, 1),this.tree.randFloat(-1, 1), this.tree.randFloat(-1, 1)).normalize().multiplyScalar(randomness)) // random direction is not seeded, fix later
+                sum_vector.add(this.tree.randDirection().multiplyScalar(randomness))
                 sum_vector.normalize()
                 //const similarity = sum_vector.dot(branch.direction)
                 //if (similarity > 0.95) continue;

@@ -58,6 +58,20 @@ export class Tree {
         const rand = ((t ^ t >>> 14) >>> 0) / 4294967296;
         return min + (max-min) * rand;
     }
+
+    randDirection() : THREE.Vector3 {
+        let x: number;
+        let y: number;
+        let z: number;
+
+        do {
+            x = this.randFloat(-1, 1); 
+            y = this.randFloat(-1, 1); 
+            z = this.randFloat(-1, 1); 
+        } while (x * x + y * y + z * z > 1);
+
+        return new THREE.Vector3(x,y,z).normalize()
+    }
 }
 
 class Stem {
