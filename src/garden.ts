@@ -1,7 +1,7 @@
 import {type SpaceColonyParam, type TreeParams} from './penn.ts'
 
 export const DefaultSpaceColonyParams : SpaceColonyParam = {
-    max_iterations : 1000,
+    max_iterations : 200,
     branch_length : 0.2,
     attraction_range : 1.5, 
     kill_range_relative : 0.95,

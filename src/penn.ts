@@ -13,7 +13,7 @@ export function get_quaternion_from_dir (dir : THREE.Vector3) : THREE.Quaternion
 export class Tree {
     seed : number;
     root : Segment | null = null;
-    leaf_count : number = 0;
+    leaves : THREE.Matrix4[] = [];
 
     stem_split_error: number[] = [0,0,0,0];
 
@@ -108,7 +108,6 @@ class Stem {
 export class Segment {
     children : Segment[] = [];
     parent : Segment | null = null;
-    leaves : THREE.Matrix4[] = [];
     segment_number : number = 0;
     length_along_this_stem : number = 0; // used for calculating offset_child of this segment
     stem : Stem = new Stem();
@@ -500,8 +499,7 @@ export class Segment {
             */
 
             const mat4 = new THREE.Matrix4().compose(leaf_position, leaf_quart, new THREE.Vector3(leaf_width,leaf_length,1)); 
-            this.leaves.push(mat4);
-            tree.leaf_count += 1;
+            tree.leaves.push(mat4);
             offset += offset_delta;
         }
     }

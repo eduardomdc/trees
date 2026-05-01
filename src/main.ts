@@ -18,7 +18,7 @@ renderer.shadowMap.enabled = true;
 
 const { camera, updateCamera} = createOrbitalCamera(canvas, {initialRadius: 15, sensitivity: 0.008, target: new THREE.Vector3(0,10,0),});
 
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 2 );
+const directionalLight = new THREE.DirectionalLight( 0xf7e8ca, 5 );
 directionalLight.castShadow = true;
 directionalLight.position.set(5, 12, 0);
 directionalLight.shadow.camera.near = 0.1;
@@ -28,11 +28,15 @@ directionalLight.shadow.camera.right = 10;
 directionalLight.shadow.camera.top = 10;
 directionalLight.shadow.camera.bottom = -10;
 scene.add( directionalLight );
-const light = new THREE.AmbientLight( 0xaaaaff, 1); // soft white light
+const light = new THREE.AmbientLight( 0xcad8db, 1.2); // soft white light
 scene.add( light );
-//scene.background = new THREE.Color(0x9090ff);
 
 const loader = new THREE.TextureLoader();
+
+const jungle_tex = loader.load(import.meta.env.BASE_URL+'/assets/jungle.jpg');
+jungle_tex.mapping = THREE.EquirectangularReflectionMapping
+scene.background = jungle_tex;
+
 const ground_tex = loader.load(import.meta.env.BASE_URL+'/assets/ground.jpg');
 ground_tex.wrapS = THREE.RepeatWrapping;
 ground_tex.wrapT = THREE.RepeatWrapping;
@@ -340,7 +344,7 @@ tree_controls.onChange(
 // Space colony controls
 const sc_folder = tree_controls.addFolder('Space Colony');
 const sc_params = tree_params.SpaceColonyParam;
-sc_folder.add(sc_params, 'max_iterations', 1, 2000, 1)
+sc_folder.add(sc_params, 'max_iterations', 1, 500, 1)
 sc_folder.add(sc_params, 'branch_length', 0.1, 3)
 sc_folder.add(sc_params, 'attraction_range', 0.1, 3)
 sc_folder.add(sc_params, 'kill_range_relative', 0.8, 0.99)
@@ -382,13 +386,13 @@ function rebuild_tree () {
         parametric_controls.hide()
         trunk_controls.hide()
         levels_folder.hide()
-        leaves_folder.hide()
+        //leaves_folder.hide()
         sc_folder.show()
     } else {
         parametric_controls.show()
         trunk_controls.show()
         levels_folder.show()
-        leaves_folder.show()
+        //leaves_folder.show()
         sc_folder.hide()
     }
 }

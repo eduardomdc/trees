@@ -66,6 +66,7 @@ export class SpaceColonizer {
         }
 
         this.calculate_branch_radius()
+        this.add_leaves()
     }
 
     grow_first_branch () {
@@ -145,6 +146,24 @@ export class SpaceColonizer {
                 branch.radius = sum**(this.growth_factor)
             }
         } 
+    }
+
+    add_leaves () {
+        const leaf_length = this.tree.params.LeavesParam.LeafScale
+        const leaf_width = this.tree.params.LeavesParam.LeafScaleX * leaf_length
+        for (let i : number = this.branches.length-1; i >= 0; i -= 1) {
+            const branch = this.branches[i]
+            {
+                const leaf_quart = p.get_quaternion_from_dir(branch.direction)
+                const around_angle = Math.PI * (this.tree.randFloat(-1, 1));
+                const rotate_around = new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0), around_angle)
+                const down_angle = Math.PI * (this.tree.params.LeavesParam.DownAngle)/180
+                const rotate_down = new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0), down_angle)
+                leaf_quart.multiply(rotate_around).multiply(rotate_down)
+                const mat4 = new T.Matrix4().compose(branch.end, leaf_quart, new T.Vector3(leaf_width,leaf_length,1)); 
+                this.tree.leaves.push(mat4);
+            }
+        }
     }
 }
 
