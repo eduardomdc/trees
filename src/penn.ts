@@ -513,7 +513,23 @@ export type TreeParams = {
     PruneRation: number, //fractional effect of pruning
     PruneWidth : number,PruneWidthPeak: number, // width, position of envelope peak
     PrunePowerLow : number,PrunePowerHigh : number, // curvature of envelope
+
+    SpaceColonyParam : SpaceColonyParam,
+
     TextureParam : TextureParam,
+}
+
+export type SpaceColonyParam = {
+    max_iterations : number;
+    branch_length : number;
+    attraction_range : number; 
+    kill_range_relative : number;
+    branch_randomness : number;
+    inverse_growth_factor : number;
+    branch_thickness : number;
+    attractors : number;
+    attractors_radius : number;
+    attractors_height : number;
 }
 
 

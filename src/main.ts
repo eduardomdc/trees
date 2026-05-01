@@ -144,6 +144,17 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.LeavesParam.LeafScaleX = input.LeavesParam.LeafScaleX;
     preset.LeavesParam.PhototropicBend = input.LeavesParam.PhototropicBend;
 
+    preset.SpaceColonyParam.max_iterations = input.SpaceColonyParam.max_iterations;
+    preset.SpaceColonyParam.branch_length = input.SpaceColonyParam.branch_length;
+    preset.SpaceColonyParam.attraction_range = input.SpaceColonyParam.attraction_range;
+    preset.SpaceColonyParam.kill_range_relative = input.SpaceColonyParam.kill_range_relative;
+    preset.SpaceColonyParam.branch_randomness = input.SpaceColonyParam.branch_randomness;
+    preset.SpaceColonyParam.inverse_growth_factor = input.SpaceColonyParam.inverse_growth_factor;
+    preset.SpaceColonyParam.branch_thickness = input.SpaceColonyParam.branch_thickness;
+    preset.SpaceColonyParam.attractors = input.SpaceColonyParam.attractors;
+    preset.SpaceColonyParam.attractors_radius = input.SpaceColonyParam.attractors_radius;
+    preset.SpaceColonyParam.attractors_height = input.SpaceColonyParam.attractors_height;
+
     preset.TextureParam.LeafTexture = input.TextureParam.LeafTexture
     preset.TextureParam.BarkTexture = input.TextureParam.BarkTexture
 }
@@ -322,11 +333,27 @@ tree_controls.onChange(
     }
 );
 
+// Space colony controls
+const sc_folder = tree_controls.addFolder('Space Colony');
+const sc_params = tree_params.SpaceColonyParam;
+sc_folder.add(sc_params, 'max_iterations', 1, 2000, 1)
+sc_folder.add(sc_params, 'branch_length', 0.1, 3)
+sc_folder.add(sc_params, 'attraction_range', 0.1, 3)
+sc_folder.add(sc_params, 'kill_range_relative', 0.1, 1)
+sc_folder.add(sc_params, 'branch_randomness', 0.01, 1)
+sc_folder.add(sc_params, 'inverse_growth_factor', 0.01, 5)
+sc_folder.add(sc_params, 'branch_thickness', 0.001, 0.1)
+sc_folder.add(sc_params, 'attractors', 1, 5000, 1)
+sc_folder.add(sc_params, 'attractors_radius', 0.1, 8)
+sc_folder.add(sc_params, 'attractors_height', 0, 20)
+sc_folder.hide();
+
 // Texture controls
 const texture_folder = tree_controls.addFolder('Textures');
 const texture_params = tree_params.TextureParam;
 texture_folder.add(texture_params, 'LeafTexture', Object.keys(Tex.LeafTextures));
 texture_folder.add(texture_params, 'BarkTexture', Object.keys(Tex.BarkTextures));
+
 
 
 function rebuild_tree () {
@@ -344,19 +371,21 @@ function rebuild_tree () {
     tree_leaves = tree.build_leaves(leaf_mat);
     scene.add(tree_leaves);
 
-    scene.remove(attractors_cloud);
+    //scene.remove(attractors_cloud);
     attractors_cloud = tree.space_colonizer.create_attractors_point_cloud();
-    scene.add(attractors_cloud);
+    //scene.add(attractors_cloud);
     if (tree.params.SpaceColony) {
         parametric_controls.hide()
         trunk_controls.hide()
         levels_folder.hide()
         leaves_folder.hide()
+        sc_folder.show()
     } else {
         parametric_controls.show()
         trunk_controls.show()
         levels_folder.show()
         leaves_folder.show()
+        sc_folder.hide()
     }
 }
 

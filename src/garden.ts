@@ -1,4 +1,17 @@
-import {type TreeParams} from './penn.ts'
+import {type SpaceColonyParam, type TreeParams} from './penn.ts'
+
+export const DefaultSpaceColonyParams : SpaceColonyParam = {
+    max_iterations : 1000,
+    branch_length : 0.2,
+    attraction_range : 1.5, 
+    kill_range_relative : 0.95,
+    branch_randomness : 0.1,
+    inverse_growth_factor : 2.0,
+    branch_thickness : 0.01,
+    attractors : 3000,
+    attractors_radius : 5,
+    attractors_height : 5
+}
 
 export const QuakingAspen: TreeParams = {
     SpaceColony: false,
@@ -123,7 +136,8 @@ export const QuakingAspen: TreeParams = {
   TextureParam : {
       LeafTexture : 'CommonGreen',
       BarkTexture : 'CommonBark',
-  }
+  },
+  SpaceColonyParam : DefaultSpaceColonyParams, 
 };
 
 export const Acer: TreeParams = {
@@ -254,7 +268,8 @@ export const Acer: TreeParams = {
   TextureParam : {
       LeafTexture : 'MapleRed',
       BarkTexture : 'CommonBark',
-  }
+  },
+  SpaceColonyParam : DefaultSpaceColonyParams, 
 };
 
 export const preset_params : TreeParams[] = [QuakingAspen, Acer];
