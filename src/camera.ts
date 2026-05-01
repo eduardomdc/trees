@@ -30,7 +30,7 @@ export function createOrbitalCamera(
   } = options ?? {};
 
   const state: OrbitalCameraState = {
-    theta: Math.PI / 4,
+    theta: Math.PI,
     phi: Math.PI / 3,
     radius: initialRadius,
     isDragging: false,

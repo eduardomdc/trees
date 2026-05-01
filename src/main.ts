@@ -20,7 +20,7 @@ const { camera, updateCamera} = createOrbitalCamera(canvas, {initialRadius: 15, 
 
 const directionalLight = new THREE.DirectionalLight( 0xf7e8ca, 5 );
 directionalLight.castShadow = true;
-directionalLight.position.set(5, 12, 0);
+directionalLight.position.set(-5, 12, 0);
 directionalLight.shadow.camera.near = 0.1;
 directionalLight.shadow.camera.far = 100;
 directionalLight.shadow.camera.left = -10;
@@ -28,14 +28,15 @@ directionalLight.shadow.camera.right = 10;
 directionalLight.shadow.camera.top = 10;
 directionalLight.shadow.camera.bottom = -10;
 scene.add( directionalLight );
-const light = new THREE.AmbientLight( 0xcad8db, 1.2); // soft white light
-scene.add( light );
+//const light = new THREE.AmbientLight( 0xcad8db, 1.2); // soft white light
+//scene.add( light );
 
 const loader = new THREE.TextureLoader();
 
 const jungle_tex = loader.load(import.meta.env.BASE_URL+'/assets/jungle.jpg');
 jungle_tex.mapping = THREE.EquirectangularReflectionMapping
 scene.background = jungle_tex;
+scene.environment = jungle_tex;
 
 const ground_tex = loader.load(import.meta.env.BASE_URL+'/assets/ground.jpg');
 ground_tex.wrapS = THREE.RepeatWrapping;
