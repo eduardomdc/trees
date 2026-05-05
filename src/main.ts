@@ -154,7 +154,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.SpaceColonyParam.attraction_range = input.SpaceColonyParam.attraction_range;
     preset.SpaceColonyParam.kill_range_relative = input.SpaceColonyParam.kill_range_relative;
     preset.SpaceColonyParam.branch_randomness = input.SpaceColonyParam.branch_randomness;
-    preset.SpaceColonyParam.branch_wavyness = input.SpaceColonyParam.branch_wavyness;
+    preset.SpaceColonyParam.branch_spread = input.SpaceColonyParam.branch_spread;
     preset.SpaceColonyParam.inverse_growth_factor = input.SpaceColonyParam.inverse_growth_factor;
     preset.SpaceColonyParam.branch_thickness = input.SpaceColonyParam.branch_thickness;
     preset.SpaceColonyParam.attractors = input.SpaceColonyParam.attractors;
