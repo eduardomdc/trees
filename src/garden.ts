@@ -12,7 +12,8 @@ export const DefaultSpaceColonyParams : SpaceColonyParam = {
     branch_thickness : 0.01,
     attractors : 3000,
     attractors_radius : 5,
-    attractors_height : 5
+    attractors_height : 5,
+    attraction_up : 0
 }
 
 export const QuakingAspen: TreeParams = {

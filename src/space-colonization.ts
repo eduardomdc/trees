@@ -5,6 +5,10 @@ import * as p from './penn.ts';
 
 */
 
+const UP = new T.Vector3(0,1,0)
+
+const MAX_BRANCHES = 10000
+
 export type SpaceColonyParam = {
     max_iterations : number;
     branch_length : number;
@@ -17,6 +21,7 @@ export type SpaceColonyParam = {
     attractors : number;
     attractors_radius : number;
     attractors_height : number;
+    attraction_up : number;
 }
 
 
@@ -75,7 +80,7 @@ export class SpaceColonizer {
         this.iteration = 0
         this.grow_first_branch();
         
-        while (this.iteration < max_iterations && this.attractors.length > 0) {
+        while (this.iteration < max_iterations && this.attractors.length > 0 && this.branches.length < MAX_BRANCHES) {
             this.iteration += 1
             this.space_colonization()
         }
@@ -110,7 +115,8 @@ export class SpaceColonizer {
         const kill_range = this.kill_range
         const randomness = this.params.branch_randomness
         const spread = this.params.branch_spread
-        const branch_count = this.branches.length 
+        const branch_count = this.branches.length
+        const attraction_up = this.params.attraction_up
         for (let i : number = 0; i < branch_count; i += 1) {
             const branch = this.branches[i];
             if (!branch.active) {continue}
@@ -142,6 +148,10 @@ export class SpaceColonizer {
                     const similarity = sum_vector.dot(paralel)
                     paralel.sub(sum_vector.clone().multiplyScalar(similarity)).normalize()
                     sum_vector.add(paralel.multiplyScalar(spread*branch.children.length)).normalize()
+                }
+                // attraction up
+                if ( attraction_up != 0) {
+                    sum_vector.add(UP.clone().multiplyScalar(attraction_up)).normalize()
                 }
 
                 //const similarity = sum_vector.dot(branch.direction)

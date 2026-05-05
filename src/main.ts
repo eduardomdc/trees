@@ -160,6 +160,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.SpaceColonyParam.attractors = input.SpaceColonyParam.attractors;
     preset.SpaceColonyParam.attractors_radius = input.SpaceColonyParam.attractors_radius;
     preset.SpaceColonyParam.attractors_height = input.SpaceColonyParam.attractors_height;
+    preset.SpaceColonyParam.attraction_up = input.SpaceColonyParam.attraction_up;
 
     preset.TextureParam.LeafTexture = input.TextureParam.LeafTexture
     preset.TextureParam.BarkTexture = input.TextureParam.BarkTexture
@@ -357,6 +358,7 @@ sc_folder.add(sc_params, 'branch_thickness', 0.001, 0.1)
 sc_folder.add(sc_params, 'attractors', 1, 8000, 1)
 sc_folder.add(sc_params, 'attractors_radius', 0.1, 15)
 sc_folder.add(sc_params, 'attractors_height', 0, 20)
+sc_folder.add(sc_params, 'attraction_up', -1, 1)
 sc_folder.hide();
 
 // Texture controls
