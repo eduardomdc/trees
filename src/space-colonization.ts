@@ -183,11 +183,15 @@ export class SpaceColonizer {
     }
 
     add_leaves () {
+        if (this.branches.length == 0) return
         const leaf_length = this.tree.params.LeavesParam.LeafScale
         const leaf_width = this.tree.params.LeavesParam.LeafScaleX * leaf_length
+        //const trunk_radius = this.branches[0].radius
+        const leaf_radius_filter = (this.params.branch_thickness) ** this.growth_factor // maybe
+
         for (let i : number = this.branches.length-1; i >= 0; i -= 1) {
             const branch = this.branches[i]
-            {
+            if (branch.radius <= leaf_radius_filter) {
                 const leaf_quart = p.get_quaternion_from_dir(branch.direction)
                 const around_angle = Math.PI * (this.tree.randFloat(-1, 1));
                 const rotate_around = new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0), around_angle)
