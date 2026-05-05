@@ -154,6 +154,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.SpaceColonyParam.attraction_range = input.SpaceColonyParam.attraction_range;
     preset.SpaceColonyParam.kill_range_relative = input.SpaceColonyParam.kill_range_relative;
     preset.SpaceColonyParam.branch_randomness = input.SpaceColonyParam.branch_randomness;
+    preset.SpaceColonyParam.branch_wavyness = input.SpaceColonyParam.branch_wavyness;
     preset.SpaceColonyParam.inverse_growth_factor = input.SpaceColonyParam.inverse_growth_factor;
     preset.SpaceColonyParam.branch_thickness = input.SpaceColonyParam.branch_thickness;
     preset.SpaceColonyParam.attractors = input.SpaceColonyParam.attractors;
@@ -350,10 +351,11 @@ sc_folder.add(sc_params, 'branch_length', 0.1, 3)
 sc_folder.add(sc_params, 'attraction_range', 0.1, 3)
 sc_folder.add(sc_params, 'kill_range_relative', 0.8, 0.99)
 sc_folder.add(sc_params, 'branch_randomness', 0.01, 10)
+sc_folder.add(sc_params, 'branch_spread', 0, 10)
 sc_folder.add(sc_params, 'inverse_growth_factor', 0.01, 5)
 sc_folder.add(sc_params, 'branch_thickness', 0.001, 0.1)
-sc_folder.add(sc_params, 'attractors', 1, 5000, 1)
-sc_folder.add(sc_params, 'attractors_radius', 0.1, 8)
+sc_folder.add(sc_params, 'attractors', 1, 8000, 1)
+sc_folder.add(sc_params, 'attractors_radius', 0.1, 15)
 sc_folder.add(sc_params, 'attractors_height', 0, 20)
 sc_folder.hide();
 

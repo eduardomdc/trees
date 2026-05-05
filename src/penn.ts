@@ -526,24 +526,10 @@ export type TreeParams = {
     PruneWidth : number,PruneWidthPeak: number, // width, position of envelope peak
     PrunePowerLow : number,PrunePowerHigh : number, // curvature of envelope
 
-    SpaceColonyParam : SpaceColonyParam,
+    SpaceColonyParam : Space.SpaceColonyParam,
 
     TextureParam : TextureParam,
 }
-
-export type SpaceColonyParam = {
-    max_iterations : number;
-    branch_length : number;
-    attraction_range : number; 
-    kill_range_relative : number;
-    branch_randomness : number;
-    inverse_growth_factor : number;
-    branch_thickness : number;
-    attractors : number;
-    attractors_radius : number;
-    attractors_height : number;
-}
-
 
 class ProcessedTreeParams {
     length_trunk : number; // length of full trunk ( 0Length ± 0LengthV )*scale_tree

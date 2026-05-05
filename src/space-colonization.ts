@@ -5,6 +5,21 @@ import * as p from './penn.ts';
 
 */
 
+export type SpaceColonyParam = {
+    max_iterations : number;
+    branch_length : number;
+    attraction_range : number; 
+    kill_range_relative : number;
+    branch_randomness : number;
+    branch_spread : number;
+    inverse_growth_factor : number;
+    branch_thickness : number;
+    attractors : number;
+    attractors_radius : number;
+    attractors_height : number;
+}
+
+
 export class SpaceColonizer {
     tree : p.Tree
     attractors : Array<Attractor> = []
@@ -14,7 +29,7 @@ export class SpaceColonizer {
     iteration : number = 0
     growth_factor : number = 0
     kill_range : number = 0.1
-    params : p.SpaceColonyParam 
+    params : SpaceColonyParam 
 
     constructor (tree : p.Tree) {
         this.tree = tree
@@ -94,6 +109,7 @@ export class SpaceColonizer {
         const attraction_range = this.params.attraction_range
         const kill_range = this.kill_range
         const randomness = this.params.branch_randomness
+        const spread = this.params.branch_spread
         const branch_count = this.branches.length 
         for (let i : number = 0; i < branch_count; i += 1) {
             const branch = this.branches[i];
@@ -120,6 +136,14 @@ export class SpaceColonizer {
                 //sum_vector.add(new T.Vector3(this.tree.randFloat(-1, 1),this.tree.randFloat(-1, 1), this.tree.randFloat(-1, 1)).normalize().multiplyScalar(randomness)) // random direction is not seeded, fix later
                 sum_vector.add(this.tree.randDirection().multiplyScalar(randomness))
                 sum_vector.normalize()
+                // spread
+                if (spread > 0 && branch.children.length > 0) {
+                    let paralel = this.tree.randDirection()
+                    const similarity = sum_vector.dot(paralel)
+                    paralel.sub(sum_vector.clone().multiplyScalar(similarity)).normalize()
+                    sum_vector.add(paralel.multiplyScalar(spread*branch.children.length)).normalize()
+                }
+
                 //const similarity = sum_vector.dot(branch.direction)
                 //if (similarity > 0.95) continue;
                 const new_branch = new SCBranch(branch.end, sum_vector, this.params.branch_length, branch);

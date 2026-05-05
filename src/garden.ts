@@ -1,11 +1,13 @@
-import {type SpaceColonyParam, type TreeParams} from './penn.ts'
+import {type TreeParams} from './penn.ts'
+import { type SpaceColonyParam } from './space-colonization.ts';
 
 export const DefaultSpaceColonyParams : SpaceColonyParam = {
     max_iterations : 200,
     branch_length : 0.2,
-    attraction_range : 1.5, 
+    attraction_range : 1.2, 
     kill_range_relative : 0.95,
     branch_randomness : 0.1,
+    branch_spread : 0.0,
     inverse_growth_factor : 2.0,
     branch_thickness : 0.01,
     attractors : 3000,
