@@ -138,7 +138,7 @@ export const QuakingAspen: TreeParams = {
   PrunePowerHigh: 0.5,
   TextureParam : {
       LeafTexture : 'CommonGreen',
-      BarkTexture : 'CommonBark',
+      BarkTexture : 'White',
   },
   SpaceColonyParam : DefaultSpaceColonyParams, 
 };
@@ -270,7 +270,7 @@ export const Acer: TreeParams = {
   PrunePowerHigh: 0.5,
   TextureParam : {
       LeafTexture : 'MapleRed',
-      BarkTexture : 'CommonBark',
+      BarkTexture : 'Common',
   },
   SpaceColonyParam : DefaultSpaceColonyParams, 
 };

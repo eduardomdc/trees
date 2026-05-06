@@ -1,10 +1,6 @@
 import * as T from 'three';
 import * as p from './penn.ts';
 
-/*
-
-*/
-
 const UP = new T.Vector3(0,1,0)
 
 const MAX_BRANCHES = 10000
