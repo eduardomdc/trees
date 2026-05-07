@@ -332,6 +332,13 @@ export class Segment {
 
         // child branch rotation
         child.direction.applyQuaternion(this.compute_child_rotation(tree, parent, child.stem.level, offset_child)).normalize();
+
+        // fix initial rotation value of stem so child branches start parallel to ground (palm trees)
+        const child_orientation = get_quaternion_from_dir(child.direction)
+        const x = new T.Vector3(1,0,0).applyQuaternion(child_orientation)
+        const z = new T.Vector3(0,0,1).applyQuaternion(child_orientation)
+        child.stem.last_spawned_child_Y_rotation_angle = Math.atan2(-z.y, x.y)
+
     
         const parent_quaternion = get_quaternion_from_dir(parent.direction)
         const out_of_stem = new T.Vector3(0,0,1).applyQuaternion(parent_quaternion);

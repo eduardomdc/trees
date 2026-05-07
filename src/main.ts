@@ -18,7 +18,7 @@ renderer.shadowMap.enabled = true;
 
 const { camera, updateCamera} = createOrbitalCamera(canvas, {initialRadius: 15, sensitivity: 0.008, target: new THREE.Vector3(0,10,0),});
 
-const directionalLight = new THREE.DirectionalLight( 0xf7e8ca, 5 );
+const directionalLight = new THREE.DirectionalLight( 0xf7e8ca, 3 );
 directionalLight.castShadow = true;
 directionalLight.position.set(-5, 12, 0);
 directionalLight.shadow.camera.near = 0.1;
