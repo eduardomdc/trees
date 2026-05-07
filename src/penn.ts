@@ -1,19 +1,20 @@
-import * as THREE from 'three';
+import * as T from 'three';
 import * as Mesh from './mesh.ts'
 import * as Tex from './texture.ts'
 import * as Space from './space-colonization.ts';
 
 const quality = 1;
+const UP = new T.Vector3(0,1,0)
 
-export function get_quaternion_from_dir (dir : THREE.Vector3) : THREE.Quaternion {
-    const up = new THREE.Vector3(0,1,0);
-    return new THREE.Quaternion().setFromUnitVectors(up, dir);
+export function get_quaternion_from_dir (dir : T.Vector3) : T.Quaternion {
+    const up = new T.Vector3(0,1,0);
+    return new T.Quaternion().setFromUnitVectors(up, dir);
 }
 
 export class Tree {
     seed : number;
     root : Segment | null = null;
-    leaves : THREE.Matrix4[] = [];
+    leaves : T.Matrix4[] = [];
 
     stem_split_error: number[] = [0,0,0,0];
 
@@ -35,15 +36,15 @@ export class Tree {
         this.root = this.root.generate_stem_Segments(this, null)[0];
     }
 
-    build_tree_geometry (material : THREE.Material) : THREE.Mesh {
+    build_tree_geometry (material : T.Material) : T.Mesh {
        const buffer_geometry = Mesh.build_tree_geometry(this);
-       const mesh = new THREE.Mesh(buffer_geometry, material);
+       const mesh = new T.Mesh(buffer_geometry, material);
        mesh.castShadow = true;
        mesh.receiveShadow = true;
        return mesh;
     } 
     
-    build_leaves (material : THREE.Material) : THREE.InstancedMesh {
+    build_leaves (material : T.Material) : T.InstancedMesh {
         const mesh = Mesh.build_leaves_mesh(this, material);
         mesh.castShadow = true;
         mesh.receiveShadow = true;
@@ -59,7 +60,7 @@ export class Tree {
         return min + (max-min) * rand;
     }
 
-    randDirection() : THREE.Vector3 {
+    randDirection() : T.Vector3 {
         let x: number;
         let y: number;
         let z: number;
@@ -70,7 +71,7 @@ export class Tree {
             z = this.randFloat(-1, 1); 
         } while (x * x + y * y + z * z > 1);
 
-        return new THREE.Vector3(x,y,z).normalize()
+        return new T.Vector3(x,y,z).normalize()
     }
 }
 
@@ -111,8 +112,8 @@ export class Segment {
     segment_number : number = 0;
     length_along_this_stem : number = 0; // used for calculating offset_child of this segment
     stem : Stem = new Stem();
-    direction : THREE.Vector3 = new THREE.Vector3;
-    position : THREE.Vector3 = new THREE.Vector3;
+    direction : T.Vector3 = new T.Vector3;
+    position : T.Vector3 = new T.Vector3;
     radius : number = 0;
 
     vertex_idx : number = 0;
@@ -138,11 +139,11 @@ export class Segment {
         }
     }
 
-    get_x_dir_in_relation_to_parent_stem () : THREE.Vector3 {
+    get_x_dir_in_relation_to_parent_stem () : T.Vector3 {
         if (this.stem.parent_segment == null) {
-            return new THREE.Vector3(1,0,0)
+            return new T.Vector3(1,0,0)
         } else {
-            return new THREE.Vector3().crossVectors(this.direction, this.stem.parent_segment.direction)
+            return new T.Vector3().crossVectors(this.direction, this.stem.parent_segment.direction)
         }
     }
 
@@ -178,7 +179,7 @@ export class Segment {
             const curve_back = tree.params.LevelParam[next_segment.stem.level].CurveBack;
             // curve the new segment's coordinate frame a little
             if (curve_back == 0) {
-                const bendQ = new THREE.Quaternion().setFromAxisAngle(
+                const bendQ = new T.Quaternion().setFromAxisAngle(
                     x_dir,
                     Math.PI*(-curve/curve_res)/180,  // bend angle
                 );
@@ -190,7 +191,7 @@ export class Segment {
             }
             // in either case, a random rotation of magnitude (nCurveV/nCurveRes ) is also added for each segment
             const curve_v = tree.params.LevelParam[next_segment.stem.level].CurveV;
-            const randrot = new THREE.Quaternion().setFromAxisAngle(
+            const randrot = new T.Quaternion().setFromAxisAngle(
                 x_dir,
                 tree.randFloat(-1,1)*Math.PI*(curve_v/curve_res)/180, 
             );
@@ -198,7 +199,7 @@ export class Segment {
 
             // correct rotation if there's a split correction to be done
             if (next_segment.stem.per_segment_split_angle_correction != 0) {
-                const split_correction = new THREE.Quaternion().setFromAxisAngle(x_dir, -next_segment.stem.per_segment_split_angle_correction);
+                const split_correction = new T.Quaternion().setFromAxisAngle(x_dir, -next_segment.stem.per_segment_split_angle_correction);
                 next_segment.direction.applyQuaternion(split_correction);
             }
 
@@ -213,12 +214,12 @@ export class Segment {
                     split_apart_angle = ( 360.0/(seg_splits+1) * split_number + tree.randFloat(-1, 1)*next_params.SplitRotationV )*Math.PI/180;
                 }
                 //if (tree.randFloat(-1,1) < 0) {split_apart_angle *= -1}
-                const apart_quart = new THREE.Quaternion().setFromAxisAngle(next_segment.direction, split_apart_angle);
+                const apart_quart = new T.Quaternion().setFromAxisAngle(next_segment.direction, split_apart_angle);
                 next_segment.direction.applyQuaternion(apart_quart)
                 
                 let split_out_angle = (next_params.SplitAngle + tree.randFloat(-1, 1)*next_params.SplitAngleV)*Math.PI/180;
                 //if (tree.randFloat(-1,1) < 0) {split_out_angle *= -1}
-                const split_out_quart = new THREE.Quaternion().setFromAxisAngle(x_dir, split_out_angle);
+                const split_out_quart = new T.Quaternion().setFromAxisAngle(x_dir, split_out_angle);
                 next_segment.direction.applyQuaternion(split_out_quart)
 
                 // add out angle to split angle correction so the stem gets re-orientated after splitting out
@@ -232,25 +233,13 @@ export class Segment {
                 // reduce chance of further splits this stem can have
                 next_segment.stem.per_segment_split_chance /= (seg_splits+1)**2 // squaring produced better predictable results
             }
-            
-            /* TODO REFACTOR WITH DIRECTION
-            const forward = new THREE.Vector3(0,1,0).applyQuaternion(next_segment.rotation)
-            const right = new THREE.Vector3(0,0,1).applyQuaternion(next_segment.rotation)
-            const declination = Math.acos(forward.y);
-            const right_orientation = Math.acos(right.y);
+            // attraction up 
             if (next_segment.stem.level > 0) {
-                const delta = Math.abs(tree.params.AttractionUp)/tree.params.LevelParam[next_segment.stem.level].CurveRes
-                const correction_angle = declination * delta * Math.cos(right_orientation)
-                if (tree.params.AttractionUp > 0) { // TCC
-                    const Q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), correction_angle)
-                    next_segment.rotation.multiply(Q)
-                } else {
-                    const Q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), -correction_angle)
-                    next_segment.rotation.multiply(Q)
-                }
-            }*/
+                const delta = tree.params.AttractionUp/tree.params.LevelParam[next_segment.stem.level].CurveRes
+                next_segment.direction.addScaledVector(UP, delta).normalize()
+            }
 
-            //const growth = new THREE.Vector3(0,next_segment.stem.per_segment_length, 0)// grows in the y axis
+            //const growth = new T.Vector3(0,next_segment.stem.per_segment_length, 0)// grows in the y axis
             const growth = parent.direction.clone().multiplyScalar(next_segment.stem.per_segment_length)
             
             next_segment.position.add(growth);
@@ -271,7 +260,7 @@ export class Segment {
         return next_segment;
     }
     
-    compute_child_rotation( tree: Tree, parent: Segment, child_level: number, offset_child: number): THREE.Quaternion {
+    compute_child_rotation( tree: Tree, parent: Segment, child_level: number, offset_child: number): T.Quaternion {
         const isLeaf = tree.params.Levels === child_level;
         const src = isLeaf
             ? tree.params.LeavesParam
@@ -287,8 +276,8 @@ export class Segment {
             : DownAngle + tree.randFloat(-1, 1) * (DownAngleV * ( 1 - 2 * ShapeRatio( 0, (parent.stem.length - offset_child)/parent.stem.length ) ))
         ) / 180;
 
-        const rotation = new THREE.Quaternion();
-        const a_rotation = new THREE.Quaternion();
+        const rotation = new T.Quaternion();
+        const a_rotation = new T.Quaternion();
 
         if (Rotate > 0) {
             const Y_rotation_angle = parent.stem.last_spawned_child_Y_rotation_angle
@@ -301,7 +290,7 @@ export class Segment {
         }
 
         const quart = get_quaternion_from_dir(parent.direction)
-        const x_vec = new THREE.Vector3(1,0,0).applyQuaternion(quart)
+        const x_vec = new T.Vector3(1,0,0).applyQuaternion(quart)
         a_rotation.setFromAxisAngle(x_vec, -down_angle);
         rotation.multiply(a_rotation).normalize();
 
@@ -345,7 +334,7 @@ export class Segment {
         child.direction.applyQuaternion(this.compute_child_rotation(tree, parent, child.stem.level, offset_child)).normalize();
     
         const parent_quaternion = get_quaternion_from_dir(parent.direction)
-        const out_of_stem = new THREE.Vector3(0,0,1).applyQuaternion(parent_quaternion);
+        const out_of_stem = new T.Vector3(0,0,1).applyQuaternion(parent_quaternion);
         out_of_stem.applyAxisAngle(parent.direction, this.stem.last_spawned_child_Y_rotation_angle);
         
         const parent_radius = parent.stem.radius*(1 - (offset_child/parent.stem.length))
@@ -414,7 +403,6 @@ export class Segment {
         let total_stem_children = this.stem.children
         let offset = 0, children_count = 0, offset_delta = 0;
         
-        //if (this.stem.level == 0) {
         const len_base = tree.params.LevelParam[this.stem.level].BaseSize*this.stem.length;
         const child_bearing_length = this.stem.length - len_base;
         
@@ -422,7 +410,6 @@ export class Segment {
         const diff = this.length_along_this_stem+this.stem.per_segment_length-len_base;
         if (child_bearing_length < 0.001) {return}
         if (diff > 0) { // there's a part that is not bare trunk
-            //const fraction_out_of_bare_trunk = diff/this.stem.per_segment_length;
             offset = Math.max(0, len_base-this.length_along_this_stem)
             const children_per_unit_len = total_stem_children/child_bearing_length;
             const this_seg_children_bearing_len = this.stem.per_segment_length-offset
@@ -430,10 +417,6 @@ export class Segment {
         } else { // it's all bare trunk, no children for this segment
             return;
         }
-        //} else {
-        //    children_count = total_stem_children / tree.params.LevelParam[this.stem.level].CurveRes
-        //    offset_delta = this.stem.length/total_stem_children
-        //}
         var children_whole = Math.floor(children_count) + (tree.randFloat(0, 1) <= children_count-Math.floor(children_count) ? 1:0);
         for (let i = 0; i < children_whole; i++) {
             this.generate_child(tree, this, offset);
@@ -459,7 +442,7 @@ export class Segment {
         }
         //const offset_delta = this.stem.per_segment_length/this.stem.per_segment_leaves;
         const this_quart = get_quaternion_from_dir(this.direction) 
-        //const up = new THREE.Vector3(0,1,0)
+        //const up = new T.Vector3(0,1,0)
         leaf_count = Math.floor(leaf_count) + ( tree.randFloat(0, 1) <= (leaf_count-Math.floor(leaf_count)) ? 1 : 0 );
         for (let i = 0; i < leaf_count; i+=1) {
             const leaf_length = tree.params.LeavesParam.LeafScale;
@@ -468,7 +451,7 @@ export class Segment {
             const leaf_direction = this.direction.clone().applyQuaternion(this.compute_child_rotation(tree, this, this.stem.level+1, offset+this.length_along_this_stem)).normalize();
 
             const leaf_position = this.position.clone().addScaledVector(this.direction, offset);
-            const out_of_stem = new THREE.Vector3(0,0,1).applyQuaternion(this_quart);
+            const out_of_stem = new T.Vector3(0,0,1).applyQuaternion(this_quart);
             out_of_stem.applyAxisAngle(this.direction, this.stem.last_spawned_child_Y_rotation_angle);
             const branch_radius = this.stem.radius*(1 - (offset+this.length_along_this_stem)/this.stem.length)
             leaf_position.addScaledVector(out_of_stem, -branch_radius);
@@ -477,28 +460,28 @@ export class Segment {
             //const parallel_dir = leaf_direction.clone().sub(this.position.clone().normalize().multiplyScalar(this.position.clone().normalize().dot(leaf_direction))).normalize() // direction parallel to branch from leaf direction
             //leaf_direction.lerp(parallel_dir, tree.params.LeavesParam.PhototropicBend)
 
-            const leaf_x = new THREE.Vector3().crossVectors(leaf_direction, this.direction).normalize()
-            //const light_dir = new THREE.Vector3().lerpVectors(parallel_dir, up, 0.5)
-            //const leaf_x_for_up = new THREE.Vector3().crossVectors(leaf_direction, parallel_dir).normalize()
+            const leaf_x = new T.Vector3().crossVectors(leaf_direction, this.direction).normalize()
+            //const light_dir = new T.Vector3().lerpVectors(parallel_dir, up, 0.5)
+            //const leaf_x_for_up = new T.Vector3().crossVectors(leaf_direction, parallel_dir).normalize()
             //leaf_x.lerp(leaf_x_for_up, tree.params.LeavesParam.PhototropicBend)
-            const leaf_z = new THREE.Vector3().crossVectors(leaf_x, leaf_direction).normalize()
-            const quat_mat4 = new THREE.Matrix4().makeBasis(leaf_x, leaf_direction, leaf_z)
-            const leaf_quart = new THREE.Quaternion().setFromRotationMatrix(quat_mat4)
+            const leaf_z = new T.Vector3().crossVectors(leaf_x, leaf_direction).normalize()
+            const quat_mat4 = new T.Matrix4().makeBasis(leaf_x, leaf_direction, leaf_z)
+            const leaf_quart = new T.Quaternion().setFromRotationMatrix(quat_mat4)
             
             /*
             let leaf_normal = leaf_z
             const theta_pos = Math.atan2(leaf_position.z, leaf_position.x)
             const theta_bend =  theta_pos - Math.atan2(leaf_normal.z, leaf_normal.x)
-            const bend1 = new THREE.Quaternion().setFromAxisAngle(up, theta_bend * tree.params.LeavesParam.PhototropicBend)
+            const bend1 = new T.Quaternion().setFromAxisAngle(up, theta_bend * tree.params.LeavesParam.PhototropicBend)
             leaf_quart.multiply(bend1)
-            leaf_normal = new THREE.Vector3(0,0,1).applyQuaternion(leaf_quart)
+            leaf_normal = new T.Vector3(0,0,1).applyQuaternion(leaf_quart)
             let phi_bend = Math.atan2(Math.sqrt(leaf_normal.x**2 + leaf_normal.z**2), leaf_normal.y)
             if (phi_bend > Math.PI/2) {phi_bend = phi_bend - Math.PI}
-            const bend2 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0).applyQuaternion(leaf_quart), phi_bend* tree.params.LeavesParam.PhototropicBend)
+            const bend2 = new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0).applyQuaternion(leaf_quart), phi_bend* tree.params.LeavesParam.PhototropicBend)
             leaf_quart.multiply(bend2)
             */
 
-            const mat4 = new THREE.Matrix4().compose(leaf_position, leaf_quart, new THREE.Vector3(leaf_width,leaf_length,1)); 
+            const mat4 = new T.Matrix4().compose(leaf_position, leaf_quart, new T.Vector3(leaf_width,leaf_length,1)); 
             tree.leaves.push(mat4);
             offset += offset_delta;
         }

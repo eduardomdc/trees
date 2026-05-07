@@ -188,7 +188,7 @@ export class SpaceColonizer {
 
         for (let i : number = this.branches.length-1; i >= 0; i -= 1) {
             const branch = this.branches[i]
-            //if (branch.radius <= leaf_radius_filter) {
+            if (branch.radius <= leaf_radius_filter) {
                 const leaf_quart = p.get_quaternion_from_dir(branch.direction)
 
                 // calculate leaf orientation
@@ -207,7 +207,7 @@ export class SpaceColonizer {
 
                 const mat4 = new T.Matrix4().compose(leaf_pos, leaf_quart, new T.Vector3(leaf_width,leaf_length,1)); 
                 this.tree.leaves.push(mat4);
-            //}
+            }
         }
     }
 }
