@@ -334,7 +334,7 @@ leaves_folder.add(leaves_param, 'DownAngle', 0, 180);
 leaves_folder.add(leaves_param, 'DownAngleV', -90, 90);
 leaves_folder.add(leaves_param, 'Rotate', 0, 360);
 leaves_folder.add(leaves_param, 'RotateV', 0, 360);
-leaves_folder.add(leaves_param, 'LeafScale', 0, 2);
+leaves_folder.add(leaves_param, 'LeafScale', 0, 10);
 leaves_folder.add(leaves_param, 'LeafScaleX', 0, 2);
 leaves_folder.add(leaves_param, 'PhototropicBend', 0, 1);
 

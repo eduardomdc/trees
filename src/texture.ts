@@ -4,6 +4,8 @@ const loader = new THREE.TextureLoader();
 export const LeafTextures = {
     'CommonGreen' : loader.load(import.meta.env.BASE_URL+'/assets/greenleaf.png'),
     'MapleRed' : loader.load(import.meta.env.BASE_URL+'/assets/leaf.png'),
+    'PalmFrond' : loader.load(import.meta.env.BASE_URL+'/assets/palm_leaf.png'),
+    'PalmNeedle' : loader.load(import.meta.env.BASE_URL+'/assets/palm_needle.png'),
 }
 export const BarkTextures = {
     'Common' : loader.load(import.meta.env.BASE_URL+'/assets/bark.jpg'),
