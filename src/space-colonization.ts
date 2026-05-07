@@ -18,6 +18,7 @@ export type SpaceColonyParam = {
     attractors_radius : number;
     attractors_height : number;
     attraction_up : number;
+    see_attraction_cloud : boolean;
 }
 
 

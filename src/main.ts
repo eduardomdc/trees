@@ -56,6 +56,7 @@ function cloneTreeParams(p: T.TreeParams): T.TreeParams {
         LevelParam: p.LevelParam.map(l => ({ ...l })),
         LeavesParam: { ...p.LeavesParam },
         TextureParam: {...p.TextureParam },
+        SpaceColonyParam: {...p.SpaceColonyParam },
     };
 }
 var tree_params : T.TreeParams = cloneTreeParams(QuakingAspen);
@@ -161,6 +162,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.SpaceColonyParam.attractors_radius = input.SpaceColonyParam.attractors_radius;
     preset.SpaceColonyParam.attractors_height = input.SpaceColonyParam.attractors_height;
     preset.SpaceColonyParam.attraction_up = input.SpaceColonyParam.attraction_up;
+    preset.SpaceColonyParam.see_attraction_cloud = input.SpaceColonyParam.see_attraction_cloud;
 
     preset.TextureParam.LeafTexture = input.TextureParam.LeafTexture
     preset.TextureParam.BarkTexture = input.TextureParam.BarkTexture
@@ -347,6 +349,7 @@ tree_controls.onChange(
 // Space colony controls
 const sc_folder = tree_controls.addFolder('Space Colony');
 const sc_params = tree_params.SpaceColonyParam;
+sc_folder.add(sc_params, 'see_attraction_cloud')
 sc_folder.add(sc_params, 'max_iterations', 1, 500, 1)
 sc_folder.add(sc_params, 'branch_length', 0.1, 3)
 sc_folder.add(sc_params, 'attraction_range', 0.1, 3)
@@ -384,9 +387,11 @@ function rebuild_tree () {
     tree_leaves = tree.build_leaves(leaf_mat);
     scene.add(tree_leaves);
 
-    //scene.remove(attractors_cloud);
-    attractors_cloud = tree.space_colonizer.create_attractors_point_cloud();
-    //scene.add(attractors_cloud);
+    scene.remove(attractors_cloud);
+    if (tree.params.SpaceColonyParam.see_attraction_cloud) {
+        attractors_cloud = tree.space_colonizer.create_attractors_point_cloud();
+        scene.add(attractors_cloud);
+    }
     if (tree.params.SpaceColony) {
         parametric_controls.hide()
         trunk_controls.hide()
