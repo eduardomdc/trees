@@ -188,16 +188,26 @@ export class SpaceColonizer {
 
         for (let i : number = this.branches.length-1; i >= 0; i -= 1) {
             const branch = this.branches[i]
-            if (branch.radius <= leaf_radius_filter) {
+            //if (branch.radius <= leaf_radius_filter) {
                 const leaf_quart = p.get_quaternion_from_dir(branch.direction)
+
+                // calculate leaf orientation
                 const around_angle = Math.PI * (this.tree.randFloat(-1, 1));
                 const rotate_around = new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0), around_angle)
                 const down_angle = Math.PI * (this.tree.params.LeavesParam.DownAngle)/180
                 const rotate_down = new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0), down_angle)
+                // push leaf out of stem
+                const leaf_pos = branch.end.clone()
+                const out_of_stem = new T.Vector3(0,0,1).applyQuaternion(leaf_quart)
+                out_of_stem.applyAxisAngle(branch.direction, around_angle);
+                const branch_radius = branch.radius
+                leaf_pos.addScaledVector(out_of_stem, branch_radius)
+                
                 leaf_quart.multiply(rotate_around).multiply(rotate_down)
-                const mat4 = new T.Matrix4().compose(branch.end, leaf_quart, new T.Vector3(leaf_width,leaf_length,1)); 
+
+                const mat4 = new T.Matrix4().compose(leaf_pos, leaf_quart, new T.Vector3(leaf_width,leaf_length,1)); 
                 this.tree.leaves.push(mat4);
-            }
+            //}
         }
     }
 }

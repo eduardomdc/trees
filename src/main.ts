@@ -352,7 +352,7 @@ const sc_params = tree_params.SpaceColonyParam;
 sc_folder.add(sc_params, 'see_attraction_cloud')
 sc_folder.add(sc_params, 'max_iterations', 1, 500, 1)
 sc_folder.add(sc_params, 'branch_length', 0.1, 3)
-sc_folder.add(sc_params, 'attraction_range', 0.1, 3)
+sc_folder.add(sc_params, 'attraction_range', 0.1, 10)
 sc_folder.add(sc_params, 'kill_range_relative', 0.8, 0.99)
 sc_folder.add(sc_params, 'branch_randomness', 0.01, 10)
 sc_folder.add(sc_params, 'branch_spread', 0, 10)
