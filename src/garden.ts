@@ -27,13 +27,11 @@ export const QuakingAspen: TreeParams = {
   Levels: 3,
   Ratio: 0.015,
   RatioPower: 1.2,
-  Flare: 0.6,
   
   MeshQuality : [10,6,3,3],
   
   Scale0: 1,
   ScaleV0: 0,
-  BaseSplits0: 0,
 
   LevelParam: [
     // level 0 (trunk)
@@ -45,7 +43,6 @@ export const QuakingAspen: TreeParams = {
       Branches: 0,
       Length: 1,
       LengthV: 0,
-      Taper: 1,
       SplitsAmount: 2,
       SegSplits: 0,
       SplitAngle: 0,
@@ -66,7 +63,6 @@ export const QuakingAspen: TreeParams = {
       Branches: 50,
       Length: 0.3,
       LengthV: 0,
-      Taper: 1,
       SplitsAmount: 0,
       SegSplits: 0,
       SplitAngle: 0,
@@ -87,7 +83,6 @@ export const QuakingAspen: TreeParams = {
       Branches: 30,
       Length: 0.6,
       LengthV: 0,
-      Taper: 1,
       SplitsAmount: 0,
       SegSplits: 0,
       SplitAngle: 0,
@@ -108,7 +103,6 @@ export const QuakingAspen: TreeParams = {
       Branches: 10,
       Length: 0,
       LengthV: 0,
-      Taper: 1,
       SplitsAmount: 0,
       SegSplits: 0,
       SplitAngle: 0,
@@ -132,11 +126,6 @@ export const QuakingAspen: TreeParams = {
       PhototropicBend : 0.5,
     },
   AttractionUp: 0.5,
-  PruneRation: 0,
-  PruneWidth: 0.5,
-  PruneWidthPeak: 0.5,
-  PrunePowerLow: 0.5,
-  PrunePowerHigh: 0.5,
   TextureParam : {
       LeafTexture : 'CommonGreen',
       BarkTexture : 'White',
@@ -154,13 +143,11 @@ export const Acer: TreeParams = {
   Levels: 3,
   Ratio: 0.025,
   RatioPower: 1.5,
-  Flare: 0.6,
 
   MeshQuality : [10,6,3,3],
 
   Scale0: 1,
   ScaleV0: 0,
-  BaseSplits0: -2,
 
   LevelParam: [
     // level 0 (trunk)
@@ -172,7 +159,6 @@ export const Acer: TreeParams = {
       Branches: 1,
       Length: 1,
       LengthV: 0,
-      Taper: 1,
       SplitsAmount: 0,
       SegSplits: 1.5,
       SplitAngle: 50,
@@ -194,7 +180,6 @@ export const Acer: TreeParams = {
       Branches: 6,
       Length: 0.7,
       LengthV: 0.05,
-      Taper: 1,
       SplitsAmount: 0,
       SegSplits: 1.5,
       SplitAngle: 50,
@@ -216,7 +201,6 @@ export const Acer: TreeParams = {
       Branches: 20,
       Length: 0.3,
       LengthV: 0.05,
-      Taper: 1,
       SplitsAmount: 0,
       SegSplits: 0,
       SplitAngle: 0,
@@ -238,7 +222,6 @@ export const Acer: TreeParams = {
       Branches: 5,
       Length: 0,
       LengthV: 0,
-      Taper: 1,
       SplitsAmount: 0,
       SegSplits: 0,
       SplitAngle: 0,
@@ -264,11 +247,6 @@ export const Acer: TreeParams = {
   },
 
   AttractionUp: 0,
-  PruneRation: 0,
-  PruneWidth: 0.5,
-  PruneWidthPeak: 0.5,
-  PrunePowerLow: 0.5,
-  PrunePowerHigh: 0.5,
   TextureParam : {
       LeafTexture : 'MapleRed',
       BarkTexture : 'Common',

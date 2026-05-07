@@ -92,18 +92,11 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.Levels = input.Levels;
     preset.Ratio = input.Ratio;
     preset.RatioPower = input.RatioPower;
-    preset.Flare = input.Flare;
 
     preset.Scale0 = input.Scale0;
     preset.ScaleV0 = input.ScaleV0;
-    preset.BaseSplits0 = input.BaseSplits0;
 
     preset.AttractionUp = input.AttractionUp;
-    preset.PruneRation = input.PruneRation;
-    preset.PruneWidth = input.PruneWidth;
-    preset.PruneWidthPeak = input.PruneWidthPeak;
-    preset.PrunePowerLow = input.PrunePowerLow;
-    preset.PrunePowerHigh = input.PrunePowerHigh;
 
     preset.MeshQuality.length = input.MeshQuality.length;
     for (let i = 0; i < input.MeshQuality.length; i++) {
@@ -129,7 +122,6 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
         dst.Branches = src.Branches;
         dst.Length = src.Length;
         dst.LengthV = src.LengthV;
-        dst.Taper = src.Taper;
         dst.SplitsAmount = src.SplitsAmount;
         dst.SegSplits = src.SegSplits;
         dst.SplitAngle = src.SplitAngle;
@@ -271,20 +263,17 @@ parametric_controls.add(tree_params, 'Levels', 1, 4, 1);
 
 parametric_controls.add(tree_params, 'Ratio', 0, 0.1);
 parametric_controls.add(tree_params, 'RatioPower', 0, 5);
-parametric_controls.add(tree_params, 'Flare', 0, 2);
 
 parametric_controls.add(tree_params, 'AttractionUp', -5, 5);
 
 const trunk_controls = tree_controls.addFolder('Trunk Options');
 
-trunk_controls.add(tree_params, 'Scale0', 0, 5);
-trunk_controls.add(tree_params, 'ScaleV0', 0, 5);
-trunk_controls.add(tree_params, 'BaseSplits0', 0, 10);
+trunk_controls.add(tree_params, 'Scale0', 0, 5).name("Radius");
+trunk_controls.add(tree_params, 'ScaleV0', 0, 1).name("RadiusV");
 const trunk_level = tree_params.LevelParam[0];
 trunk_controls.add(trunk_level, 'BaseSize', 0, 1);
 trunk_controls.add(trunk_level, 'Length', 0, 2);
-trunk_controls.add(trunk_level, 'LengthV', 0, 2);
-trunk_controls.add(trunk_level, 'Taper', 0, 2);
+trunk_controls.add(trunk_level, 'LengthV', 0, 1);
 trunk_controls.add(trunk_level, 'SplitsAmount', 0, 10);
 trunk_controls.add(trunk_level, 'SegSplits', 0, 10);
 trunk_controls.add(trunk_level, 'SplitAngle', 0, 180);
@@ -313,7 +302,6 @@ tree_params.LevelParam.forEach((level, i) => {
     f.add(level, 'Length', 0, 2);
     f.add(level, 'LengthV', 0, 2);
 
-    f.add(level, 'Taper', 0, 2);
 
     f.add(level, 'SplitsAmount', 0, 10);
     f.add(level, 'SegSplits', 0, 10, 1);

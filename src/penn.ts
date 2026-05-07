@@ -376,7 +376,7 @@ export class Segment {
         
         // calculate stem radius
         if (parent_stem == null) {
-            stem.radius = tree.processed_params.length_trunk*tree.params.Ratio*tree.params.Scale0;
+            stem.radius = tree.processed_params.length_trunk*tree.params.Ratio*(Math.max(tree.params.Scale0+tree.params.ScaleV0*tree.randFloat(-1,1), 0.01));
         } else {
             stem.radius = parent_stem.radius*(stem.length / parent_stem.length)**tree.params.RatioPower;
             // limit stem radius by radius of parent at that point
@@ -528,10 +528,10 @@ class ProcessedTreeParams {
     per_segment_length_trunk : number;
 
     constructor(t: Tree){
-        this.scale_tree = (t.params.Scale + t.randFloat(0,1)*t.params.ScaleV);
-        this.length_trunk = (t.params.LevelParam[0].Length)*this.scale_tree;
+        this.scale_tree = (t.params.Scale + t.randFloat(-1,1)*t.params.ScaleV);
+        this.length_trunk = (t.params.LevelParam[0].Length+t.params.LevelParam[0].LengthV*t.randFloat(-1, 1))*this.scale_tree;
         this.per_segment_length_trunk = this.length_trunk/t.params.LevelParam[0].CurveRes,
-        this.length_base = [(t.params.LevelParam[0].BaseSize*t.params.Scale),(t.params.LevelParam[1].BaseSize*t.params.Scale),(t.params.LevelParam[2].BaseSize*t.params.Scale),(t.params.LevelParam[3].BaseSize*t.params.Scale)];
+        this.length_base = [(t.params.LevelParam[0].BaseSize*this.scale_tree),(t.params.LevelParam[1].BaseSize*this.scale_tree),(t.params.LevelParam[2].BaseSize*this.scale_tree),(t.params.LevelParam[3].BaseSize*this.scale_tree)];
     }
 }
 
@@ -539,7 +539,7 @@ export type LevelParam = {
     DownAngle : number, DownAngleV : number, // angle from parent
     Rotate : number, RotateV : number,  // spiraling angle
     Branches : number, // # of branches
-    Length : number, LengthV:number, Taper:number // relative length of children to parent, cross-section scaling
+    Length : number, LengthV:number,// relative length of children to parent, cross-section scaling
     CurveRes:number,Curve:number,CurveBack:number,CurveV:number, // curvature resolution and angles
     SplitsAmount:number, SegSplits:number,SplitAngle:number,SplitAngleV:number, SplitRotationV:number// dichotomous branching parameters
     // new params
