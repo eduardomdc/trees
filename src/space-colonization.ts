@@ -17,6 +17,7 @@ export type SpaceColonyParam = {
     attractors : number;
     attractors_radius : number;
     attractors_height : number;
+    attractors_shape : number;
     attraction_up : number;
     see_attraction_cloud : boolean;
 }
@@ -48,6 +49,7 @@ export class SpaceColonizer {
         const n = this.params.attractors;
         const radius = this.params.attractors_radius;
         const center_y = this.params.attractors_height;
+        const height_factor = 1/(this.params.attractors_shape**2)
         for (let i: number = 0; i < n; i += 1) {
             // Uniform random point inside sphere
             let x: number;
@@ -56,9 +58,9 @@ export class SpaceColonizer {
 
             do {
                 x = this.tree.randFloat(-1, 1) * radius; 
-                y = this.tree.randFloat(-1, 1) * radius; 
+                y = this.tree.randFloat(-1, 1) * radius * this.params.attractors_shape; 
                 z = this.tree.randFloat(-1, 1) * radius; 
-            } while (x * x + y * y + z * z > radius * radius);
+            } while (x * x + height_factor * y * y + z * z > radius * radius);
 
             this.attractors.push({ pos : new T.Vector3(x,y + center_y,z), killed : false})
         }

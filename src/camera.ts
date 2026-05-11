@@ -29,6 +29,9 @@ export function createOrbitalCamera(
     target = new THREE.Vector3(0, 0, 0),
   } = options ?? {};
 
+  // Owned mutable copy so callers can't accidentally mutate internals
+  const _target = target.clone();
+
   const state: OrbitalCameraState = {
     theta: Math.PI,
     phi: Math.PI / 3,
@@ -47,11 +50,27 @@ export function createOrbitalCamera(
 
   function updateCamera(): void {
     camera.position.set(
-      target.x + state.radius * Math.sin(state.phi) * Math.sin(state.theta),
-      target.y + state.radius * Math.cos(state.phi),
-      target.z + state.radius * Math.sin(state.phi) * Math.cos(state.theta)
+      _target.x + state.radius * Math.sin(state.phi) * Math.sin(state.theta),
+      _target.y + state.radius * Math.cos(state.phi),
+      _target.z + state.radius * Math.sin(state.phi) * Math.cos(state.theta)
     );
-    camera.lookAt(target);
+    camera.lookAt(_target);
+  }
+
+  /** Replace the orbit target. Accepts a Vector3 or plain x/y/z values. */
+  function setTarget(target: THREE.Vector3): void;
+  function setTarget(x: number, y: number, z: number): void;
+  function setTarget(targetOrX: THREE.Vector3 | number, y?: number, z?: number): void {
+    if (targetOrX instanceof THREE.Vector3) {
+      _target.copy(targetOrX);
+    } else {
+      _target.set(targetOrX, y!, z!);
+    }
+  }
+
+  /** Read-only snapshot of the current target. */
+  function getTarget(): THREE.Vector3 {
+    return _target.clone();
   }
 
   function onMouseDown(e: MouseEvent): void {
@@ -93,5 +112,5 @@ export function createOrbitalCamera(
     canvas.removeEventListener('wheel', onWheel);
   }
 
-  return { camera, updateCamera, dispose };
+  return { camera, updateCamera, setTarget, getTarget, dispose };
 }

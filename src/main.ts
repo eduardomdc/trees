@@ -16,9 +16,9 @@ const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.shadowMap.enabled = true;
 
-const { camera, updateCamera} = createOrbitalCamera(canvas, {initialRadius: 15, sensitivity: 0.008, target: new THREE.Vector3(0,10,0),});
+const { camera, updateCamera, setTarget} = createOrbitalCamera(canvas, {initialRadius: 15, sensitivity: 0.008, target: new THREE.Vector3(0,10,0),});
 
-const directionalLight = new THREE.DirectionalLight( 0xf7e8ca, 3 );
+const directionalLight = new THREE.DirectionalLight( 0xf7e8ca, 5 );
 directionalLight.castShadow = true;
 directionalLight.position.set(-5, 12, 0);
 directionalLight.shadow.camera.near = 0.1;
@@ -153,6 +153,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.SpaceColonyParam.attractors = input.SpaceColonyParam.attractors;
     preset.SpaceColonyParam.attractors_radius = input.SpaceColonyParam.attractors_radius;
     preset.SpaceColonyParam.attractors_height = input.SpaceColonyParam.attractors_height;
+    preset.SpaceColonyParam.attractors_shape = input.SpaceColonyParam.attractors_shape;
     preset.SpaceColonyParam.attraction_up = input.SpaceColonyParam.attraction_up;
     preset.SpaceColonyParam.see_attraction_cloud = input.SpaceColonyParam.see_attraction_cloud;
 
@@ -349,6 +350,7 @@ sc_folder.add(sc_params, 'branch_thickness', 0.001, 0.1)
 sc_folder.add(sc_params, 'attractors', 1, 8000, 1)
 sc_folder.add(sc_params, 'attractors_radius', 0.1, 15)
 sc_folder.add(sc_params, 'attractors_height', 0, 20)
+sc_folder.add(sc_params, 'attractors_shape', 0.01, 5)
 sc_folder.add(sc_params, 'attraction_up', -1, 1)
 sc_folder.hide();
 
@@ -392,6 +394,12 @@ function rebuild_tree () {
         levels_folder.show()
         //leaves_folder.show()
         sc_folder.hide()
+    }
+
+    if (tree.params.SpaceColony) {
+        setTarget(new THREE.Vector3(0, tree.params.SpaceColonyParam.attractors_height,0))
+    } else {
+        setTarget(new THREE.Vector3(0,tree.processed_params.length_trunk/2,0))
     }
 }
 
