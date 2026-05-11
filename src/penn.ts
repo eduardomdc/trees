@@ -141,9 +141,10 @@ export class Segment {
 
     get_x_dir_in_relation_to_parent_stem () : T.Vector3 {
         if (this.stem.parent_segment == null) {
-            return new T.Vector3(1,0,0)
+            if (this.direction.dot(UP) > 0.95) return new T.Vector3(-1,0,0)
+            return new T.Vector3().crossVectors(this.direction, UP).normalize()
         } else {
-            return new T.Vector3().crossVectors(this.direction, this.stem.parent_segment.direction)
+            return new T.Vector3().crossVectors(this.direction, this.stem.parent_segment.direction).multiplyScalar(-1).normalize()
         }
     }
 
@@ -199,12 +200,17 @@ export class Segment {
 
             // correct rotation if there's a split correction to be done
             if (next_segment.stem.per_segment_split_angle_correction != 0) {
-                const split_correction = new T.Quaternion().setFromAxisAngle(x_dir, -next_segment.stem.per_segment_split_angle_correction);
+                const split_correction = new T.Quaternion().setFromAxisAngle(x_dir, next_segment.stem.per_segment_split_angle_correction);
                 next_segment.direction.applyQuaternion(split_correction);
             }
 
             // rotate away from z if it has split
             if (seg_splits != 0) {
+                let split_out_angle = (next_params.SplitAngle + tree.randFloat(-1, 1)*next_params.SplitAngleV)*Math.PI/180;
+                //if (tree.randFloat(-1,1) < 0) {split_out_angle *= -1}
+                const split_out_quart = new T.Quaternion().setFromAxisAngle(x_dir, split_out_angle);
+                next_segment.direction.applyQuaternion(split_out_quart)
+                
                 // split apart from other clones as well
                 //let split_apart_angle = (20 + 0.75 * (10) * randFloat(0, 1)**2)*Math.PI/180;
                 let split_apart_angle = 0;
@@ -213,14 +219,12 @@ export class Segment {
                 } else {
                     split_apart_angle = ( 360.0/(seg_splits+1) * split_number + tree.randFloat(-1, 1)*next_params.SplitRotationV )*Math.PI/180;
                 }
+                
+                
                 //if (tree.randFloat(-1,1) < 0) {split_apart_angle *= -1}
-                const apart_quart = new T.Quaternion().setFromAxisAngle(next_segment.direction, split_apart_angle);
+                const apart_quart = new T.Quaternion().setFromAxisAngle(parent.direction, split_apart_angle);
                 next_segment.direction.applyQuaternion(apart_quart)
                 
-                let split_out_angle = (next_params.SplitAngle + tree.randFloat(-1, 1)*next_params.SplitAngleV)*Math.PI/180;
-                //if (tree.randFloat(-1,1) < 0) {split_out_angle *= -1}
-                const split_out_quart = new T.Quaternion().setFromAxisAngle(x_dir, split_out_angle);
-                next_segment.direction.applyQuaternion(split_out_quart)
 
                 // add out angle to split angle correction so the stem gets re-orientated after splitting out
                 const remaining_segments_in_stem = curve_res - next_segment.segment_number
@@ -501,20 +505,14 @@ export type TreeParams = {
     Scale : number,ScaleV : number,ZScale : number,ZScaleV : number,//size and scaling of tree
     Levels : number, // levels of recursion
     Ratio : number, RatioPower : number, //radius/length ratio, reduction
-    Flare : number, //exponential expansion at base of tree
     // trunk (level 0) only params
     Scale0 : number, ScaleV0 :number, //extra trunk scaling
-
-    BaseSplits0 : number, // dichotomous branching at the base
     
     MeshQuality : number[], // dictates resolution of circular cross-sections of stems
 
     LevelParam : LevelParam[], // array of level-specific parameters indexed by level
     LeavesParam : LeavesParam,
     AttractionUp : number, //upward growth tendency
-    PruneRation: number, //fractional effect of pruning
-    PruneWidth : number,PruneWidthPeak: number, // width, position of envelope peak
-    PrunePowerLow : number,PrunePowerHigh : number, // curvature of envelope
 
     SpaceColonyParam : Space.SpaceColonyParam,
 
