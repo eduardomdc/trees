@@ -17,7 +17,8 @@ export type SpaceColonyParam = {
     attractors : number;
     attractors_radius : number;
     attractors_height : number;
-    attractors_shape : number;
+    attractors_tall : number;
+    attractors_shape_mod : number;
     attraction_up : number;
     see_attraction_cloud : boolean;
 }
@@ -49,7 +50,14 @@ export class SpaceColonizer {
         const n = this.params.attractors;
         const radius = this.params.attractors_radius;
         const center_y = this.params.attractors_height;
-        const height_factor = 1/(this.params.attractors_shape**2)
+        const h = this.params.attractors_tall;
+        const m = 0.99*this.params.attractors_shape_mod/(radius*h);
+        const height_factor = 1/(this.params.attractors_tall**2)
+        
+        if (m == 1/(radius*h)) return // singularity
+        const min_y = (-radius*h)/(1+radius*h*m)
+        const max_y = (radius*h)/(1-radius*h*m)
+
         for (let i: number = 0; i < n; i += 1) {
             // Uniform random point inside sphere
             let x: number;
@@ -58,9 +66,9 @@ export class SpaceColonizer {
 
             do {
                 x = this.tree.randFloat(-1, 1) * radius; 
-                y = this.tree.randFloat(-1, 1) * radius * this.params.attractors_shape; 
+                y = this.tree.randFloat(min_y, max_y); 
                 z = this.tree.randFloat(-1, 1) * radius; 
-            } while (x * x + height_factor * y * y + z * z > radius * radius);
+            } while (x * x + height_factor * y * y /(1+m*y)**2 + z * z > radius * radius);
 
             this.attractors.push({ pos : new T.Vector3(x,y + center_y,z), killed : false})
         }
@@ -70,7 +78,7 @@ export class SpaceColonizer {
         const geometry = new T.BufferGeometry();
         const positions = new Float32Array(this.attractors.flatMap(v => [v.pos.x, v.pos.y, v.pos.z]))
         geometry.setAttribute("position", new T.BufferAttribute(positions,3))
-        const mat = new T.PointsMaterial({color : 0xff0000, size:0.1})
+        const mat = new T.PointsMaterial({color : 0xff0000, size:0.2})
         return new T.Points(geometry, mat)
     }
 

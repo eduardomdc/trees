@@ -13,7 +13,8 @@ export const DefaultSpaceColonyParams : SpaceColonyParam = {
     attractors : 3000,
     attractors_radius : 5,
     attractors_height : 5,
-    attractors_shape  : 1,
+    attractors_tall  : 1,
+    attractors_shape_mod : -0,
     attraction_up : 0,
     see_attraction_cloud : false,
 }
