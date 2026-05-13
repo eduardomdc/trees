@@ -21,6 +21,7 @@ export type SpaceColonyParam = {
     attractors_shape_mod : number;
     attraction_up : number;
     see_attraction_cloud : boolean;
+    leaf_start : number;
 }
 
 
