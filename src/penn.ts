@@ -16,8 +16,6 @@ export class Tree {
     root : Segment | null = null;
     leaves : T.Matrix4[] = [];
 
-    stem_split_error: number[] = [0,0,0,0];
-
     params : TreeParams;
     processed_params : ProcessedTreeParams; // parameters in a more useful format for segment-based generation
 
@@ -33,7 +31,7 @@ export class Tree {
 
     generate_parametric_tree () {
         this.root = new Segment();
-        this.root = this.root.generate_stem_Segments(this, null)[0];
+        this.root = this.root.generate_stem_Segments(this, null);
     }
 
     build_tree_geometry (material : T.Material) : T.Mesh {
@@ -85,8 +83,6 @@ class Stem {
     last_spawned_child_Y_rotation_angle : number = 0;
     last_spawned_child_offset : number = 0;
     per_segment_length : number = 0;
-    per_segment_split_chance : number = 0;
-    per_segment_split_angle_correction : number = 0;
     parent_segment : Segment | null = null;
 
     clone(): Stem {
@@ -100,7 +96,6 @@ class Stem {
         s.last_spawned_child_Y_rotation_angle = this.last_spawned_child_Y_rotation_angle;
         s.last_spawned_child_offset = this.last_spawned_child_offset;
         s.per_segment_length = this.per_segment_length;
-        s.per_segment_split_chance = this.per_segment_split_chance;
         s.parent_segment = this.parent_segment;
         return s;
     }
@@ -119,36 +114,19 @@ export class Segment {
     vertex_idx : number = 0;
     vertex_count : number = 0;
 
-    generate_stem_Segments (tree : Tree, parent : Segment | null) : Segment[] {
-        let level = 0;
-        let split_chance = 0;
-        if (parent) {level = parent.stem.level; split_chance = parent.stem.per_segment_split_chance}
-        else {split_chance = tree.params.LevelParam[0].SplitsAmount/tree.params.LevelParam[0].CurveRes}
-        const level_param = tree.params.LevelParam[level]
-        if (level_param.SegSplits > 0) {
-            const splits :Segment[] = [];
-            if (split_chance < tree.randFloat(0, 1)) { // replace for error diffusion
-                return [this.generate_a_segment(tree, parent)]// no split occured
-            }
-            for (let i :number = 0; i < level_param.SegSplits+1; i += 1) {
-               splits.push(this.generate_a_segment(tree, parent, level_param.SegSplits, i)) 
-            }
-            return splits;
-        } else {
-            return [this.generate_a_segment(tree, parent)]
-        }
+    generate_stem_Segments (tree : Tree, parent : Segment | null) : Segment {
+        return this.generate_a_segment(tree, parent)
     }
 
     get_x_dir_in_relation_to_parent_stem () : T.Vector3 {
         if (this.stem.parent_segment == null) {
-            if (this.direction.dot(UP) > 0.95) return new T.Vector3(-1,0,0)
-            return new T.Vector3().crossVectors(this.direction, UP).normalize()
+            return new T.Vector3(-1,0,0)
         } else {
             return new T.Vector3().crossVectors(this.direction, this.stem.parent_segment.direction).multiplyScalar(-1).normalize()
         }
     }
 
-    generate_a_segment (tree : Tree, parent : Segment | null, seg_splits : number = 0, split_number : number = 0) : Segment {
+    generate_a_segment (tree : Tree, parent : Segment | null, seg_splits : number = 0) : Segment {
         var next_segment : Segment = new Segment();
 
         if (parent) {
@@ -158,7 +136,9 @@ export class Segment {
             next_segment.position = parent.position.clone();
             next_segment.direction = parent.direction.clone();
             next_segment.length_along_this_stem = parent.length_along_this_stem;
-            if (seg_splits != 0) {next_segment.stem = parent.stem.clone()}
+            if (seg_splits != 0) {
+                next_segment.stem = parent.stem.clone()
+            }
             else {next_segment.stem = parent.stem}
         } else { // trunk first segment
             next_segment.setup_stem(tree, next_segment.stem, null, 0)
@@ -171,11 +151,9 @@ export class Segment {
         }
         
 
-        const next_params = tree.params.LevelParam[next_segment.stem.level]
         const x_dir = next_segment.get_x_dir_in_relation_to_parent_stem() 
 
         if (parent){
-            
             const curve = tree.params.LevelParam[next_segment.stem.level].Curve;
             const curve_back = tree.params.LevelParam[next_segment.stem.level].CurveBack;
             // curve the new segment's coordinate frame a little
@@ -198,45 +176,6 @@ export class Segment {
             );
             next_segment.direction.applyQuaternion(randrot);
 
-            // correct rotation if there's a split correction to be done
-            if (next_segment.stem.per_segment_split_angle_correction != 0) {
-                const split_correction = new T.Quaternion().setFromAxisAngle(x_dir, next_segment.stem.per_segment_split_angle_correction);
-                next_segment.direction.applyQuaternion(split_correction);
-            }
-
-            // rotate away from z if it has split
-            if (seg_splits != 0) {
-                let split_out_angle = (next_params.SplitAngle + tree.randFloat(-1, 1)*next_params.SplitAngleV)*Math.PI/180;
-                //if (tree.randFloat(-1,1) < 0) {split_out_angle *= -1}
-                const split_out_quart = new T.Quaternion().setFromAxisAngle(x_dir, split_out_angle);
-                next_segment.direction.applyQuaternion(split_out_quart)
-                
-                // split apart from other clones as well
-                //let split_apart_angle = (20 + 0.75 * (10) * randFloat(0, 1)**2)*Math.PI/180;
-                let split_apart_angle = 0;
-                if (split_number == 0) {
-                    split_apart_angle = ( 360.0/(seg_splits+1) * split_number)*Math.PI/180;
-                } else {
-                    split_apart_angle = ( 360.0/(seg_splits+1) * split_number + tree.randFloat(-1, 1)*next_params.SplitRotationV )*Math.PI/180;
-                }
-                
-                
-                //if (tree.randFloat(-1,1) < 0) {split_apart_angle *= -1}
-                const apart_quart = new T.Quaternion().setFromAxisAngle(parent.direction, split_apart_angle);
-                next_segment.direction.applyQuaternion(apart_quart)
-                
-
-                // add out angle to split angle correction so the stem gets re-orientated after splitting out
-                const remaining_segments_in_stem = curve_res - next_segment.segment_number
-                next_segment.stem.per_segment_split_angle_correction += (split_out_angle/(remaining_segments_in_stem == 0 ? 1 : remaining_segments_in_stem))
-                
-                
-                // reduce number of children this stem can create
-                next_segment.stem.children /= seg_splits+1;
-
-                // reduce chance of further splits this stem can have
-                next_segment.stem.per_segment_split_chance /= (seg_splits+1)**2 // squaring produced better predictable results
-            }
             // attraction up 
             if (next_segment.stem.level > 0) {
                 const delta = tree.params.AttractionUp/tree.params.LevelParam[next_segment.stem.level].CurveRes
@@ -405,8 +344,6 @@ export class Segment {
             }
         }
 
-        // calculate expected split chance per segment in this stem
-        stem.per_segment_split_chance = tree.params.LevelParam[stem.level].SplitsAmount/tree.params.LevelParam[stem.level].CurveRes;
     }
 
     generate_children (tree : Tree) {
@@ -539,7 +476,6 @@ export type LevelParam = {
     Branches : number, // # of branches
     Length : number, LengthV:number,// relative length of children to parent, cross-section scaling
     CurveRes:number,Curve:number,CurveBack:number,CurveV:number, // curvature resolution and angles
-    SplitsAmount:number, SegSplits:number,SplitAngle:number,SplitAngleV:number, SplitRotationV:number// dichotomous branching parameters
     // new params
     BaseSize : number,
 }

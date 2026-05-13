@@ -122,11 +122,6 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
         dst.Branches = src.Branches;
         dst.Length = src.Length;
         dst.LengthV = src.LengthV;
-        dst.SplitsAmount = src.SplitsAmount;
-        dst.SegSplits = src.SegSplits;
-        dst.SplitAngle = src.SplitAngle;
-        dst.SplitAngleV = src.SplitAngleV;
-        dst.SplitRotationV = src.SplitRotationV;
         dst.CurveRes = src.CurveRes;
         dst.Curve = src.Curve;
         dst.CurveBack = src.CurveBack;
@@ -277,11 +272,6 @@ const trunk_level = tree_params.LevelParam[0];
 trunk_controls.add(trunk_level, 'BaseSize', 0, 1);
 trunk_controls.add(trunk_level, 'Length', 0, 2);
 trunk_controls.add(trunk_level, 'LengthV', 0, 1);
-trunk_controls.add(trunk_level, 'SplitsAmount', 0, 10);
-trunk_controls.add(trunk_level, 'SegSplits', 0, 10);
-trunk_controls.add(trunk_level, 'SplitAngle', 0, 180);
-trunk_controls.add(trunk_level, 'SplitAngleV', 0, 180);
-trunk_controls.add(trunk_level, 'SplitRotationV', 0, 360);
 trunk_controls.add(trunk_level, 'CurveRes', 1, 30, 1);
 trunk_controls.add(trunk_level, 'Curve', -180, 180);
 trunk_controls.add(trunk_level, 'CurveBack', -180, 180);
@@ -304,13 +294,6 @@ tree_params.LevelParam.forEach((level, i) => {
 
     f.add(level, 'Length', 0, 2);
     f.add(level, 'LengthV', 0, 2);
-
-
-    f.add(level, 'SplitsAmount', 0, 10);
-    f.add(level, 'SegSplits', 0, 10, 1);
-    f.add(level, 'SplitAngle', 0, 180);
-    f.add(level, 'SplitAngleV', 0, 180);
-    f.add(level, 'SplitRotationV', 0, 360);
 
     f.add(level, 'CurveRes', 1, 30, 1);
     f.add(level, 'Curve', -180, 180);
