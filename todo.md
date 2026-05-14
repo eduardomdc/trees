@@ -1,18 +1,16 @@
 - weird behaviour on down angle v param ( looks correct according to paper..)
 - texture scaling
-- initial rotation param
 - curve back param
 - gnarlyness
 - taper control
 - leaf phototropic orientations
 - tree quality slider
 - per-level seed rng
-- save/load parameters
 - export tree mesh
 - upload textures for trunk/leaves/roots
 - root generation
 - vine generation
 - orchid-like plants generation
 - fruits and flowers
-- palm tree parameters
 - parameter tool tips
+- leaf hue

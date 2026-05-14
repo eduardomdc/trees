@@ -157,8 +157,8 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
 
     preset.TextureParam.LeafTexture = input.TextureParam.LeafTexture
     preset.TextureParam.BarkTexture = input.TextureParam.BarkTexture
+    preset.TextureParam.LeafHue = input.TextureParam.LeafHue
 }
-
 
 // Load controls
 const loadControls = {
@@ -348,13 +348,27 @@ const texture_folder = tree_controls.addFolder('Textures');
 const texture_params = tree_params.TextureParam;
 texture_folder.add(texture_params, 'LeafTexture', Object.keys(Tex.LeafTextures));
 texture_folder.add(texture_params, 'BarkTexture', Object.keys(Tex.BarkTextures));
+texture_folder.add(texture_params, 'LeafHue', 0, 360);
 
+function shiftHue(image: HTMLImageElement, degrees: number): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
 
+  if (!ctx) throw new Error('Could not get 2D context from canvas');
+
+  canvas.width = image.width;
+  canvas.height = image.height;
+  ctx.filter = `hue-rotate(${degrees}deg)`;
+  ctx.drawImage(image, 0, 0);
+
+  return new THREE.CanvasTexture(canvas);
+}
 
 function rebuild_tree () {
     tree = new T.Tree(tree_params, seed.Seed);
     const trunk_mat = new THREE.MeshStandardMaterial({map: Tex.BarkTextures[tree_params.TextureParam.BarkTexture]});
-    const leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: Tex.LeafTextures[tree_params.TextureParam.LeafTexture], transparent: true, alphaTest:0.5});
+    const leaf_tex_hued = shiftHue(Tex.LeafTextures[tree_params.TextureParam.LeafTexture].image, tree_params.TextureParam.LeafHue)
+    const leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: leaf_tex_hued, transparent: true, alphaTest:0.5});
     
     scene.remove(tree_mesh);
     tree_mesh.geometry.dispose()
