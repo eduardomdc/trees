@@ -18,6 +18,7 @@ export const DefaultSpaceColonyParams : SpaceColonyParam = {
     attraction_up : 0,
     see_attraction_cloud : false,
     leaf_start : 0.2,
+    leaves_per_branch : 1,
 }
 
 export const QuakingAspen: TreeParams = {

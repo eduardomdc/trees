@@ -22,6 +22,7 @@ export type SpaceColonyParam = {
     attraction_up : number;
     see_attraction_cloud : boolean;
     leaf_start : number;
+    leaves_per_branch : number;
 }
 
 
@@ -94,6 +95,7 @@ export class SpaceColonizer {
         }
 
         this.calculate_branch_radius()
+        //this.push_out_branches(this.branches[0], new T.Vector3(0,0,0))
         this.add_leaves()
     }
 
@@ -190,36 +192,77 @@ export class SpaceColonizer {
         } 
     }
 
+    // we need to push out branches that start inside of their parent's to the parent's surface according to radius
+    // this makes sure leaves are not spawned within a parent
+    push_out_branches (branch : SCBranch, accumulated_push_out_vector : T.Vector3) {
+        if (branch.parent != null) {
+            accumulated_push_out_vector.addScaledVector(branch.direction, branch.parent.radius)
+        }
+        branch.end.add(accumulated_push_out_vector)
+        branch.start.addScaledVector(branch.direction, -0.2)
+        //accumulated_push_out_vector.addScaledVector(branch.direction, -branch.radius)
+        for (const child of branch.children) {
+            this.push_out_branches(child, accumulated_push_out_vector.clone())
+        }
+    }
+
     add_leaves () {
         if (this.branches.length == 0) return
         const leaf_length = this.tree.params.LeavesParam.LeafScale
         const leaf_width = this.tree.params.LeavesParam.LeafScaleX * leaf_length
         const trunk_radius = this.branches[0].radius
         const leaf_radius_filter = (1-this.params.leaf_start)*this.params.branch_thickness + this.params.leaf_start*trunk_radius 
+        const leaves_per_branch = this.params.leaves_per_branch
+        const _delta = this.params.branch_length/leaves_per_branch
+
         for (let i : number = this.branches.length-1; i >= 0; i -= 1) {
             const branch = this.branches[i]
             if (branch.radius <= leaf_radius_filter) {
                 if (branch.parent != null) { // check if inside parent, if so don't spawn leaf
                     if (branch.parent.radius> this.params.branch_length) continue 
                 }
-                const leaf_quart = p.get_quaternion_from_dir(branch.direction)
-
-                // calculate leaf orientation
-                const around_angle = Math.PI * (this.tree.randFloat(-1, 1));
-                const rotate_around = new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0), around_angle)
-                const down_angle = Math.PI * (this.tree.params.LeavesParam.DownAngle)/180
-                const rotate_down = new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0), down_angle)
-                // push leaf out of stem
-                const leaf_pos = branch.end.clone()
-                const out_of_stem = new T.Vector3(0,0,1).applyQuaternion(leaf_quart)
-                out_of_stem.applyAxisAngle(branch.direction, around_angle);
-                const branch_radius = branch.radius
-                leaf_pos.addScaledVector(out_of_stem, branch_radius)
                 
-                leaf_quart.multiply(rotate_around).multiply(rotate_down)
+                let leaf_dislocation = 0
+                for (let j : number = 0; j < leaves_per_branch; j += 1) {
+                    const leaf_quart = p.get_quaternion_from_dir(branch.direction)
 
-                const mat4 = new T.Matrix4().compose(leaf_pos, leaf_quart, new T.Vector3(leaf_width,leaf_length,1)); 
-                this.tree.leaves.push(mat4);
+                    // calculate leaf orientation
+                    const around_angle = Math.PI * (this.tree.randFloat(-1, 1));
+                    const rotate_around = new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0), around_angle)
+                    const down_angle = Math.PI * (this.tree.params.LeavesParam.DownAngle)/180
+                    const rotate_down = new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0), down_angle)
+                    // push leaf out of stem
+                    const leaf_pos = branch.start.clone().addScaledVector(branch.direction, leaf_dislocation)
+                    leaf_dislocation += _delta
+                    const out_of_stem = new T.Vector3(0,0,1).applyQuaternion(leaf_quart)
+                    out_of_stem.applyAxisAngle(branch.direction, around_angle);
+                    const branch_radius = branch.radius
+                    leaf_pos.addScaledVector(out_of_stem, branch_radius)
+                    
+                    leaf_quart.multiply(rotate_around).multiply(rotate_down)
+
+                    const mat4 = new T.Matrix4().compose(leaf_pos, leaf_quart, new T.Vector3(leaf_width,leaf_length,1)); 
+                    this.tree.leaves.push(mat4);
+                } 
+                if (branch.extremity && this.params.leaves_per_branch > 0) { // put another one on the ends of branches
+                    const leaf_quart = p.get_quaternion_from_dir(branch.direction)
+                    // calculate leaf orientation
+                    const around_angle = Math.PI * (this.tree.randFloat(-1, 1));
+                    const rotate_around = new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0), around_angle)
+                    const down_angle = Math.PI * (this.tree.params.LeavesParam.DownAngle)/180
+                    const rotate_down = new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0), down_angle)
+                    // push leaf out of stem
+                    const leaf_pos = branch.end.clone()
+                    const out_of_stem = new T.Vector3(0,0,1).applyQuaternion(leaf_quart)
+                    out_of_stem.applyAxisAngle(branch.direction, around_angle);
+                    const branch_radius = branch.radius
+                    leaf_pos.addScaledVector(out_of_stem, branch_radius)
+                    
+                    leaf_quart.multiply(rotate_around).multiply(rotate_down)
+
+                    const mat4 = new T.Matrix4().compose(leaf_pos, leaf_quart, new T.Vector3(leaf_width,leaf_length,1)); 
+                    this.tree.leaves.push(mat4);
+                }
             }
         }
     }

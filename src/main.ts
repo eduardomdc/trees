@@ -153,6 +153,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.SpaceColonyParam.attraction_up = input.SpaceColonyParam.attraction_up;
     preset.SpaceColonyParam.see_attraction_cloud = input.SpaceColonyParam.see_attraction_cloud;
     preset.SpaceColonyParam.leaf_start = input.SpaceColonyParam.leaf_start;
+    preset.SpaceColonyParam.leaves_per_branch = input.SpaceColonyParam.leaves_per_branch;
 
     preset.TextureParam.LeafTexture = input.TextureParam.LeafTexture
     preset.TextureParam.BarkTexture = input.TextureParam.BarkTexture
@@ -326,6 +327,7 @@ const sc_params = tree_params.SpaceColonyParam;
 sc_folder.add(sc_params, 'see_attraction_cloud')
 sc_folder.add(sc_params, 'max_iterations', 1, 500, 1)
 sc_folder.add(sc_params, 'leaf_start', 0, 1)
+sc_folder.add(sc_params, 'leaves_per_branch', 0, 10, 1)
 sc_folder.add(sc_params, 'branch_length', 0.1, 3)
 sc_folder.add(sc_params, 'attraction_range', 0.1, 10)
 sc_folder.add(sc_params, 'kill_range_relative', 0.8, 0.99)
