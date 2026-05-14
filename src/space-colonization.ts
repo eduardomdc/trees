@@ -194,12 +194,14 @@ export class SpaceColonizer {
         if (this.branches.length == 0) return
         const leaf_length = this.tree.params.LeavesParam.LeafScale
         const leaf_width = this.tree.params.LeavesParam.LeafScaleX * leaf_length
-        //const trunk_radius = this.branches[0].radius
-        const leaf_radius_filter = (this.params.branch_thickness) ** this.growth_factor // maybe
-
+        const trunk_radius = this.branches[0].radius
+        const leaf_radius_filter = (1-this.params.leaf_start)*this.params.branch_thickness + this.params.leaf_start*trunk_radius 
         for (let i : number = this.branches.length-1; i >= 0; i -= 1) {
             const branch = this.branches[i]
             if (branch.radius <= leaf_radius_filter) {
+                if (branch.parent != null) { // check if inside parent, if so don't spawn leaf
+                    if (branch.parent.radius> this.params.branch_length) continue 
+                }
                 const leaf_quart = p.get_quaternion_from_dir(branch.direction)
 
                 // calculate leaf orientation
