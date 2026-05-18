@@ -182,6 +182,13 @@ export class Segment {
                 next_segment.direction.addScaledVector(UP, delta).normalize()
             }
 
+            // gnarlyness
+            const gnarl = tree.params.LevelParam[next_segment.stem.level].Gnarly/tree.params.LevelParam[next_segment.stem.level].CurveRes
+            if (gnarl != 0) {
+                const random_vec = tree.randDirection()
+                next_segment.direction.addScaledVector(random_vec, gnarl).normalize()
+            }
+
             //const growth = new T.Vector3(0,next_segment.stem.per_segment_length, 0)// grows in the y axis
             const growth = parent.direction.clone().multiplyScalar(next_segment.stem.per_segment_length)
             
@@ -444,6 +451,7 @@ export type TreeParams = {
     Ratio : number, RatioPower : number, //radius/length ratio, reduction
     // trunk (level 0) only params
     Scale0 : number, ScaleV0 :number, //extra trunk scaling
+    Gnarly : number,
     
     MeshQuality : number[], // dictates resolution of circular cross-sections of stems
 
@@ -478,6 +486,7 @@ export type LevelParam = {
     CurveRes:number,Curve:number,CurveBack:number,CurveV:number, // curvature resolution and angles
     // new params
     BaseSize : number,
+    Gnarly : number,
 }
 export type LeavesParam = {
     DownAngle : number, DownAngleV : number, // angle from parent

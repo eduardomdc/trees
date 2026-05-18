@@ -80,8 +80,6 @@ scene.add(attractors_cloud)
 // GUI
 const gui = new GUI.GUI();
 
-
-
 function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.SpaceColony = input.SpaceColony;
     preset.Shape = input.Shape;
@@ -126,6 +124,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
         dst.Curve = src.Curve;
         dst.CurveBack = src.CurveBack;
         dst.CurveV = src.CurveV;
+        dst.Gnarly = src.Gnarly;
     }
 
     preset.LeavesParam.DownAngle = input.LeavesParam.DownAngle;
@@ -312,6 +311,7 @@ parametric_controls.add(tree_params, 'Ratio', 0, 0.1);
 parametric_controls.add(tree_params, 'RatioPower', 0, 5);
 
 parametric_controls.add(tree_params, 'AttractionUp', -5, 5);
+parametric_controls.add(tree_params, 'Gnarly', 0, 10);
 
 const trunk_controls = tree_controls.addFolder('Trunk Options');
 
@@ -325,6 +325,7 @@ trunk_controls.add(trunk_level, 'CurveRes', 1, 30, 1);
 trunk_controls.add(trunk_level, 'Curve', -180, 180);
 trunk_controls.add(trunk_level, 'CurveBack', -180, 180);
 trunk_controls.add(trunk_level, 'CurveV', 0, 180);
+trunk_controls.add(trunk_level, 'Gnarly', 0, 10);
 
 const levels_folder = tree_controls.addFolder('Branches');
 
@@ -348,6 +349,7 @@ tree_params.LevelParam.forEach((level, i) => {
     f.add(level, 'Curve', -180, 180);
     f.add(level, 'CurveBack', -180, 180);
     f.add(level, 'CurveV', 0, 180);
+    f.add(level, 'Gnarly', 0, 10);
 });
 
 const leaves_folder = tree_controls.addFolder('Leaves');

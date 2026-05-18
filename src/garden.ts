@@ -23,35 +23,36 @@ export const DefaultSpaceColonyParams : SpaceColonyParam = {
 
 export const QuakingAspen: TreeParams = {
     SpaceColony: false,
-  Shape: 7,
-  Scale: 13,
-  ScaleV: 3,
-  ZScale: 1,
-  ZScaleV: 0,
-  Levels: 3,
-  Ratio: 0.015,
-  RatioPower: 1.2,
-  
-  MeshQuality : [10,6,3,3],
-  
-  Scale0: 1,
-  ScaleV0: 0,
+    Shape: 7,
+    Scale: 13,
+    ScaleV: 3,
+    ZScale: 1,
+    ZScaleV: 0,
+    Levels: 3,
+    Ratio: 0.015,
+    RatioPower: 1.2,
 
-  LevelParam: [
+    MeshQuality : [10,6,3,3],
+
+    Scale0: 1,
+    ScaleV0: 0,
+
+    LevelParam: [
     // level 0 (trunk)
     {
-      DownAngle: 0,
-      DownAngleV: 0,
-      Rotate: 0,
-      RotateV: 0,
-      Branches: 0,
-      Length: 1,
-      LengthV: 0,
-      CurveRes: 20,
-      Curve: 0,
-      CurveBack: 0,
-      CurveV: 20,
-      BaseSize: 0.4,
+        DownAngle: 0,
+        DownAngleV: 0,
+        Rotate: 0,
+        RotateV: 0,
+        Branches: 0,
+        Length: 1,
+        LengthV: 0,
+        CurveRes: 20,
+        Curve: 0,
+        CurveBack: 0,
+        CurveV: 20,
+        BaseSize: 0.4,
+        Gnarly: 0,
     },
     // level 1
     {
@@ -67,6 +68,7 @@ export const QuakingAspen: TreeParams = {
       CurveBack: 0,
       CurveV: 50,
       BaseSize: 0,
+        Gnarly: 0,
     },
     // level 2
     {
@@ -82,6 +84,7 @@ export const QuakingAspen: TreeParams = {
       CurveBack: 0,
       CurveV: 75,
       BaseSize: 0,
+        Gnarly: 0,
     },
     // level 3
     {
@@ -97,6 +100,7 @@ export const QuakingAspen: TreeParams = {
       CurveBack: 0,
       CurveV: 0,
       BaseSize: 0,
+        Gnarly: 0,
     },],
 
     LeavesParam : {
@@ -109,13 +113,13 @@ export const QuakingAspen: TreeParams = {
       LeafScaleX : 1,
       PhototropicBend : 0.5,
     },
-  AttractionUp: 0.5,
-  TextureParam : {
+    AttractionUp: 0.5,
+    TextureParam : {
       LeafTexture : 'CommonGreen',
       BarkTexture : 'White',
       LeafHue : 0.0,
-  },
-  SpaceColonyParam : DefaultSpaceColonyParams, 
+    },
+    SpaceColonyParam : DefaultSpaceColonyParams, 
 };
 
 export const Acer: TreeParams = {
@@ -128,6 +132,7 @@ export const Acer: TreeParams = {
   Levels: 3,
   Ratio: 0.025,
   RatioPower: 1.5,
+  Gnarly: 0,
 
   MeshQuality : [10,6,3,3],
 
@@ -149,6 +154,7 @@ export const Acer: TreeParams = {
       CurveBack: 0,
       CurveV: 200,
       BaseSize: 0.1,
+        Gnarly: 0,
     },
 
     // level 1
@@ -165,6 +171,7 @@ export const Acer: TreeParams = {
       CurveBack: 0,
       CurveV: 100,
       BaseSize: 0.4,
+        Gnarly: 0,
     },
 
     // level 2
@@ -181,6 +188,7 @@ export const Acer: TreeParams = {
       CurveBack: 0,
       CurveV: 100,
       BaseSize: 0.02,
+        Gnarly: 0,
     },
 
     // level 3
@@ -197,6 +205,7 @@ export const Acer: TreeParams = {
       CurveBack: 0,
       CurveV: 0,
       BaseSize: 0.02,
+        Gnarly: 0,
     },
   ],
 
