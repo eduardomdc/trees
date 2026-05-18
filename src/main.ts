@@ -3,7 +3,7 @@ import * as T from './penn.ts';
 import * as Tex from './texture.ts';
 import {QuakingAspen, Acer} from './garden.ts';
 import {createOrbitalCamera} from './camera.ts';
-// import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import * as GUI from 'lil-gui'; 
 
 export const canvas = document.querySelector('#render-canvas') as HTMLCanvasElement;
@@ -196,9 +196,56 @@ const loadControls = {
         };
 
         input.click();
-  }
+    },
+    DownloadModel : function download() {
+        const asset_scene = new THREE.Scene()
+        asset_scene.add(tree_mesh.clone())
+        asset_scene.add(tree_leaves.clone())
+        downloadGLTF(asset_scene, "my_tree.glb")
+    }
 }
+function downloadGLTF(scene: THREE.Scene, filename = "scene.gltf") {
+    const exporter = new GLTFExporter();
 
+    exporter.parse(
+        scene,
+        (result) => {
+            let output: Blob;
+
+            if (result instanceof ArrayBuffer) {
+                // .glb binary format
+                output = new Blob([result], {
+                    type: "application/octet-stream",
+                });
+            } else {
+                // .gltf text format
+                const json = JSON.stringify(result, null, 2);
+
+                output = new Blob([json], {
+                    type: "text/plain",
+                });
+            }
+
+            const url = URL.createObjectURL(output);
+
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = filename;
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            URL.revokeObjectURL(url);
+        },
+        (error) => {
+            console.error("GLTF export error:", error);
+        },
+        {
+            binary: filename.endsWith(".glb"), // export GLB if filename ends with .glb
+        }
+    );
+}
 const load_controls = gui.addFolder('Load');
 load_controls.add( loadControls, 'Preset', {QuakingAspen, Acer}).onChange((_ : any) => {
     applyPreset(tree_params, loadControls.Preset)
@@ -206,6 +253,7 @@ load_controls.add( loadControls, 'Preset', {QuakingAspen, Acer}).onChange((_ : a
 })
 load_controls.add( loadControls, 'Download').name("Save Tree Configuration")
 load_controls.add( loadControls, 'Load').name("Load Tree Configuration")
+load_controls.add( loadControls, 'DownloadModel').name("Download Tree Model")
 function update_display_and_rebuild_tree () {
     tree_controls.controllers.forEach( (value : GUI.Controller) => {
         value.updateDisplay(); 
