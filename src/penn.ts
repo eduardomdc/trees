@@ -451,7 +451,6 @@ export type TreeParams = {
     Ratio : number, RatioPower : number, //radius/length ratio, reduction
     // trunk (level 0) only params
     Scale0 : number, ScaleV0 :number, //extra trunk scaling
-    Gnarly : number,
     
     MeshQuality : number[], // dictates resolution of circular cross-sections of stems
 
