@@ -122,7 +122,6 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
         dst.LengthV = src.LengthV;
         dst.CurveRes = src.CurveRes;
         dst.Curve = src.Curve;
-        dst.CurveBack = src.CurveBack;
         dst.CurveV = src.CurveV;
         dst.Gnarly = src.Gnarly;
     }
@@ -311,7 +310,6 @@ parametric_controls.add(tree_params, 'Ratio', 0, 0.1);
 parametric_controls.add(tree_params, 'RatioPower', 0, 5);
 
 parametric_controls.add(tree_params, 'AttractionUp', -5, 5);
-parametric_controls.add(tree_params, 'Gnarly', 0, 10);
 
 const trunk_controls = tree_controls.addFolder('Trunk Options');
 
@@ -323,7 +321,6 @@ trunk_controls.add(trunk_level, 'Length', 0, 2);
 trunk_controls.add(trunk_level, 'LengthV', 0, 1);
 trunk_controls.add(trunk_level, 'CurveRes', 1, 30, 1);
 trunk_controls.add(trunk_level, 'Curve', -180, 180);
-trunk_controls.add(trunk_level, 'CurveBack', -180, 180);
 trunk_controls.add(trunk_level, 'CurveV', 0, 180);
 trunk_controls.add(trunk_level, 'Gnarly', 0, 10);
 
@@ -347,7 +344,6 @@ tree_params.LevelParam.forEach((level, i) => {
 
     f.add(level, 'CurveRes', 1, 30, 1);
     f.add(level, 'Curve', -180, 180);
-    f.add(level, 'CurveBack', -180, 180);
     f.add(level, 'CurveV', 0, 180);
     f.add(level, 'Gnarly', 0, 10);
 });

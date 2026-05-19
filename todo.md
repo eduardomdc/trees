@@ -1,7 +1,5 @@
 - weird behaviour on down angle v param ( looks correct according to paper..)
 - texture scaling
-- curve back param
-- gnarlyness
 - taper control
 - leaf phototropic orientations
 - tree quality slider
