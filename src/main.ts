@@ -346,32 +346,11 @@ tree_params.LevelParam.forEach((level, i) => {
     f.add(level, 'Gnarly', 0, 10);
 });
 
-const leaves_folder = tree_controls.addFolder('Leaves');
-const leaves_param = tree_params.LeavesParam;
-leaves_folder.add(leaves_param, 'Amount', 0, 100);
-leaves_folder.add(leaves_param, 'DownAngle', 0, 180);
-leaves_folder.add(leaves_param, 'DownAngleV', -90, 90);
-leaves_folder.add(leaves_param, 'Rotate', 0, 360);
-leaves_folder.add(leaves_param, 'RotateV', 0, 360);
-leaves_folder.add(leaves_param, 'LeafScale', 0, 10);
-leaves_folder.add(leaves_param, 'LeafScaleX', 0, 2);
-leaves_folder.add(leaves_param, 'PhototropicBend', 0, 1);
-
-tree_controls.onChange(
-    _ => {
-        rebuild_tree()
-        
-
-    }
-);
-
+const sc_params = tree_params.SpaceColonyParam;
 // Space colony controls
 const sc_folder = tree_controls.addFolder('Space Colony');
-const sc_params = tree_params.SpaceColonyParam;
 sc_folder.add(sc_params, 'see_attraction_cloud')
 sc_folder.add(sc_params, 'max_iterations', 1, 500, 1)
-sc_folder.add(sc_params, 'leaf_start', 0, 1)
-sc_folder.add(sc_params, 'leaves_per_branch', 0, 10, 1)
 sc_folder.add(sc_params, 'branch_length', 0.1, 3)
 sc_folder.add(sc_params, 'attraction_range', 0.1, 10)
 sc_folder.add(sc_params, 'kill_range_relative', 0.8, 0.99)
@@ -386,6 +365,32 @@ sc_folder.add(sc_params, 'attractors_tall', 0.01, 10)
 sc_folder.add(sc_params, 'attractors_shape_mod', -1, 1)
 sc_folder.add(sc_params, 'attraction_up', -1, 1)
 sc_folder.hide();
+
+const leaves_sc_params : GUI.Controller[] = []
+const leaves_penn_params : GUI.Controller[] = []
+
+const leaves_folder = tree_controls.addFolder('Leaves');
+const leaves_param = tree_params.LeavesParam;
+leaves_penn_params.push(leaves_folder.add(leaves_param, 'Amount', 0, 100))
+leaves_sc_params.push(leaves_folder.add(sc_params, 'leaves_per_branch', 0, 10, 1).name("Amount"))
+leaves_sc_params.push(leaves_folder.add(sc_params, 'leaf_start', 0, 1).name("Leaf Start"))
+leaves_folder.add(leaves_param, 'DownAngle', 0, 180);
+leaves_folder.add(leaves_param, 'DownAngleV', -90, 90);
+leaves_penn_params.push(leaves_folder.add(leaves_param, 'Rotate', 0, 360))
+leaves_penn_params.push(leaves_folder.add(leaves_param, 'RotateV', 0, 360))
+leaves_folder.add(leaves_param, 'LeafScale', 0, 10);
+leaves_folder.add(leaves_param, 'LeafScaleX', 0, 2);
+leaves_folder.add(leaves_param, 'PhototropicBend', 0, 1);
+
+
+
+tree_controls.onChange(
+    _ => {
+        rebuild_tree()
+        
+
+    }
+);
 
 // Texture controls
 const texture_folder = tree_controls.addFolder('Textures');
@@ -433,13 +438,15 @@ function rebuild_tree () {
         parametric_controls.hide()
         trunk_controls.hide()
         levels_folder.hide()
-        //leaves_folder.hide()
+        leaves_sc_params.forEach((controller : GUI.Controller) => controller.show())
+        leaves_penn_params.forEach((controller : GUI.Controller) => controller.hide())
         sc_folder.show()
     } else {
         parametric_controls.show()
         trunk_controls.show()
         levels_folder.show()
-        //leaves_folder.show()
+        leaves_sc_params.forEach((controller : GUI.Controller) => controller.hide())
+        leaves_penn_params.forEach((controller : GUI.Controller) => controller.show())
         sc_folder.hide()
     }
 
