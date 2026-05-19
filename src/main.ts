@@ -88,7 +88,6 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.ZScale = input.ZScale;
     preset.ZScaleV = input.ZScaleV;
     preset.Levels = input.Levels;
-    preset.Ratio = input.Ratio;
     preset.RatioPower = input.RatioPower;
 
     preset.Scale0 = input.Scale0;
