@@ -29,12 +29,11 @@ export const QuakingAspen: TreeParams = {
     ZScale: 1,
     ZScaleV: 0,
     Levels: 3,
-    Ratio: 0.015,
     RatioPower: 1.2,
 
     MeshQuality : [10,6,3,3],
 
-    Scale0: 1,
+    Scale0: 0.1,
     ScaleV0: 0,
 
     LevelParam: [
@@ -126,12 +125,11 @@ export const Acer: TreeParams = {
   ZScale: 1,
   ZScaleV: 0,
   Levels: 3,
-  Ratio: 0.025,
   RatioPower: 1.5,
 
   MeshQuality : [10,6,3,3],
 
-  Scale0: 1,
+  Scale0: 0.1,
   ScaleV0: 0,
 
   LevelParam: [

@@ -306,14 +306,13 @@ parametric_controls.add(tree_params, 'ZScaleV', 0, 5);
 
 parametric_controls.add(tree_params, 'Levels', 1, 4, 1);
 
-parametric_controls.add(tree_params, 'Ratio', 0, 0.1);
 parametric_controls.add(tree_params, 'RatioPower', 0, 5);
 
 parametric_controls.add(tree_params, 'AttractionUp', -5, 5);
 
 const trunk_controls = tree_controls.addFolder('Trunk Options');
 
-trunk_controls.add(tree_params, 'Scale0', 0, 5).name("Radius");
+trunk_controls.add(tree_params, 'Scale0', 0, 1).name("Radius");
 trunk_controls.add(tree_params, 'ScaleV0', 0, 1).name("RadiusV");
 const trunk_level = tree_params.LevelParam[0];
 trunk_controls.add(trunk_level, 'BaseSize', 0, 1);

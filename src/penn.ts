@@ -319,7 +319,7 @@ export class Segment {
         
         // calculate stem radius
         if (parent_stem == null) {
-            stem.radius = tree.processed_params.length_trunk*tree.params.Ratio*(Math.max(tree.params.Scale0+tree.params.ScaleV0*tree.randFloat(-1,1), 0.01));
+            stem.radius = tree.processed_params.length_trunk*0.2*(Math.max(tree.params.Scale0+tree.params.ScaleV0*tree.randFloat(-1,1), 0.01));
         } else {
             stem.radius = parent_stem.radius*(stem.length / parent_stem.length)**tree.params.RatioPower;
             // limit stem radius by radius of parent at that point
@@ -441,7 +441,7 @@ export type TreeParams = {
     Shape : number, // general tree shape id
     Scale : number,ScaleV : number,ZScale : number,ZScaleV : number,//size and scaling of tree
     Levels : number, // levels of recursion
-    Ratio : number, RatioPower : number, //radius/length ratio, reduction
+    RatioPower : number, //radius/length ratio, reduction
     // trunk (level 0) only params
     Scale0 : number, ScaleV0 :number, //extra trunk scaling
     
