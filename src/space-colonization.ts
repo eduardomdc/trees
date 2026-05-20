@@ -103,7 +103,7 @@ export class SpaceColonizer {
         }
 
         this.calculate_branch_radius()
-        //this.push_out_branches(this.branches[0], new T.Vector3(0,0,0))
+        if (this.params.attraction_up != 0) {this.attraction_up(this.branches[0], new T.Vector3())}
         this.add_leaves()
     }
 
@@ -134,7 +134,7 @@ export class SpaceColonizer {
         const randomness = this.params.branch_randomness
         const spread = this.params.branch_spread
         const branch_count = this.branches.length
-        const attraction_up = this.params.attraction_up
+        //const attraction_up = this.params.attraction_up
         for (let i : number = 0; i < branch_count; i += 1) {
             const branch = this.branches[i];
             if (!branch.active) {continue}
@@ -168,9 +168,10 @@ export class SpaceColonizer {
                     sum_vector.add(paralel.multiplyScalar(spread*branch.children.length)).normalize()
                 }
                 // attraction up
+                /*
                 if ( attraction_up != 0) {
                     sum_vector.add(UP.clone().multiplyScalar(attraction_up)).normalize()
-                }
+                }*/
 
                 //const similarity = sum_vector.dot(branch.direction)
                 //if (similarity > 0.95) continue;
@@ -200,17 +201,21 @@ export class SpaceColonizer {
         } 
     }
 
-    // we need to push out branches that start inside of their parent's to the parent's surface according to radius
-    // this makes sure leaves are not spawned within a parent
-    push_out_branches (branch : SCBranch, accumulated_push_out_vector : T.Vector3) {
+    attraction_up (branch : SCBranch, up_steer : T.Vector3) {
+        // update branch start from parent end
         if (branch.parent != null) {
-            accumulated_push_out_vector.addScaledVector(branch.direction, branch.parent.radius)
+            branch.start = branch.parent.end.clone()
         }
-        branch.end.add(accumulated_push_out_vector)
-        branch.start.addScaledVector(branch.direction, -0.2)
-        //accumulated_push_out_vector.addScaledVector(branch.direction, -branch.radius)
+        
+        const old_dir = branch.direction.clone()
+        branch.direction.add(up_steer)
+        //branch.direction.addScaledVector(UP, this.params.attraction_up/(branch.radius+0.1)).normalize()
+        branch.direction.lerp(UP, 0.03*this.params.attraction_up/(branch.radius)).normalize();
+        const steering = branch.direction.clone().sub(old_dir)
+        branch.end = branch.start.clone().addScaledVector(branch.direction, this.params.branch_length)
+        
         for (const child of branch.children) {
-            this.push_out_branches(child, accumulated_push_out_vector.clone())
+            this.attraction_up(child, steering)
         }
     }
 
