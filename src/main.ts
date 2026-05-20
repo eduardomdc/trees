@@ -422,16 +422,22 @@ function rebuild_tree () {
     const leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: leaf_tex_hued, transparent: true, alphaTest:0.5});
     
     scene.remove(tree_mesh);
-    tree_mesh.geometry.dispose()
+    disposeMesh(tree_mesh)
     tree_mesh = tree.build_tree_geometry(trunk_mat)
     scene.add(tree_mesh)
     
     scene.remove(tree_leaves);
-    tree_leaves.geometry.dispose();
+    disposeMesh(tree_leaves)
     tree_leaves = tree.build_leaves(leaf_mat);
     scene.add(tree_leaves);
 
     scene.remove(attractors_cloud);
+    const mats = Array.isArray(attractors_cloud.material) ? attractors_cloud.material : [attractors_cloud.material];
+    mats.forEach(m => {
+      (Object.values(m) as any[]).forEach(v => v?.isTexture && v.dispose());
+      m.dispose();
+    });
+    attractors_cloud.geometry.dispose()
     if (tree.params.SpaceColonyParam.see_attraction_cloud) {
         attractors_cloud = tree.space_colonizer.create_attractors_point_cloud();
         scene.add(attractors_cloud);
@@ -464,3 +470,13 @@ function animate() {
     renderer.render( scene, camera );
 }
 renderer.setAnimationLoop( animate );
+
+// Mesh (dispose geometry + material)
+function disposeMesh(mesh: THREE.Mesh) {
+  mesh.geometry.dispose();
+  const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+  mats.forEach(m => {
+    (Object.values(m) as any[]).forEach(v => v?.isTexture && v.dispose());
+    m.dispose();
+  });
+}
