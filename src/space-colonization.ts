@@ -19,6 +19,7 @@ export type SpaceColonyParam = {
     attractors_height : number;
     attractors_tall : number;
     attractors_shape_mod : number;
+    attractors_noise : number;
     attraction_up : number;
     see_attraction_cloud : boolean;
     leaf_start : number;
@@ -72,7 +73,14 @@ export class SpaceColonizer {
                 z = this.tree.randFloat(-1, 1) * radius; 
             } while (x * x + height_factor * y * y /(1+m*y)**2 + z * z > radius * radius);
 
-            this.attractors.push({ pos : new T.Vector3(x,y + center_y,z), killed : false})
+            const pos = new T.Vector3(x,y + center_y,z)
+
+            if (this.params.attractors_noise > 0) {
+                const random = this.tree.randDirection();
+                pos.addScaledVector(random, this.tree.randFloat(0, this.params.attractors_noise) )
+            }
+
+            this.attractors.push({ pos : pos, killed : false})
         }
     }
 

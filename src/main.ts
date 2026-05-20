@@ -147,6 +147,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.SpaceColonyParam.attractors_height = input.SpaceColonyParam.attractors_height;
     preset.SpaceColonyParam.attractors_tall = input.SpaceColonyParam.attractors_tall;
     preset.SpaceColonyParam.attractors_shape_mod = input.SpaceColonyParam.attractors_shape_mod;
+    preset.SpaceColonyParam.attractors_noise = input.SpaceColonyParam.attractors_noise;
     preset.SpaceColonyParam.attraction_up = input.SpaceColonyParam.attraction_up;
     preset.SpaceColonyParam.see_attraction_cloud = input.SpaceColonyParam.see_attraction_cloud;
     preset.SpaceColonyParam.leaf_start = input.SpaceColonyParam.leaf_start;
@@ -363,6 +364,7 @@ sc_folder.add(sc_params, 'attractors_radius', 0.1, 15)
 sc_folder.add(sc_params, 'attractors_height', 0, 40)
 sc_folder.add(sc_params, 'attractors_tall', 0.01, 10)
 sc_folder.add(sc_params, 'attractors_shape_mod', -1, 1)
+sc_folder.add(sc_params, 'attractors_noise', 0, 10)
 sc_folder.add(sc_params, 'attraction_up', -1, 1)
 sc_folder.hide();
 
