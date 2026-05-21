@@ -57,6 +57,7 @@ function cloneTreeParams(p: T.TreeParams): T.TreeParams {
         LeavesParam: { ...p.LeavesParam },
         TextureParam: {...p.TextureParam },
         SpaceColonyParam: {...p.SpaceColonyParam },
+        RootParams: {...p.RootParams },
     };
 }
 var tree_params : T.TreeParams = cloneTreeParams(QuakingAspen);
@@ -65,6 +66,9 @@ var tree = new T.Tree(tree_params, seed.Seed);
 const basic_mesh_mat : THREE.Material = new THREE.MeshStandardMaterial({map: Tex.BarkTextures[tree_params.TextureParam.BarkTexture]});
 var tree_mesh = tree.build_tree_geometry(basic_mesh_mat);
 scene.add(tree_mesh);
+
+var roots_mesh : THREE.Mesh = tree.build_root_geometry(basic_mesh_mat);
+scene.add(roots_mesh)
 
 // leaves
 const basic_leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: Tex.LeafTextures[tree_params.TextureParam.LeafTexture], transparent: true, alphaTest:0.5});
@@ -82,6 +86,7 @@ const gui = new GUI.GUI();
 
 function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.SpaceColony = input.SpaceColony;
+    preset.GenerateRoots = input.GenerateRoots;
     preset.Shape = input.Shape;
     preset.Scale = input.Scale;
     preset.ScaleV = input.ScaleV;
@@ -152,6 +157,27 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.SpaceColonyParam.see_attraction_cloud = input.SpaceColonyParam.see_attraction_cloud;
     preset.SpaceColonyParam.leaf_start = input.SpaceColonyParam.leaf_start;
     preset.SpaceColonyParam.leaves_per_branch = input.SpaceColonyParam.leaves_per_branch;
+    preset.SpaceColonyParam.is_root = input.SpaceColonyParam.is_root;
+
+    preset.RootParams.max_iterations = input.RootParams.max_iterations;
+    preset.RootParams.branch_length = input.RootParams.branch_length;
+    preset.RootParams.attraction_range = input.RootParams.attraction_range;
+    preset.RootParams.kill_range_relative = input.RootParams.kill_range_relative;
+    preset.RootParams.branch_randomness = input.RootParams.branch_randomness;
+    preset.RootParams.branch_spread = input.RootParams.branch_spread;
+    preset.RootParams.inverse_growth_factor = input.RootParams.inverse_growth_factor;
+    preset.RootParams.branch_thickness = input.RootParams.branch_thickness;
+    preset.RootParams.attractors = input.RootParams.attractors;
+    preset.RootParams.attractors_radius = input.RootParams.attractors_radius;
+    preset.RootParams.attractors_height = input.RootParams.attractors_height;
+    preset.RootParams.attractors_tall = input.RootParams.attractors_tall;
+    preset.RootParams.attractors_shape_mod = input.RootParams.attractors_shape_mod;
+    preset.RootParams.attractors_noise = input.RootParams.attractors_noise;
+    preset.RootParams.attraction_up = input.RootParams.attraction_up;
+    preset.RootParams.see_attraction_cloud = input.RootParams.see_attraction_cloud;
+    preset.RootParams.leaf_start = input.RootParams.leaf_start;
+    preset.RootParams.leaves_per_branch = input.RootParams.leaves_per_branch;
+    preset.RootParams.is_root = input.RootParams.is_root;
 
     preset.TextureParam.LeafTexture = input.TextureParam.LeafTexture
     preset.TextureParam.BarkTexture = input.TextureParam.BarkTexture
@@ -276,6 +302,9 @@ function update_display_and_rebuild_tree () {
     sc_folder.controllers.forEach( (value : GUI.Controller) => {
         value.updateDisplay(); 
     })
+    root_folder.controllers.forEach( (value : GUI.Controller) => {
+        value.updateDisplay(); 
+    })
     
     rebuild_tree()
 }
@@ -286,6 +315,7 @@ const tree_controls = gui.addFolder('Tree');
 
 tree_controls.add(seed, 'Seed', 0, 1000);
 tree_controls.add(tree_params, 'SpaceColony').name("Use Space Colonization");
+tree_controls.add(tree_params, 'GenerateRoots').name("Generate Root Geometry");
 
 const parametric_controls = tree_controls.addFolder('Parametric Controls');
 
@@ -368,6 +398,28 @@ sc_folder.add(sc_params, 'attractors_noise', 0, 10)
 sc_folder.add(sc_params, 'attraction_up', -1, 1)
 sc_folder.hide();
 
+// Root generation colony controls
+const root_folder = tree_controls.addFolder('Root Generation');
+const root_params = tree.params.RootParams
+root_folder.add(root_params, 'see_attraction_cloud')
+root_folder.add(root_params, 'max_iterations', 1, 500, 1)
+root_folder.add(root_params, 'branch_length', 0.1, 3)
+root_folder.add(root_params, 'attraction_range', 0.1, 10)
+root_folder.add(root_params, 'kill_range_relative', 0.8, 0.99)
+root_folder.add(root_params, 'branch_randomness', 0.01, 10)
+root_folder.add(root_params, 'branch_spread', 0, 10)
+root_folder.add(root_params, 'inverse_growth_factor', 0.01, 5)
+root_folder.add(root_params, 'branch_thickness', 0.001, 0.1)
+root_folder.add(root_params, 'attractors', 1, 8000, 1)
+root_folder.add(root_params, 'attractors_radius', 0.1, 15)
+root_folder.add(root_params, 'attractors_height', -10, 0)
+root_folder.add(root_params, 'attractors_tall', 0.01, 10)
+root_folder.add(root_params, 'attractors_shape_mod', -1, 1)
+root_folder.add(root_params, 'attractors_noise', 0, 10)
+root_folder.add(root_params, 'attraction_up', -1, 1)
+root_folder.add(root_params, 'root_start', 0, 5)
+root_folder.hide();
+
 const leaves_sc_params : GUI.Controller[] = []
 const leaves_penn_params : GUI.Controller[] = []
 
@@ -425,6 +477,15 @@ function rebuild_tree () {
     disposeMesh(tree_mesh)
     tree_mesh = tree.build_tree_geometry(trunk_mat)
     scene.add(tree_mesh)
+   
+    if (roots_mesh.geometry) {
+        scene.remove(roots_mesh)
+        disposeMesh(roots_mesh)
+    }
+    if (tree.params.GenerateRoots) {
+        roots_mesh = tree.build_root_geometry(trunk_mat)
+        scene.add(roots_mesh)
+    }
     
     scene.remove(tree_leaves);
     disposeMesh(tree_leaves)
@@ -456,6 +517,12 @@ function rebuild_tree () {
         leaves_sc_params.forEach((controller : GUI.Controller) => controller.hide())
         leaves_penn_params.forEach((controller : GUI.Controller) => controller.show())
         sc_folder.hide()
+    }
+
+    if (tree.params.GenerateRoots) {
+        root_folder.show()
+    } else {
+        root_folder.hide()
     }
 
     if (tree.params.SpaceColony) {

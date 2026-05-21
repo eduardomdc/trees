@@ -37,13 +37,19 @@ leafGeometry.setAttribute('uv',       new THREE.BufferAttribute(uvs, 2));
 leafGeometry.setAttribute('normal',   new THREE.BufferAttribute(normals, 3));
 leafGeometry.setIndex(indices);
 
-export function build_tree_geometry (tree : T.Tree) : THREE.BufferGeometry {
+export function build_tree_geometry (tree : T.Tree, roots : boolean = false) : THREE.BufferGeometry {
     const my_geometry : Geometry = {vertex : [], normal : [], uv : [], index : []};
-    if (tree.params.SpaceColony) {
-        build_space_colony_geometry(tree, tree.space_colonizer.first_branch, my_geometry);
+    
+    if (!roots) {
+        if (tree.params.SpaceColony) {
+            build_space_colony_geometry(tree, tree.space_colonizer.first_branch, my_geometry);
+        } else {
+            if (tree.root != null) {build_segment_geometry(tree, tree.root, my_geometry);}
+        }
     } else {
-        if (tree.root != null) {build_segment_geometry(tree, tree.root, my_geometry);}
+        if (tree.params.GenerateRoots) { build_space_colony_geometry(tree, tree.root_sc.first_branch, my_geometry) }
     }
+
     console.log("Built tree geometry!", my_geometry.vertex.length/3, " Vertices")
     const buffer_geometry = new THREE.BufferGeometry();
     

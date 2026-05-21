@@ -20,10 +20,36 @@ export const DefaultSpaceColonyParams : SpaceColonyParam = {
     see_attraction_cloud : false,
     leaf_start : 0.2,
     leaves_per_branch : 1,
+    is_root : false,
+    root_start : 0,
+}
+
+export const DefaultRootParams : SpaceColonyParam = {
+    max_iterations : 200,
+    branch_length : 0.2,
+    attraction_range : 2.88, 
+    kill_range_relative : 0.96,
+    branch_randomness : 0.1,
+    branch_spread : 0.0,
+    inverse_growth_factor : 4.34,
+    branch_thickness : 0.032,
+    attractors : 3000,
+    attractors_radius : 6.62,
+    attractors_height : -0.65,
+    attractors_tall  : 0.32,
+    attractors_shape_mod : -0,
+    attractors_noise : 4.12,
+    attraction_up : -0.49,
+    see_attraction_cloud : false,
+    leaf_start : 0.2,
+    leaves_per_branch : 1,
+    is_root : true,
+    root_start : 3.89,
 }
 
 export const QuakingAspen: TreeParams = {
     SpaceColony: false,
+    GenerateRoots: false,
     Shape: 7,
     Scale: 13,
     ScaleV: 3,
@@ -116,10 +142,12 @@ export const QuakingAspen: TreeParams = {
       LeafHue : 0.0,
     },
     SpaceColonyParam : DefaultSpaceColonyParams, 
+    RootParams : DefaultRootParams, 
 };
 
 export const Acer: TreeParams = {
     SpaceColony: false,
+    GenerateRoots: false,
   Shape: 4,
   Scale: 10,
   ScaleV: 1,
@@ -217,6 +245,7 @@ export const Acer: TreeParams = {
       LeafHue : 0.0,
   },
   SpaceColonyParam : DefaultSpaceColonyParams, 
+    RootParams : DefaultRootParams, 
 };
 
 export const preset_params : TreeParams[] = [QuakingAspen, Acer];

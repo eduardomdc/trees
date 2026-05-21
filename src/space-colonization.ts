@@ -24,6 +24,8 @@ export type SpaceColonyParam = {
     see_attraction_cloud : boolean;
     leaf_start : number;
     leaves_per_branch : number;
+    is_root : boolean;
+    root_start : number;
 }
 
 
@@ -38,11 +40,19 @@ export class SpaceColonizer {
     kill_range : number = 0.1
     params : SpaceColonyParam 
 
-    constructor (tree : p.Tree) {
+    constructor (tree : p.Tree, params : SpaceColonyParam) {
         this.tree = tree
-        this.params = tree.params.SpaceColonyParam
-        this.first_branch = new SCBranch(new T.Vector3(0,0,0), new T.Vector3(0,1,0), this.params.branch_length, null)
-        if (!tree.params.SpaceColony) {return}
+        this.params = params 
+        if (this.params.is_root) {
+            this.first_branch = new SCBranch(new T.Vector3(0,this.params.root_start,0), new T.Vector3(0,-1,0), this.params.branch_length, null)
+        } else {
+            if (tree.params.GenerateRoots) {
+                this.first_branch = new SCBranch(new T.Vector3(0,tree.params.RootParams.root_start,0), new T.Vector3(0,1,0), this.params.branch_length, null)
+            } else {
+                this.first_branch = new SCBranch(new T.Vector3(0,0,0), new T.Vector3(0,1,0), this.params.branch_length, null)
+            }
+            if (!tree.params.SpaceColony) {return}
+        }
         this.growth_factor = 1/this.params.inverse_growth_factor
         this.kill_range = this.params.attraction_range * this.params.kill_range_relative
         this.generate_attractors()
@@ -95,7 +105,11 @@ export class SpaceColonizer {
     generate_new_tree_structure () {
         const max_iterations = this.params.max_iterations
         this.iteration = 0
-        this.grow_first_branch();
+        if (this.params.is_root) {
+            this.branches.push(this.first_branch)
+        } else {
+            this.grow_first_branch();
+        }
         
         while (this.iteration < max_iterations && this.attractors.length > 0 && this.branches.length < MAX_BRANCHES) {
             this.iteration += 1
@@ -104,7 +118,9 @@ export class SpaceColonizer {
 
         this.calculate_branch_radius()
         if (this.params.attraction_up != 0) {this.attraction_up(this.branches[0], new T.Vector3())}
-        this.add_leaves()
+        if (!this.params.is_root) {
+            this.add_leaves()
+        }
     }
 
     grow_first_branch () {

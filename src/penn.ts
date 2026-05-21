@@ -20,12 +20,14 @@ export class Tree {
     processed_params : ProcessedTreeParams; // parameters in a more useful format for segment-based generation
 
     space_colonizer : Space.SpaceColonizer;
+    root_sc : Space.SpaceColonizer;
 
     constructor (params : TreeParams, seed : number) {
         this.seed = seed;
         this.params = params;
         this.processed_params = new ProcessedTreeParams(this);
-        this.space_colonizer = new Space.SpaceColonizer(this);
+        this.space_colonizer = new Space.SpaceColonizer(this, this.params.SpaceColonyParam);
+        this.root_sc = new Space.SpaceColonizer(this, this.params.RootParams); 
         if (!params.SpaceColony) {this.generate_parametric_tree()}
     }
 
@@ -36,6 +38,14 @@ export class Tree {
 
     build_tree_geometry (material : T.Material) : T.Mesh {
        const buffer_geometry = Mesh.build_tree_geometry(this);
+       const mesh = new T.Mesh(buffer_geometry, material);
+       mesh.castShadow = true;
+       mesh.receiveShadow = true;
+       return mesh;
+    }
+
+    build_root_geometry (material : T.Material) : T.Mesh {
+       const buffer_geometry = Mesh.build_tree_geometry(this, true);
        const mesh = new T.Mesh(buffer_geometry, material);
        mesh.castShadow = true;
        mesh.receiveShadow = true;
@@ -438,6 +448,7 @@ export class Segment {
 
 export type TreeParams = {
     SpaceColony : boolean,
+    GenerateRoots : boolean,
     Shape : number, // general tree shape id
     Scale : number,ScaleV : number,ZScale : number,ZScaleV : number,//size and scaling of tree
     Levels : number, // levels of recursion
@@ -452,6 +463,7 @@ export type TreeParams = {
     AttractionUp : number, //upward growth tendency
 
     SpaceColonyParam : Space.SpaceColonyParam,
+    RootParams : Space.SpaceColonyParam,
 
     TextureParam : TextureParam,
 }
