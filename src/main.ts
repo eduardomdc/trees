@@ -470,8 +470,9 @@ function shiftHue(image: HTMLImageElement, degrees: number): THREE.CanvasTexture
 function rebuild_tree () {
     tree = new T.Tree(tree_params, seed.Seed);
     trunk_mat.map = Tex.BarkTextures[tree_params.TextureParam.BarkTexture]
-    const leaf_tex_hued = shiftHue(Tex.LeafTextures[tree_params.TextureParam.LeafTexture].image, tree_params.TextureParam.LeafHue)
-    leaf_mat.map = leaf_tex_hued
+    //const leaf_tex_hued = shiftHue(Tex.LeafTextures[tree_params.TextureParam.LeafTexture].image, tree_params.TextureParam.LeafHue)
+    //leaf_mat.map = leaf_tex_hued
+    leaf_mat.map = Tex.LeafTextures[tree_params.TextureParam.LeafTexture]
     
     scene.remove(tree_mesh);
     disposeMesh(tree_mesh)
