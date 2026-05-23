@@ -36,7 +36,7 @@ const loader = new THREE.TextureLoader();
 const jungle_tex = loader.load(import.meta.env.BASE_URL+'/assets/jungle.jpg');
 jungle_tex.mapping = THREE.EquirectangularReflectionMapping
 scene.background = jungle_tex;
-//scene.environment = jungle_tex;
+scene.environment = jungle_tex;
 
 const ground_tex = loader.load(import.meta.env.BASE_URL+'/assets/ground.jpg');
 ground_tex.wrapS = THREE.RepeatWrapping;
