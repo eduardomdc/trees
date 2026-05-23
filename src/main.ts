@@ -77,8 +77,8 @@ scene.add(tree_leaves);
 
 // Space Colony
 
-
-var attractors_cloud = tree.space_colonizer.create_attractors_point_cloud(); 
+const red_points = new THREE.PointsMaterial({color : 0xff0000, size:0.2})
+var attractors_cloud = tree.space_colonizer.create_attractors_point_cloud(red_points); 
 scene.add(attractors_cloud)
 
 // GUI
@@ -453,7 +453,6 @@ texture_folder.add(texture_params, 'LeafTexture', Object.keys(Tex.LeafTextures))
 texture_folder.add(texture_params, 'BarkTexture', Object.keys(Tex.BarkTextures));
 texture_folder.add(texture_params, 'LeafHue', 0, 360);
 
-/*
 function shiftHue(image: HTMLImageElement, degrees: number): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -467,13 +466,13 @@ function shiftHue(image: HTMLImageElement, degrees: number): THREE.CanvasTexture
 
   return new THREE.CanvasTexture(canvas);
 }
-*/
+
+
 function rebuild_tree () {
     tree = new T.Tree(tree_params, seed.Seed);
     trunk_mat.map = Tex.BarkTextures[tree_params.TextureParam.BarkTexture]
-    //const leaf_tex_hued = shiftHue(Tex.LeafTextures[tree_params.TextureParam.LeafTexture].image, tree_params.TextureParam.LeafHue)
-    //leaf_mat.map = leaf_tex_hued
-    leaf_mat.map = Tex.LeafTextures[tree_params.TextureParam.LeafTexture]
+    const leaf_tex_hued = shiftHue(Tex.LeafTextures[tree_params.TextureParam.LeafTexture].image, tree_params.TextureParam.LeafHue)
+    leaf_mat.map = leaf_tex_hued
     
     scene.remove(tree_mesh);
     tree_mesh.geometry.dispose()
@@ -490,21 +489,17 @@ function rebuild_tree () {
     }
     
     scene.remove(tree_leaves);
-    tree_leaves.geometry.dispose
+    tree_leaves.geometry.dispose()
     tree_leaves = tree.build_leaves(leaf_mat);
     scene.add(tree_leaves);
 
     scene.remove(attractors_cloud);
-    const mats = Array.isArray(attractors_cloud.material) ? attractors_cloud.material : [attractors_cloud.material];
-    mats.forEach(m => {
-      (Object.values(m) as any[]).forEach(v => v?.isTexture && v.dispose());
-      m.dispose();
-    });
     attractors_cloud.geometry.dispose()
     if (tree.params.SpaceColonyParam.see_attraction_cloud) {
-        attractors_cloud = tree.space_colonizer.create_attractors_point_cloud();
+        attractors_cloud = tree.space_colonizer.create_attractors_point_cloud(red_points);
         scene.add(attractors_cloud);
     }
+
     if (tree.params.SpaceColony) {
         parametric_controls.hide()
         trunk_controls.hide()
