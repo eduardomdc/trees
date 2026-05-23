@@ -476,13 +476,13 @@ function rebuild_tree () {
     leaf_mat.map = Tex.LeafTextures[tree_params.TextureParam.LeafTexture]
     
     scene.remove(tree_mesh);
-    disposeMesh(tree_mesh)
+    tree_mesh.geometry.dispose()
     tree_mesh = tree.build_tree_geometry(trunk_mat)
     scene.add(tree_mesh)
    
     if (roots_mesh.geometry) {
         scene.remove(roots_mesh)
-        disposeMesh(roots_mesh)
+        roots_mesh.geometry.dispose()
     }
     if (tree.params.GenerateRoots) {
         roots_mesh = tree.build_root_geometry(trunk_mat)
@@ -490,7 +490,7 @@ function rebuild_tree () {
     }
     
     scene.remove(tree_leaves);
-    disposeMesh(tree_leaves)
+    tree_leaves.geometry.dispose
     tree_leaves = tree.build_leaves(leaf_mat);
     scene.add(tree_leaves);
 
@@ -539,13 +539,3 @@ function animate() {
     renderer.render( scene, camera );
 }
 renderer.setAnimationLoop( animate );
-
-// Mesh (dispose geometry + material)
-function disposeMesh(mesh: THREE.Mesh) {
-  mesh.geometry.dispose();
-  const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-  mats.forEach(m => {
-    (Object.values(m) as any[]).forEach(v => v?.isTexture && v.dispose());
-    m.dispose();
-  });
-}
