@@ -63,16 +63,16 @@ function cloneTreeParams(p: T.TreeParams): T.TreeParams {
 var tree_params : T.TreeParams = cloneTreeParams(QuakingAspen);
 var tree = new T.Tree(tree_params, seed.Seed);
 
-const basic_mesh_mat : THREE.Material = new THREE.MeshStandardMaterial({map: Tex.BarkTextures[tree_params.TextureParam.BarkTexture]});
-var tree_mesh = tree.build_tree_geometry(basic_mesh_mat);
+const trunk_mat = new THREE.MeshStandardMaterial({map: Tex.BarkTextures[tree_params.TextureParam.BarkTexture]});
+var tree_mesh = tree.build_tree_geometry(trunk_mat);
 scene.add(tree_mesh);
 
-var roots_mesh : THREE.Mesh = tree.build_root_geometry(basic_mesh_mat);
+var roots_mesh : THREE.Mesh = tree.build_root_geometry(trunk_mat);
 scene.add(roots_mesh)
 
 // leaves
-const basic_leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: Tex.LeafTextures[tree_params.TextureParam.LeafTexture], transparent: true, alphaTest:0.5});
-var tree_leaves = tree.build_leaves(basic_leaf_mat);
+const leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: Tex.LeafTextures[tree_params.TextureParam.LeafTexture], transparent: true, alphaTest:0.5});
+var tree_leaves = tree.build_leaves(leaf_mat);
 scene.add(tree_leaves);
 
 // Space Colony
@@ -469,9 +469,9 @@ function shiftHue(image: HTMLImageElement, degrees: number): THREE.CanvasTexture
 
 function rebuild_tree () {
     tree = new T.Tree(tree_params, seed.Seed);
-    const trunk_mat = new THREE.MeshStandardMaterial({map: Tex.BarkTextures[tree_params.TextureParam.BarkTexture]});
+    trunk_mat.map = Tex.BarkTextures[tree_params.TextureParam.BarkTexture]
     const leaf_tex_hued = shiftHue(Tex.LeafTextures[tree_params.TextureParam.LeafTexture].image, tree_params.TextureParam.LeafHue)
-    const leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: leaf_tex_hued, transparent: true, alphaTest:0.5});
+    leaf_mat.map = leaf_tex_hued
     
     scene.remove(tree_mesh);
     disposeMesh(tree_mesh)
