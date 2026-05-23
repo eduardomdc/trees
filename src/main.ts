@@ -453,6 +453,7 @@ texture_folder.add(texture_params, 'LeafTexture', Object.keys(Tex.LeafTextures))
 texture_folder.add(texture_params, 'BarkTexture', Object.keys(Tex.BarkTextures));
 texture_folder.add(texture_params, 'LeafHue', 0, 360);
 
+/*
 function shiftHue(image: HTMLImageElement, degrees: number): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -466,7 +467,7 @@ function shiftHue(image: HTMLImageElement, degrees: number): THREE.CanvasTexture
 
   return new THREE.CanvasTexture(canvas);
 }
-
+*/
 function rebuild_tree () {
     tree = new T.Tree(tree_params, seed.Seed);
     trunk_mat.map = Tex.BarkTextures[tree_params.TextureParam.BarkTexture]
