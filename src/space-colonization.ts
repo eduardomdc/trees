@@ -45,6 +45,7 @@ export class SpaceColonizer {
         this.params = params 
         if (this.params.is_root) {
             this.first_branch = new SCBranch(new T.Vector3(0,this.params.root_start,0), new T.Vector3(0,-1,0), this.params.branch_length, null)
+            if (!tree.params.GenerateRoots) {return}
         } else {
             if (tree.params.GenerateRoots) {
                 this.first_branch = new SCBranch(new T.Vector3(0,tree.params.RootParams.root_start,0), new T.Vector3(0,1,0), this.params.branch_length, null)
