@@ -76,9 +76,11 @@ var tree_leaves = tree.build_leaves(leaf_mat);
 scene.add(tree_leaves);
 
 // Space Colony
-
-
-var attractors_cloud = tree.space_colonizer.create_attractors_point_cloud(); 
+const attractors_mat = new THREE.PointsMaterial({color : 0xff0000, size:0.2})
+const root_attractors_mat = new THREE.PointsMaterial({color : 0x00ff00, size:0.2})
+var attractors_cloud = tree.space_colonizer.create_attractors_point_cloud(attractors_mat); 
+var root_attractors_cloud = tree.root_sc.create_attractors_point_cloud(root_attractors_mat);
+scene.add(root_attractors_cloud)
 scene.add(attractors_cloud)
 
 // GUI
@@ -493,16 +495,18 @@ function rebuild_tree () {
     scene.add(tree_leaves);
 
     scene.remove(attractors_cloud);
-    const mats = Array.isArray(attractors_cloud.material) ? attractors_cloud.material : [attractors_cloud.material];
-    mats.forEach(m => {
-      (Object.values(m) as any[]).forEach(v => v?.isTexture && v.dispose());
-      m.dispose();
-    });
     attractors_cloud.geometry.dispose()
     if (tree.params.SpaceColonyParam.see_attraction_cloud) {
-        attractors_cloud = tree.space_colonizer.create_attractors_point_cloud();
+        attractors_cloud = tree.space_colonizer.create_attractors_point_cloud(attractors_mat);
         scene.add(attractors_cloud);
     }
+    scene.remove(root_attractors_cloud)
+    root_attractors_cloud.geometry.dispose()
+    if (tree.params.GenerateRoots && tree.params.RootParams.see_attraction_cloud) {
+        root_attractors_cloud = tree.root_sc.create_attractors_point_cloud(root_attractors_mat)
+        scene.add(root_attractors_cloud)
+    }
+
     if (tree.params.SpaceColony) {
         parametric_controls.hide()
         trunk_controls.hide()
