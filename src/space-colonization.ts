@@ -95,11 +95,19 @@ export class SpaceColonizer {
         }
     }
 
+<<<<<<< HEAD
     create_attractors_point_cloud (mat : T.PointsMaterial) : T.Points {
         const geometry = new T.BufferGeometry();
         const positions = new Float32Array(this.attractors.flatMap(v => [v.pos.x, v.pos.y, v.pos.z]))
         geometry.setAttribute("position", new T.BufferAttribute(positions,3))
         return new T.Points(geometry, mat)
+=======
+    create_attractors_point_cloud (material : T.PointsMaterial) : T.Points {
+        const geometry = new T.BufferGeometry();
+        const positions = new Float32Array(this.attractors.flatMap(v => [v.pos.x, v.pos.y, v.pos.z]))
+        geometry.setAttribute("position", new T.BufferAttribute(positions,3))
+        return new T.Points(geometry, material)
+>>>>>>> e42937689b022a3a4ff0d9a343df24400da68ae1
     }
 
     generate_new_tree_structure () {
