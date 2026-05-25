@@ -153,6 +153,7 @@ export class Segment {
         } else { // trunk first segment
             next_segment.setup_stem(tree, next_segment.stem, null, 0)
             next_segment.direction.set(0,1,0)
+            next_segment.position.y = tree.params.GenerateRoots ? tree.params.RootParams.root_start : 0
         }
         
         const curve_res = tree.params.LevelParam[next_segment.stem.level].CurveRes;
