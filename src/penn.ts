@@ -518,7 +518,6 @@ export type LeavesParam = {
     Rotate : number, RotateV : number,  // spiraling angle
     Amount : number, // # of branches
     LeafScale : number, LeafScaleX : number,
-    PhototropicBend : number,
 }
 
 

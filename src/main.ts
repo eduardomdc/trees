@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as T from './penn.ts';
 import * as Tex from './texture.ts';
-import {QuakingAspen, Acer} from './garden.ts';
+import {presets} from './garden.ts';
 import {createOrbitalCamera} from './camera.ts';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import * as GUI from 'lil-gui'; 
@@ -60,7 +60,7 @@ function cloneTreeParams(p: T.TreeParams): T.TreeParams {
         RootParams: {...p.RootParams },
     };
 }
-var tree_params : T.TreeParams = cloneTreeParams(QuakingAspen);
+var tree_params : T.TreeParams = cloneTreeParams(presets["Quaking Aspen"]);
 var tree = new T.Tree(tree_params, seed.Seed);
 
 const trunk_mat = new THREE.MeshStandardMaterial({map: Tex.BarkTextures[tree_params.TextureParam.BarkTexture]});
@@ -138,7 +138,6 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.LeavesParam.Amount = input.LeavesParam.Amount;
     preset.LeavesParam.LeafScale = input.LeavesParam.LeafScale;
     preset.LeavesParam.LeafScaleX = input.LeavesParam.LeafScaleX;
-    preset.LeavesParam.PhototropicBend = input.LeavesParam.PhototropicBend;
 
     preset.SpaceColonyParam.max_iterations = input.SpaceColonyParam.max_iterations;
     preset.SpaceColonyParam.branch_length = input.SpaceColonyParam.branch_length;
@@ -190,7 +189,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
 
 // Load controls
 const loadControls = {
-    Preset : QuakingAspen,
+    Preset : "Quaking Aspen",
     Download : function downloadAsJSON() {
           const json = JSON.stringify(tree_params, null, 2);
           const blob = new Blob([json], { type: "application/json" });
@@ -275,8 +274,8 @@ function downloadGLTF(scene: THREE.Scene, filename = "scene.gltf") {
     );
 }
 const load_controls = gui.addFolder('Load');
-load_controls.add( loadControls, 'Preset', {QuakingAspen, Acer}).onChange((_ : any) => {
-    applyPreset(tree_params, loadControls.Preset)
+load_controls.add( loadControls, 'Preset', Object.keys(presets)).onChange((_ : any) => {
+    applyPreset(tree_params, presets[loadControls.Preset])
     update_display_and_rebuild_tree()
 })
 load_controls.add( loadControls, 'Download').name("Save Tree Configuration")
@@ -415,8 +414,6 @@ leaves_penn_params.push(leaves_folder.add(leaves_param, 'Rotate', 0, 360))
 leaves_penn_params.push(leaves_folder.add(leaves_param, 'RotateV', 0, 360))
 leaves_folder.add(leaves_param, 'LeafScale', 0, 10);
 leaves_folder.add(leaves_param, 'LeafScaleX', 0, 2);
-leaves_folder.add(leaves_param, 'PhototropicBend', 0, 1);
-
 
 tree_controls.add(tree_params, 'GenerateRoots').name("(experimental) Generate Root Geometry");
 // Root generation colony controls
