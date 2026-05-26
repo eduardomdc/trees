@@ -317,7 +317,6 @@ const tree_controls = gui.addFolder('Tree');
 
 tree_controls.add(seed, 'Seed', 0, 1000);
 tree_controls.add(tree_params, 'SpaceColony').name("Use Space Colonization");
-tree_controls.add(tree_params, 'GenerateRoots').name("Generate Root Geometry");
 
 const parametric_controls = tree_controls.addFolder('Parametric Controls');
 
@@ -439,6 +438,7 @@ leaves_folder.add(leaves_param, 'LeafScaleX', 0, 2);
 leaves_folder.add(leaves_param, 'PhototropicBend', 0, 1);
 
 
+tree_controls.add(tree_params, 'GenerateRoots').name("(experimental) Generate Root Geometry");
 
 tree_controls.onChange(
     _ => {
