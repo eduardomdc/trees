@@ -99,6 +99,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.ScaleV0 = input.ScaleV0;
 
     preset.AttractionUp = input.AttractionUp;
+    preset.TrunkAttractionUp = input.TrunkAttractionUp;
 
     preset.MeshQuality.length = input.MeshQuality.length;
     for (let i = 0; i < input.MeshQuality.length; i++) {
@@ -335,7 +336,7 @@ parametric_controls.add(tree_params, 'Levels', 1, 4, 1);
 
 parametric_controls.add(tree_params, 'RatioPower', 0, 5);
 
-parametric_controls.add(tree_params, 'AttractionUp', -5, 5);
+parametric_controls.add(tree_params, 'AttractionUp', -10, 10);
 
 const trunk_controls = tree_controls.addFolder('Trunk Options');
 
@@ -348,7 +349,8 @@ trunk_controls.add(trunk_level, 'LengthV', 0, 1);
 trunk_controls.add(trunk_level, 'CurveRes', 1, 30, 1);
 trunk_controls.add(trunk_level, 'Curve', -180, 180);
 trunk_controls.add(trunk_level, 'CurveV', 0, 180);
-trunk_controls.add(trunk_level, 'Gnarly', 0, 10);
+trunk_controls.add(trunk_level, 'Gnarly', 0, 20);
+trunk_controls.add(tree_params, 'TrunkAttractionUp', -10, 10);
 
 const levels_folder = tree_controls.addFolder('Branches');
 
@@ -371,7 +373,7 @@ tree_params.LevelParam.forEach((level, i) => {
     f.add(level, 'CurveRes', 1, 30, 1);
     f.add(level, 'Curve', -180, 180);
     f.add(level, 'CurveV', 0, 180);
-    f.add(level, 'Gnarly', 0, 10);
+    f.add(level, 'Gnarly', 0, 20);
 });
 
 const sc_params = tree_params.SpaceColonyParam;

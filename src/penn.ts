@@ -184,6 +184,9 @@ export class Segment {
             if (next_segment.stem.level > 0) {
                 const delta = tree.params.AttractionUp/tree.params.LevelParam[next_segment.stem.level].CurveRes
                 next_segment.direction.addScaledVector(UP, delta).normalize()
+            } else {
+                const delta = tree.params.TrunkAttractionUp/tree.params.LevelParam[next_segment.stem.level].CurveRes
+                next_segment.direction.addScaledVector(UP, delta).normalize()
             }
 
             // gnarlyness
@@ -462,6 +465,7 @@ export type TreeParams = {
     LevelParam : LevelParam[], // array of level-specific parameters indexed by level
     LeavesParam : LeavesParam,
     AttractionUp : number, //upward growth tendency
+    TrunkAttractionUp : number,
 
     SpaceColonyParam : Space.SpaceColonyParam,
     RootParams : Space.SpaceColonyParam,

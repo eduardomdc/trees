@@ -114,7 +114,7 @@ export const QuakingAspen: TreeParams = {
       Rotate: 77,
       RotateV: 0,
       Branches: 10,
-      Length: 0,
+      Length: 1,
       LengthV: 0,
       CurveRes: 1,
       Curve: 0,
@@ -134,6 +134,7 @@ export const QuakingAspen: TreeParams = {
       PhototropicBend : 0.5,
     },
     AttractionUp: 0.5,
+    TrunkAttractionUp: 0,
     TextureParam : {
       LeafTexture : 'CommonGreen',
       BarkTexture : 'White',
@@ -213,7 +214,7 @@ export const Acer: TreeParams = {
       Rotate: 77,
       RotateV: 0,
       Branches: 5,
-      Length: 0,
+      Length: 1,
       LengthV: 0,
       CurveRes: 1,
       Curve: 0,
@@ -235,6 +236,7 @@ export const Acer: TreeParams = {
   },
 
   AttractionUp: 0,
+  TrunkAttractionUp: 0,
   TextureParam : {
       LeafTexture : 'MapleRed',
       BarkTexture : 'Common',
