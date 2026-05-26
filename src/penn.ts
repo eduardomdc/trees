@@ -13,6 +13,7 @@ export function get_quaternion_from_dir (dir : T.Vector3) : T.Quaternion {
 
 export class Tree {
     seed : number;
+    level_seed : number[] = [0,0,0,0];
     root : Segment | null = null;
     leaves : T.Matrix4[] = [];
 
@@ -24,6 +25,7 @@ export class Tree {
 
     constructor (params : TreeParams, seed : number) {
         this.seed = seed;
+        this.construct_level_seeds();
         this.params = params;
         this.processed_params = new ProcessedTreeParams(this);
         this.space_colonizer = new Space.SpaceColonizer(this, this.params.SpaceColonyParam);
@@ -59,24 +61,38 @@ export class Tree {
         return mesh;
     }
 
-    randFloat (min : number, max : number) : number {
-        //mullberry32
+    construct_level_seeds () {
+        for (let i = 0; i < 4; i += 1) {
+            this.level_seed[i] = this.make_a_level_seed() 
+        }
+    }
+
+    make_a_level_seed () : number {
         var t = this.seed += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        const rand = ((t ^ t >>> 14) >>> 0)
+        return rand
+    }
+
+    randFloat (min : number, max : number, level : number) : number {
+        //mullberry32
+        var t = this.level_seed[level] += 0x6D2B79F5;
         t = Math.imul(t ^ t >>> 15, t | 1);
         t ^= t + Math.imul(t ^ t >>> 7, t | 61);
         const rand = ((t ^ t >>> 14) >>> 0) / 4294967296;
         return min + (max-min) * rand;
     }
 
-    randDirection() : T.Vector3 {
+    randDirection(level : number) : T.Vector3 {
         let x: number;
         let y: number;
         let z: number;
 
         do {
-            x = this.randFloat(-1, 1); 
-            y = this.randFloat(-1, 1); 
-            z = this.randFloat(-1, 1); 
+            x = this.randFloat(-1, 1, level); 
+            y = this.randFloat(-1, 1, level); 
+            z = this.randFloat(-1, 1, level); 
         } while (x * x + y * y + z * z > 1);
 
         return new T.Vector3(x,y,z).normalize()
@@ -176,7 +192,7 @@ export class Segment {
             const curve_v = tree.params.LevelParam[next_segment.stem.level].CurveV;
             const randrot = new T.Quaternion().setFromAxisAngle(
                 x_dir,
-                tree.randFloat(-1,1)*Math.PI*(curve_v/curve_res)/180, 
+                tree.randFloat(-1,1, next_segment.stem.level)*Math.PI*(curve_v/curve_res)/180, 
             );
             next_segment.direction.applyQuaternion(randrot);
 
@@ -192,7 +208,7 @@ export class Segment {
             // gnarlyness
             const gnarl = tree.params.LevelParam[next_segment.stem.level].Gnarly/tree.params.LevelParam[next_segment.stem.level].CurveRes
             if (gnarl != 0) {
-                const random_vec = tree.randDirection()
+                const random_vec = tree.randDirection(next_segment.stem.level)
                 next_segment.direction.addScaledVector(random_vec, gnarl).normalize()
             }
 
@@ -229,8 +245,8 @@ export class Segment {
         let RotateV = src.RotateV;
 
         const down_angle = Math.PI * (DownAngleV >= 0
-            ? DownAngle + tree.randFloat(-1, 1) * DownAngleV
-            : DownAngle + tree.randFloat(-1, 1) * (DownAngleV * ( 1 - 2 * ShapeRatio( 0, (parent.stem.length - offset_child)/parent.stem.length ) ))
+            ? DownAngle + tree.randFloat(-1, 1, child_level) * DownAngleV
+            : DownAngle + tree.randFloat(-1, 1, child_level) * (DownAngleV * ( 1 - 2 * ShapeRatio( 0, (parent.stem.length - offset_child)/parent.stem.length ) ))
         ) / 180;
 
         const rotation = new T.Quaternion();
@@ -238,7 +254,7 @@ export class Segment {
 
         if (Rotate > 0) {
             const Y_rotation_angle = parent.stem.last_spawned_child_Y_rotation_angle
-                + Math.PI * (Rotate + tree.randFloat(-1, 1) * RotateV) / 180;
+                + Math.PI * (Rotate + tree.randFloat(-1, 1, child_level) * RotateV) / 180;
 
             parent.stem.last_spawned_child_Y_rotation_angle = Y_rotation_angle;
 
@@ -316,7 +332,7 @@ export class Segment {
         if (parent_segment != null) {parent_stem = parent_segment.stem; stem.parent_segment = parent_segment}
         // ==== stem setup ====
         // set length
-        const length_child_max = tree.params.LevelParam[stem.level].Length + tree.randFloat(0,1)*tree.params.LevelParam[stem.level].LengthV
+        const length_child_max = tree.params.LevelParam[stem.level].Length + tree.randFloat(0,1,stem.level)*tree.params.LevelParam[stem.level].LengthV
         if (parent_stem == null) { // trunk
             stem.length = tree.processed_params.length_trunk;
             stem.per_segment_length = tree.processed_params.per_segment_length_trunk;
@@ -333,7 +349,7 @@ export class Segment {
         
         // calculate stem radius
         if (parent_stem == null) {
-            stem.radius = tree.processed_params.length_trunk*0.2*(Math.max(tree.params.Scale0+tree.params.ScaleV0*tree.randFloat(-1,1), 0.01));
+            stem.radius = tree.processed_params.length_trunk*0.2*(Math.max(tree.params.Scale0+tree.params.ScaleV0*tree.randFloat(-1,1,stem.level), 0.01));
         } else {
             stem.radius = parent_stem.radius*(stem.length / parent_stem.length)**tree.params.RatioPower;
             // limit stem radius by radius of parent at that point
@@ -379,7 +395,7 @@ export class Segment {
         } else { // it's all bare trunk, no children for this segment
             return;
         }
-        var children_whole = Math.floor(children_count) + (tree.randFloat(0, 1) <= children_count-Math.floor(children_count) ? 1:0);
+        var children_whole = Math.floor(children_count) + (tree.randFloat(0, 1, this.stem.level+1) <= children_count-Math.floor(children_count) ? 1:0);
         for (let i = 0; i < children_whole; i++) {
             this.generate_child(tree, this, offset);
             offset += offset_delta
@@ -405,7 +421,7 @@ export class Segment {
         //const offset_delta = this.stem.per_segment_length/this.stem.per_segment_leaves;
         const this_quart = get_quaternion_from_dir(this.direction) 
         //const up = new T.Vector3(0,1,0)
-        leaf_count = Math.floor(leaf_count) + ( tree.randFloat(0, 1) <= (leaf_count-Math.floor(leaf_count)) ? 1 : 0 );
+        leaf_count = Math.floor(leaf_count) + ( tree.randFloat(0, 1, this.stem.level) <= (leaf_count-Math.floor(leaf_count)) ? 1 : 0 );
         for (let i = 0; i < leaf_count; i+=1) {
             const leaf_length = tree.params.LeavesParam.LeafScale;
             const leaf_width = leaf_length*tree.params.LeavesParam.LeafScaleX;
@@ -480,8 +496,8 @@ class ProcessedTreeParams {
     per_segment_length_trunk : number;
 
     constructor(t: Tree){
-        this.scale_tree = (t.params.Scale + t.randFloat(-1,1)*t.params.ScaleV);
-        this.length_trunk = (t.params.LevelParam[0].Length+t.params.LevelParam[0].LengthV*t.randFloat(-1, 1))*this.scale_tree;
+        this.scale_tree = (t.params.Scale + t.randFloat(-1,1,0)*t.params.ScaleV);
+        this.length_trunk = (t.params.LevelParam[0].Length+t.params.LevelParam[0].LengthV*t.randFloat(-1, 1, 0))*this.scale_tree;
         this.per_segment_length_trunk = this.length_trunk/t.params.LevelParam[0].CurveRes,
         this.length_base = [(t.params.LevelParam[0].BaseSize*this.scale_tree),(t.params.LevelParam[1].BaseSize*this.scale_tree),(t.params.LevelParam[2].BaseSize*this.scale_tree),(t.params.LevelParam[3].BaseSize*this.scale_tree)];
     }

@@ -79,16 +79,16 @@ export class SpaceColonizer {
             let z: number;
 
             do {
-                x = this.tree.randFloat(-1, 1) * radius; 
-                y = this.tree.randFloat(min_y, max_y); 
-                z = this.tree.randFloat(-1, 1) * radius; 
+                x = this.tree.randFloat(-1, 1, 0) * radius; 
+                y = this.tree.randFloat(min_y, max_y, 0); 
+                z = this.tree.randFloat(-1, 1, 0) * radius; 
             } while (x * x + height_factor * y * y /(1+m*y)**2 + z * z > radius * radius);
 
             const pos = new T.Vector3(x,y + center_y,z)
 
             if (this.params.attractors_noise > 0) {
-                const random = this.tree.randDirection();
-                pos.addScaledVector(random, this.tree.randFloat(0, this.params.attractors_noise) )
+                const random = this.tree.randDirection(2);
+                pos.addScaledVector(random, this.tree.randFloat(0, this.params.attractors_noise, 2) )
             }
 
             this.attractors.push({ pos : pos, killed : false})
@@ -176,11 +176,11 @@ export class SpaceColonizer {
                     sum_vector.add(direction) 
                 }
                 //sum_vector.add(new T.Vector3(this.tree.randFloat(-1, 1),this.tree.randFloat(-1, 1), this.tree.randFloat(-1, 1)).normalize().multiplyScalar(randomness)) // random direction is not seeded, fix later
-                sum_vector.add(this.tree.randDirection().multiplyScalar(randomness))
+                sum_vector.add(this.tree.randDirection(1).multiplyScalar(randomness))
                 sum_vector.normalize()
                 // spread
                 if (spread > 0 && branch.children.length > 0) {
-                    let paralel = this.tree.randDirection()
+                    let paralel = this.tree.randDirection(1)
                     const similarity = sum_vector.dot(paralel)
                     paralel.sub(sum_vector.clone().multiplyScalar(similarity)).normalize()
                     sum_vector.add(paralel.multiplyScalar(spread*branch.children.length)).normalize()
@@ -276,7 +276,7 @@ export class SpaceColonizer {
                     const leaf_quart = p.get_quaternion_from_dir(branch.direction)
 
                     // calculate leaf orientation
-                    const around_angle = Math.PI * (this.tree.randFloat(-1, 1));
+                    const around_angle = Math.PI * (this.tree.randFloat(-1, 1, 1));
                     const rotate_around = new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0), around_angle)
                     const down_angle = Math.PI * (this.tree.params.LeavesParam.DownAngle)/180
                     const rotate_down = new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0), down_angle)
@@ -296,7 +296,7 @@ export class SpaceColonizer {
                 if (branch.extremity && this.params.leaves_per_branch > 0) { // put another one on the ends of branches
                     const leaf_quart = p.get_quaternion_from_dir(branch.direction)
                     // calculate leaf orientation
-                    const around_angle = Math.PI * (this.tree.randFloat(-1, 1));
+                    const around_angle = Math.PI * (this.tree.randFloat(-1, 1, 1));
                     const rotate_around = new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0), around_angle)
                     const down_angle = Math.PI * (this.tree.params.LeavesParam.DownAngle)/180
                     const rotate_down = new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0), down_angle)
