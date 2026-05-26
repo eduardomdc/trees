@@ -526,6 +526,9 @@ export type TextureParam = {
     LeafTexture : keyof typeof Tex.LeafTextures,
     BarkTexture : keyof typeof Tex.BarkTextures,
     LeafHue : number,
+    LeafBrightness : number,
+    BarkHue : number,
+    BarkBrightness : number,
 }
 
 enum ShapeID {

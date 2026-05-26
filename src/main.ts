@@ -183,6 +183,9 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.TextureParam.LeafTexture = input.TextureParam.LeafTexture
     preset.TextureParam.BarkTexture = input.TextureParam.BarkTexture
     preset.TextureParam.LeafHue = input.TextureParam.LeafHue
+    preset.TextureParam.BarkHue = input.TextureParam.BarkHue
+    preset.TextureParam.BarkBrightness = input.TextureParam.BarkBrightness
+    preset.TextureParam.LeafBrightness = input.TextureParam.LeafBrightness
 }
 
 // Load controls
@@ -397,6 +400,25 @@ sc_folder.add(sc_params, 'attractors_noise', 0, 10)
 sc_folder.add(sc_params, 'attraction_up', -1, 1)
 sc_folder.hide();
 
+
+const leaves_sc_params : GUI.Controller[] = []
+const leaves_penn_params : GUI.Controller[] = []
+
+const leaves_folder = tree_controls.addFolder('Leaves');
+const leaves_param = tree_params.LeavesParam;
+leaves_penn_params.push(leaves_folder.add(leaves_param, 'Amount', 0, 100))
+leaves_sc_params.push(leaves_folder.add(sc_params, 'leaves_per_branch', 0, 10, 1).name("Amount"))
+leaves_sc_params.push(leaves_folder.add(sc_params, 'leaf_start', 0, 1).name("Leaf Start"))
+leaves_folder.add(leaves_param, 'DownAngle', 0, 180);
+leaves_folder.add(leaves_param, 'DownAngleV', -90, 90);
+leaves_penn_params.push(leaves_folder.add(leaves_param, 'Rotate', 0, 360))
+leaves_penn_params.push(leaves_folder.add(leaves_param, 'RotateV', 0, 360))
+leaves_folder.add(leaves_param, 'LeafScale', 0, 10);
+leaves_folder.add(leaves_param, 'LeafScaleX', 0, 2);
+leaves_folder.add(leaves_param, 'PhototropicBend', 0, 1);
+
+
+tree_controls.add(tree_params, 'GenerateRoots').name("(experimental) Generate Root Geometry");
 // Root generation colony controls
 const root_folder = tree_controls.addFolder('Root Generation');
 const root_params = tree.params.RootParams
@@ -419,25 +441,6 @@ root_folder.add(root_params, 'attraction_up', -1, 1)
 root_folder.add(root_params, 'root_start', 0, 5)
 root_folder.hide();
 
-const leaves_sc_params : GUI.Controller[] = []
-const leaves_penn_params : GUI.Controller[] = []
-
-const leaves_folder = tree_controls.addFolder('Leaves');
-const leaves_param = tree_params.LeavesParam;
-leaves_penn_params.push(leaves_folder.add(leaves_param, 'Amount', 0, 100))
-leaves_sc_params.push(leaves_folder.add(sc_params, 'leaves_per_branch', 0, 10, 1).name("Amount"))
-leaves_sc_params.push(leaves_folder.add(sc_params, 'leaf_start', 0, 1).name("Leaf Start"))
-leaves_folder.add(leaves_param, 'DownAngle', 0, 180);
-leaves_folder.add(leaves_param, 'DownAngleV', -90, 90);
-leaves_penn_params.push(leaves_folder.add(leaves_param, 'Rotate', 0, 360))
-leaves_penn_params.push(leaves_folder.add(leaves_param, 'RotateV', 0, 360))
-leaves_folder.add(leaves_param, 'LeafScale', 0, 10);
-leaves_folder.add(leaves_param, 'LeafScaleX', 0, 2);
-leaves_folder.add(leaves_param, 'PhototropicBend', 0, 1);
-
-
-tree_controls.add(tree_params, 'GenerateRoots').name("(experimental) Generate Root Geometry");
-
 tree_controls.onChange(
     _ => {
         rebuild_tree()
@@ -450,10 +453,13 @@ tree_controls.onChange(
 const texture_folder = tree_controls.addFolder('Textures');
 const texture_params = tree_params.TextureParam;
 texture_folder.add(texture_params, 'LeafTexture', Object.keys(Tex.LeafTextures));
-texture_folder.add(texture_params, 'BarkTexture', Object.keys(Tex.BarkTextures));
 texture_folder.add(texture_params, 'LeafHue', 0, 360);
+texture_folder.add(texture_params, 'LeafBrightness', 0, 2);
+texture_folder.add(texture_params, 'BarkTexture', Object.keys(Tex.BarkTextures));
+texture_folder.add(texture_params, 'BarkHue', 0, 360);
+texture_folder.add(texture_params, 'BarkBrightness', 0, 2);
 
-function shiftHue(image: HTMLImageElement, degrees: number): THREE.CanvasTexture {
+function shiftHue(image: HTMLImageElement, degrees: number, brightness : number): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
 
@@ -461,7 +467,7 @@ function shiftHue(image: HTMLImageElement, degrees: number): THREE.CanvasTexture
 
   canvas.width = image.width;
   canvas.height = image.height;
-  ctx.filter = `hue-rotate(${degrees}deg)`;
+  ctx.filter = `hue-rotate(${degrees}deg) brightness(${brightness})`;
   ctx.drawImage(image, 0, 0);
 
   return new THREE.CanvasTexture(canvas);
@@ -470,9 +476,10 @@ function shiftHue(image: HTMLImageElement, degrees: number): THREE.CanvasTexture
 
 function rebuild_tree () {
     tree = new T.Tree(tree_params, seed.Seed);
-    trunk_mat.map = Tex.BarkTextures[tree_params.TextureParam.BarkTexture]
-    const leaf_tex_hued = shiftHue(Tex.LeafTextures[tree_params.TextureParam.LeafTexture].image, tree_params.TextureParam.LeafHue)
+    const leaf_tex_hued = shiftHue(Tex.LeafTextures[tree_params.TextureParam.LeafTexture].image, tree_params.TextureParam.LeafHue, tree_params.TextureParam.LeafBrightness)
+    const bark_tex_hued = shiftHue(Tex.BarkTextures[tree_params.TextureParam.BarkTexture].image, tree_params.TextureParam.BarkHue, tree_params.TextureParam.BarkBrightness)
     leaf_mat.map = leaf_tex_hued
+    trunk_mat.map = bark_tex_hued
     
     scene.remove(tree_mesh);
     tree_mesh.geometry.dispose()
