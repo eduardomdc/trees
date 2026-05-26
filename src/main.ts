@@ -314,7 +314,7 @@ function update_display_and_rebuild_tree () {
 
 const tree_controls = gui.addFolder('Tree');
 
-tree_controls.add(seed, 'Seed', 0, 1000);
+tree_controls.add(seed, 'Seed', 0, 10000);
 tree_controls.add(tree_params, 'SpaceColony').name("Use Space Colonization");
 
 const parametric_controls = tree_controls.addFolder('Parametric Controls');
