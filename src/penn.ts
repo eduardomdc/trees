@@ -451,7 +451,7 @@ export type TreeParams = {
     SpaceColony : boolean,
     GenerateRoots : boolean,
     Shape : number, // general tree shape id
-    Scale : number,ScaleV : number,ZScale : number,ZScaleV : number,//size and scaling of tree
+    Scale : number,ScaleV : number//size and scaling of tree
     Levels : number, // levels of recursion
     RatioPower : number, //radius/length ratio, reduction
     // trunk (level 0) only params

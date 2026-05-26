@@ -92,8 +92,6 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.Shape = input.Shape;
     preset.Scale = input.Scale;
     preset.ScaleV = input.ScaleV;
-    preset.ZScale = input.ZScale;
-    preset.ZScaleV = input.ZScaleV;
     preset.Levels = input.Levels;
     preset.RatioPower = input.RatioPower;
 
@@ -332,8 +330,6 @@ parametric_controls.add(tree_params, 'Shape', {
     Envelope : 8,});
 parametric_controls.add(tree_params, 'Scale', 0, 100);
 parametric_controls.add(tree_params, 'ScaleV', 0, 20);
-parametric_controls.add(tree_params, 'ZScale', 0, 5);
-parametric_controls.add(tree_params, 'ZScaleV', 0, 5);
 
 parametric_controls.add(tree_params, 'Levels', 1, 4, 1);
 

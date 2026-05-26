@@ -53,8 +53,6 @@ export const QuakingAspen: TreeParams = {
     Shape: 7,
     Scale: 13,
     ScaleV: 3,
-    ZScale: 1,
-    ZScaleV: 0,
     Levels: 3,
     RatioPower: 1.2,
 
@@ -151,8 +149,6 @@ export const Acer: TreeParams = {
   Shape: 4,
   Scale: 10,
   ScaleV: 1,
-  ZScale: 1,
-  ZScaleV: 0,
   Levels: 3,
   RatioPower: 1.5,
 
