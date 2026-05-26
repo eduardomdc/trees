@@ -120,6 +120,8 @@ export class SpaceColonizer {
         if (this.params.attraction_up != 0) {this.attraction_up(this.branches[0], new T.Vector3())}
         if (!this.params.is_root) {
             this.add_leaves()
+        } else {
+            //this.prune_underground(this.first_branch)
         }
     }
 
@@ -232,6 +234,24 @@ export class SpaceColonizer {
         
         for (const child of branch.children) {
             this.attraction_up(child, steering)
+        }
+    }
+
+    prune_underground (branch : SCBranch) {
+        if (branch.start.y < -0.1) {
+            if (branch.parent == null) {return}
+            for (let i : number = 0; i < branch.parent.children.length; i -= 1) {
+                const child = branch.parent.children[i]
+                if (child == branch) {
+                    branch.parent.children.splice(i, 1); // remove this branch from it's parent
+                    return;
+                }
+            }
+            return
+        }
+
+        for (const child of branch.children) {
+            this.prune_underground(child)
         }
     }
 
