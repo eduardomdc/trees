@@ -68,19 +68,32 @@ export class Tree {
     }
 
     make_a_level_seed () : number {
-        var t = this.seed += 0x6D2B79F5;
-        t = Math.imul(t ^ t >>> 15, t | 1);
-        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-        const rand = ((t ^ t >>> 14) >>> 0)
+        // var t = this.seed += 0x6D2B79F5;
+        // t = Math.imul(t ^ t >>> 15, t | 1);
+        // t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        let z = (this.seed += 0x9e3779b9);
+        z ^= z >>> 16;
+        z = Math.imul(z, 0x21f0aaad);
+        z ^= z >>> 15;
+        z = Math.imul(z, 0x735a2d97);
+        z ^= z >>> 15;
+        const rand = ((z ^ z >>> 14) >>> 0)
         return rand
     }
 
     randFloat (min : number, max : number, level : number) : number {
         //mullberry32
-        var t = this.level_seed[level] += 0x6D2B79F5;
-        t = Math.imul(t ^ t >>> 15, t | 1);
-        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-        const rand = ((t ^ t >>> 14) >>> 0) / 4294967296;
+        // var t = this.level_seed[level] += 0x6D2B79F5;
+        // t = Math.imul(t ^ t >>> 15, t | 1);
+        // t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        // const rand = ((t ^ t >>> 14) >>> 0) / 4294967296;
+        let z = (this.level_seed[level] += 0x9e3779b9);
+        z ^= z >>> 16;
+        z = Math.imul(z, 0x21f0aaad);
+        z ^= z >>> 15;
+        z = Math.imul(z, 0x735a2d97);
+        z ^= z >>> 15;
+        const rand = ((z ^ z >>> 14) >>> 0)/ 4294967296
         return min + (max-min) * rand;
     }
 
