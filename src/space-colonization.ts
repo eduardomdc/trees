@@ -7,11 +7,10 @@ const MAX_BRANCHES = 10000
 
 export type SpaceColonyParam = {
     max_iterations : number;
-    branch_length : number;
+    relative_branch_length : number;
     attraction_range : number; 
     kill_range_relative : number;
     branch_randomness : number;
-    branch_spread : number;
     inverse_growth_factor : number;
     branch_thickness : number;
     attractors : number;
@@ -38,24 +37,27 @@ export class SpaceColonizer {
     iteration : number = 0
     growth_factor : number = 0
     kill_range : number = 0.1
+    branch_length : number = 0.05
     params : SpaceColonyParam 
 
     constructor (tree : p.Tree, params : SpaceColonyParam) {
         this.tree = tree
-        this.params = params 
+        this.params = params
+        this.kill_range = this.params.attraction_range * this.params.kill_range_relative
+        this.branch_length = this.params.relative_branch_length
         if (this.params.is_root) {
-            this.first_branch = new SCBranch(new T.Vector3(0,this.params.root_start,0), new T.Vector3(0,-1,0), this.params.branch_length, null)
+            this.first_branch = new SCBranch(new T.Vector3(0,this.params.root_start,0), new T.Vector3(0,-1,0), this.branch_length, null)
             if (!tree.params.GenerateRoots) {return}
         } else {
             if (tree.params.GenerateRoots) {
-                this.first_branch = new SCBranch(new T.Vector3(0,tree.params.RootParams.root_start,0), new T.Vector3(0,1,0), this.params.branch_length, null)
+                this.first_branch = new SCBranch(new T.Vector3(0,tree.params.RootParams.root_start,0), new T.Vector3(0,1,0), this.branch_length, null)
             } else {
-                this.first_branch = new SCBranch(new T.Vector3(0,0,0), new T.Vector3(0,1,0), this.params.branch_length, null)
+                this.first_branch = new SCBranch(new T.Vector3(0,0,0), new T.Vector3(0,1,0), this.branch_length, null)
             }
             if (!tree.params.SpaceColony) {return}
         }
         this.growth_factor = 1/this.params.inverse_growth_factor
-        this.kill_range = this.params.attraction_range * this.params.kill_range_relative
+        
         this.generate_attractors()
         this.generate_new_tree_structure()
     }
@@ -139,7 +141,7 @@ export class SpaceColonizer {
                 if (distance < attraction_range) { found = true; break;}
             }
             if (found) break;
-            const new_branch = new SCBranch(current_branch.end, current_branch.direction, this.params.branch_length, current_branch)
+            const new_branch = new SCBranch(current_branch.end, current_branch.direction, this.branch_length, current_branch)
             current_branch = new_branch
             this.branches.push(new_branch)
         }
@@ -149,58 +151,70 @@ export class SpaceColonizer {
     space_colonization () {
         const attraction_range = this.params.attraction_range
         const kill_range = this.kill_range
-        const randomness = this.params.branch_randomness
-        const spread = this.params.branch_spread
+        const randomness = this.params.branch_randomness+1 // minimal randomness is always 1
         const branch_count = this.branches.length
-        //const attraction_up = this.params.attraction_up
-        for (let i : number = 0; i < branch_count; i += 1) {
-            const branch = this.branches[i];
-            if (!branch.active) {continue}
-            
-            branch.attractors = []
-            for (let attractor_idx : number = 0; attractor_idx < this.attractors.length; attractor_idx += 1) {
-                const attractor = this.attractors[attractor_idx]
-                if (attractor.killed) {continue}
-                const distance = branch.end.distanceTo(attractor.pos)
-                if (distance < attraction_range) {
-                    if (distance < kill_range) attractor.killed = true
-                    branch.attractors.push(attractor.pos)
-                }
-            }
-            
-            if (branch.attractors.length > 0) {
-                let sum_vector = branch.direction.clone() // think about this
-                //let sum_vector = new T.Vector3(0,0,0)
-                for (const attractor of branch.attractors) {
-                    const direction = attractor.clone().sub(branch.end).normalize() // repeats :90, optimize later
-                    sum_vector.add(direction) 
-                }
-                //sum_vector.add(new T.Vector3(this.tree.randFloat(-1, 1),this.tree.randFloat(-1, 1), this.tree.randFloat(-1, 1)).normalize().multiplyScalar(randomness)) // random direction is not seeded, fix later
-                sum_vector.add(this.tree.randDirection(1).multiplyScalar(randomness))
-                sum_vector.normalize()
-                // spread
-                if (spread > 0 && branch.children.length > 0) {
-                    let paralel = this.tree.randDirection(1)
-                    const similarity = sum_vector.dot(paralel)
-                    paralel.sub(sum_vector.clone().multiplyScalar(similarity)).normalize()
-                    sum_vector.add(paralel.multiplyScalar(spread*branch.children.length)).normalize()
-                }
-                // attraction up
-                /*
-                if ( attraction_up != 0) {
-                    sum_vector.add(UP.clone().multiplyScalar(attraction_up)).normalize()
-                }*/
 
-                //const similarity = sum_vector.dot(branch.direction)
-                //if (similarity > 0.95) continue;
-                const new_branch = new SCBranch(branch.end, sum_vector, this.params.branch_length, branch);
-                this.branches.push(new_branch)
-            } else { // no attractors, this branch goes inactive
-                branch.active = false
+        // --- Pass 1: assign each attractor to its closest branch ---
+        // Map from branch index → list of attractor positions influencing it
+        const branch_attractors = new Map<number, T.Vector3[]>()
+
+        for (let attractor_idx = 0; attractor_idx < this.attractors.length; attractor_idx++) {
+            const attractor = this.attractors[attractor_idx]
+            if (attractor.killed) { continue }
+
+            let closest_branch_idx = -1
+            let closest_distance = Infinity
+
+            for (let i = 0; i < branch_count; i++) {
+                const branch = this.branches[i]
+                if (!branch.active) { continue }
+
+                const distance = branch.end.distanceTo(attractor.pos)
+                if (distance < attraction_range && distance < closest_distance) {
+                    closest_distance = distance
+                    closest_branch_idx = i
+                }
             }
-       
+
+            if (closest_branch_idx === -1) { continue }
+
+            // Kill attractor if within kill range of its closest branch
+            if (closest_distance <= kill_range) {
+                attractor.killed = true
+            }
+
+            if (!branch_attractors.has(closest_branch_idx)) {
+                branch_attractors.set(closest_branch_idx, [])
+            }
+            branch_attractors.get(closest_branch_idx)!.push(attractor.pos)
         }
 
+        // --- Pass 2: grow branches toward their assigned attractors ---
+        for (let i = 0; i < branch_count; i++) {
+            const branch = this.branches[i]
+            if (!branch.active) { continue }
+
+            const attractors = branch_attractors.get(i)
+
+            if (!attractors || attractors.length === 0) {
+                branch.active = false
+                continue
+            }
+
+            branch.attractors = attractors
+
+            let sum_vector = branch.direction.clone()
+            for (const attractor of attractors) {
+                const direction = attractor.clone().sub(branch.end).normalize()
+                sum_vector.add(direction)
+            }
+
+            sum_vector.add(this.tree.randDirection(1).multiplyScalar(randomness))
+            sum_vector.normalize()
+
+            const new_branch = new SCBranch(branch.end, sum_vector, this.branch_length, branch)
+            this.branches.push(new_branch)
+        }
     }
 
     calculate_branch_radius () {
@@ -230,7 +244,7 @@ export class SpaceColonizer {
         //branch.direction.addScaledVector(UP, this.params.attraction_up/(branch.radius+0.1)).normalize()
         branch.direction.lerp(UP, 0.03*this.params.attraction_up/(branch.radius)).normalize();
         const steering = branch.direction.clone().sub(old_dir)
-        branch.end = branch.start.clone().addScaledVector(branch.direction, this.params.branch_length)
+        branch.end = branch.start.clone().addScaledVector(branch.direction, this.branch_length)
         
         for (const child of branch.children) {
             this.attraction_up(child, steering)
@@ -262,13 +276,13 @@ export class SpaceColonizer {
         const trunk_radius = this.branches[0].radius
         const leaf_radius_filter = (1-this.params.leaf_start)*this.params.branch_thickness + this.params.leaf_start*trunk_radius 
         const leaves_per_branch = this.params.leaves_per_branch
-        const _delta = this.params.branch_length/leaves_per_branch
+        const _delta = this.branch_length/leaves_per_branch
 
         for (let i : number = this.branches.length-1; i >= 0; i -= 1) {
             const branch = this.branches[i]
             if (branch.radius <= leaf_radius_filter) {
                 if (branch.parent != null) { // check if inside parent, if so don't spawn leaf
-                    if (branch.parent.radius> this.params.branch_length) continue 
+                    if (branch.parent.radius> this.branch_length) continue 
                 }
                 
                 let leaf_dislocation = 0

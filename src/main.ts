@@ -140,11 +140,10 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.LeavesParam.LeafScaleX = input.LeavesParam.LeafScaleX;
 
     preset.SpaceColonyParam.max_iterations = input.SpaceColonyParam.max_iterations;
-    preset.SpaceColonyParam.branch_length = input.SpaceColonyParam.branch_length;
+    preset.SpaceColonyParam.relative_branch_length = input.SpaceColonyParam.relative_branch_length;
     preset.SpaceColonyParam.attraction_range = input.SpaceColonyParam.attraction_range;
     preset.SpaceColonyParam.kill_range_relative = input.SpaceColonyParam.kill_range_relative;
     preset.SpaceColonyParam.branch_randomness = input.SpaceColonyParam.branch_randomness;
-    preset.SpaceColonyParam.branch_spread = input.SpaceColonyParam.branch_spread;
     preset.SpaceColonyParam.inverse_growth_factor = input.SpaceColonyParam.inverse_growth_factor;
     preset.SpaceColonyParam.branch_thickness = input.SpaceColonyParam.branch_thickness;
     preset.SpaceColonyParam.attractors = input.SpaceColonyParam.attractors;
@@ -160,11 +159,10 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.SpaceColonyParam.is_root = input.SpaceColonyParam.is_root;
 
     preset.RootParams.max_iterations = input.RootParams.max_iterations;
-    preset.RootParams.branch_length = input.RootParams.branch_length;
+    preset.RootParams.relative_branch_length = input.RootParams.relative_branch_length;
     preset.RootParams.attraction_range = input.RootParams.attraction_range;
     preset.RootParams.kill_range_relative = input.RootParams.kill_range_relative;
     preset.RootParams.branch_randomness = input.RootParams.branch_randomness;
-    preset.RootParams.branch_spread = input.RootParams.branch_spread;
     preset.RootParams.inverse_growth_factor = input.RootParams.inverse_growth_factor;
     preset.RootParams.branch_thickness = input.RootParams.branch_thickness;
     preset.RootParams.attractors = input.RootParams.attractors;
@@ -383,11 +381,10 @@ const sc_params = tree_params.SpaceColonyParam;
 const sc_folder = tree_controls.addFolder('Space Colony');
 sc_folder.add(sc_params, 'see_attraction_cloud')
 sc_folder.add(sc_params, 'max_iterations', 1, 500, 1)
-sc_folder.add(sc_params, 'branch_length', 0.1, 3)
+sc_folder.add(sc_params, 'relative_branch_length', 0.1, 0.99)
 sc_folder.add(sc_params, 'attraction_range', 0.1, 10)
-sc_folder.add(sc_params, 'kill_range_relative', 0.8, 0.99)
-sc_folder.add(sc_params, 'branch_randomness', 0.01, 10)
-sc_folder.add(sc_params, 'branch_spread', 0, 10)
+sc_folder.add(sc_params, 'kill_range_relative', 0.01, 0.99)
+sc_folder.add(sc_params, 'branch_randomness', 0, 10)
 sc_folder.add(sc_params, 'inverse_growth_factor', 0.01, 5)
 sc_folder.add(sc_params, 'branch_thickness', 0.001, 0.1)
 sc_folder.add(sc_params, 'attractors', 1, 8000, 1)
@@ -421,11 +418,10 @@ const root_folder = tree_controls.addFolder('Root Generation');
 const root_params = tree.params.RootParams
 root_folder.add(root_params, 'see_attraction_cloud')
 root_folder.add(root_params, 'max_iterations', 1, 500, 1)
-root_folder.add(root_params, 'branch_length', 0.1, 3)
+root_folder.add(root_params, 'relative_branch_length', 0.1, 0.99)
 root_folder.add(root_params, 'attraction_range', 0.1, 10)
-root_folder.add(root_params, 'kill_range_relative', 0.8, 0.99)
+root_folder.add(root_params, 'kill_range_relative', 0.01, 0.99)
 root_folder.add(root_params, 'branch_randomness', 0.01, 10)
-root_folder.add(root_params, 'branch_spread', 0, 10)
 root_folder.add(root_params, 'inverse_growth_factor', 0.01, 5)
 root_folder.add(root_params, 'branch_thickness', 0.001, 0.1)
 root_folder.add(root_params, 'attractors', 1, 8000, 1)
