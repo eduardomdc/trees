@@ -20,6 +20,7 @@ export type SpaceColonyParam = {
     attractors_shape_mod : number;
     attractors_noise : number;
     attraction_up : number;
+    attraction_decay : number;
     see_attraction_cloud : boolean;
     leaf_start : number;
     leaves_per_branch : number;
@@ -38,6 +39,9 @@ export class SpaceColonizer {
     growth_factor : number = 0
     kill_range : number = 0.1
     branch_length : number = 0.05
+
+    attraction_up_factor : number = 0
+    decay_sign : number = 0
     params : SpaceColonyParam 
 
     constructor (tree : p.Tree, params : SpaceColonyParam) {
@@ -57,7 +61,9 @@ export class SpaceColonizer {
             if (!tree.params.SpaceColony) {return}
         }
         this.growth_factor = 1/this.params.inverse_growth_factor
-        
+        this.attraction_up_factor = this.branch_length*this.params.attraction_up
+        if (this.attraction_up_factor > 0) {this.decay_sign = -1}
+        else {this.decay_sign = 1}
         this.generate_attractors()
         this.generate_new_tree_structure()
     }
@@ -242,7 +248,9 @@ export class SpaceColonizer {
         const old_dir = branch.direction.clone()
         branch.direction.add(up_steer)
         //branch.direction.addScaledVector(UP, this.params.attraction_up/(branch.radius+0.1)).normalize()
-        branch.direction.lerp(UP, 0.03*this.params.attraction_up/(branch.radius)).normalize();
+        const thinness = Math.pow(this.params.branch_thickness / branch.radius,2);
+        const decay_factor = this.decay_sign * this.params.attraction_decay * thinness ;
+        branch.direction.lerp(UP, this.attraction_up_factor+decay_factor).normalize();
         const steering = branch.direction.clone().sub(old_dir)
         branch.end = branch.start.clone().addScaledVector(branch.direction, this.branch_length)
         

@@ -153,6 +153,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.SpaceColonyParam.attractors_shape_mod = input.SpaceColonyParam.attractors_shape_mod;
     preset.SpaceColonyParam.attractors_noise = input.SpaceColonyParam.attractors_noise;
     preset.SpaceColonyParam.attraction_up = input.SpaceColonyParam.attraction_up;
+    preset.SpaceColonyParam.attraction_decay = input.SpaceColonyParam.attraction_decay;
     preset.SpaceColonyParam.see_attraction_cloud = input.SpaceColonyParam.see_attraction_cloud;
     preset.SpaceColonyParam.leaf_start = input.SpaceColonyParam.leaf_start;
     preset.SpaceColonyParam.leaves_per_branch = input.SpaceColonyParam.leaves_per_branch;
@@ -172,6 +173,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.RootParams.attractors_shape_mod = input.RootParams.attractors_shape_mod;
     preset.RootParams.attractors_noise = input.RootParams.attractors_noise;
     preset.RootParams.attraction_up = input.RootParams.attraction_up;
+    preset.RootParams.attraction_decay = input.RootParams.attraction_decay;
     preset.RootParams.see_attraction_cloud = input.RootParams.see_attraction_cloud;
     preset.RootParams.leaf_start = input.RootParams.leaf_start;
     preset.RootParams.leaves_per_branch = input.RootParams.leaves_per_branch;
@@ -394,6 +396,7 @@ sc_folder.add(sc_params, 'attractors_tall', 0.01, 10)
 sc_folder.add(sc_params, 'attractors_shape_mod', -1, 1)
 sc_folder.add(sc_params, 'attractors_noise', 0, 10)
 sc_folder.add(sc_params, 'attraction_up', -1, 1)
+sc_folder.add(sc_params, 'attraction_decay', 0, 1)
 sc_folder.hide();
 
 
@@ -431,6 +434,7 @@ root_folder.add(root_params, 'attractors_tall', 0.01, 10)
 root_folder.add(root_params, 'attractors_shape_mod', -1, 1)
 root_folder.add(root_params, 'attractors_noise', 0, 10)
 root_folder.add(root_params, 'attraction_up', -1, 1)
+root_folder.add(root_params, 'attraction_decay', 0, 1)
 root_folder.add(root_params, 'root_start', 0, 5)
 root_folder.hide();
 
