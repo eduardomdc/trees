@@ -156,29 +156,7 @@ function connect_cylinder_geometry(
     return tip_vert_offset;
 }
 
-// pushes a single vertex to be the tip of a cone
-/*
-function connect_circle_to_point_geometry(
-    geometry: Geometry,
-    position_tip: THREE.Vector3,
-    normal_tip: THREE.Vector3,
-    vert_count: number,
-    vert_offset: number,
-    v_tip: number = 1.0   // vertical UV for the cone apex
-) {
-    const tip_offset = geometry.vertex.length / 3;
-    geometry.vertex.push(position_tip.x, position_tip.y, position_tip.z);
-    geometry.normal.push(normal_tip.x, normal_tip.y, normal_tip.z);
-    geometry.uv.push(0.5, v_tip);  // apex sits at U=0.5
 
-    for (let i = 0; i < vert_count; i++) {
-        const b0 = i     + vert_offset;
-        const b1 = i + 1 + vert_offset;  // extra vertex, no wrap needed
-
-        geometry.index.push(b0, b1, tip_offset);
-    }
-}
-*/
 // Returns [positions, normals, uvs] for a ring of (sections+1) vertices.
 // The extra vertex duplicates index 0 in position/normal but carries U=1,
 // giving a clean UV seam without a visible geometric crack.

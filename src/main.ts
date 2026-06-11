@@ -336,23 +336,23 @@ parametric_controls.add(tree_params, 'ScaleV', 0, 20);
 
 parametric_controls.add(tree_params, 'Levels', 1, 4, 1);
 
-parametric_controls.add(tree_params, 'RatioPower', 0, 5);
+parametric_controls.add(tree_params, 'RatioPower', 0, 5).name("Ratio Power");
 
-parametric_controls.add(tree_params, 'AttractionUp', -10, 10);
+parametric_controls.add(tree_params, 'AttractionUp', -10, 10).name("Attraction Up");
 
 const trunk_controls = tree_controls.addFolder('Trunk Options');
 
 trunk_controls.add(tree_params, 'Scale0', 0, 1).name("Radius");
 trunk_controls.add(tree_params, 'ScaleV0', 0, 1).name("RadiusV");
 const trunk_level = tree_params.LevelParam[0];
-trunk_controls.add(trunk_level, 'BaseSize', 0, 1);
+trunk_controls.add(trunk_level, 'BaseSize', 0, 1).name("Base Size");
 trunk_controls.add(trunk_level, 'Length', 0, 2);
 trunk_controls.add(trunk_level, 'LengthV', 0, 1);
-trunk_controls.add(trunk_level, 'CurveRes', 1, 30, 1);
+trunk_controls.add(trunk_level, 'CurveRes', 1, 30, 1).name("Cuve Res");
 trunk_controls.add(trunk_level, 'Curve', -180, 180);
 trunk_controls.add(trunk_level, 'CurveV', 0, 180);
-trunk_controls.add(trunk_level, 'Gnarly', 0, 20);
-trunk_controls.add(tree_params, 'TrunkAttractionUp', -10, 10);
+trunk_controls.add(trunk_level, 'Gnarly', 0, 20).name("Gnarlyness");
+trunk_controls.add(tree_params, 'TrunkAttractionUp', -10, 10).name("Trunk Attraction Up");
 
 const levels_folder = tree_controls.addFolder('Branches');
 
@@ -361,9 +361,9 @@ tree_params.LevelParam.forEach((level, i) => {
     const f = levels_folder.addFolder(`Level ${i}`);
     f.close();
 
-    f.add(level, 'BaseSize', 0, 1);
-    f.add(level, 'DownAngle', 0, 180);
-    f.add(level, 'DownAngleV', -90, 90);
+    f.add(level, 'BaseSize', 0, 1).name("Base Size");
+    f.add(level, 'DownAngle', 0, 180).name("Down Angle");
+    f.add(level, 'DownAngleV', -90, 90).name("Down AngleV");
     f.add(level, 'Rotate', 0, 360);
     f.add(level, 'RotateV', 0, 360);
 
@@ -372,7 +372,7 @@ tree_params.LevelParam.forEach((level, i) => {
     f.add(level, 'Length', 0, 2);
     f.add(level, 'LengthV', 0, 2);
 
-    f.add(level, 'CurveRes', 1, 30, 1);
+    f.add(level, 'CurveRes', 1, 30, 1).name("Curve Res");
     f.add(level, 'Curve', -180, 180);
     f.add(level, 'CurveV', 0, 180);
     f.add(level, 'Gnarly', 0, 20);
@@ -381,22 +381,22 @@ tree_params.LevelParam.forEach((level, i) => {
 const sc_params = tree_params.SpaceColonyParam;
 // Space colony controls
 const sc_folder = tree_controls.addFolder('Space Colony');
-sc_folder.add(sc_params, 'see_attraction_cloud')
-sc_folder.add(sc_params, 'max_iterations', 1, 500, 1)
-sc_folder.add(sc_params, 'relative_branch_length', 0.1, 0.99)
-sc_folder.add(sc_params, 'attraction_range', 0.1, 10)
-sc_folder.add(sc_params, 'kill_range_relative', 0.01, 0.99)
-sc_folder.add(sc_params, 'branch_randomness', 0, 10)
-sc_folder.add(sc_params, 'inverse_growth_factor', 0.01, 5)
-sc_folder.add(sc_params, 'branch_thickness', 0.001, 0.1)
-sc_folder.add(sc_params, 'attractors', 1, 8000, 1)
-sc_folder.add(sc_params, 'attractors_radius', 0.1, 15)
-sc_folder.add(sc_params, 'attractors_height', 0, 40)
-sc_folder.add(sc_params, 'attractors_tall', 0.01, 10)
-sc_folder.add(sc_params, 'attractors_shape_mod', -1, 1)
-sc_folder.add(sc_params, 'attractors_noise', 0, 10)
-sc_folder.add(sc_params, 'attraction_up', -1, 1)
-sc_folder.add(sc_params, 'attraction_decay', 0, 1)
+sc_folder.add(sc_params, 'see_attraction_cloud').name("See Attraction Cloud")
+sc_folder.add(sc_params, 'max_iterations', 1, 500, 1).name("Max Iterations")
+sc_folder.add(sc_params, 'relative_branch_length', 0.1, 0.99).name("Branch Length")
+sc_folder.add(sc_params, 'attraction_range', 0.1, 10).name("Attraction Range")
+sc_folder.add(sc_params, 'kill_range_relative', 0.01, 0.99).name("Kill Range")
+sc_folder.add(sc_params, 'branch_randomness', 0, 10).name("Branch Gnarlyness")
+sc_folder.add(sc_params, 'inverse_growth_factor', 0.01, 5).name("Ratio Power")
+sc_folder.add(sc_params, 'branch_thickness', 0.001, 0.1).name("Branch Radius")
+sc_folder.add(sc_params, 'attractors', 1, 8000, 1).name("Attractors")
+sc_folder.add(sc_params, 'attractors_radius', 0.1, 15).name("Attractors Radius")
+sc_folder.add(sc_params, 'attractors_height', 0, 40).name("Attractors Height")
+sc_folder.add(sc_params, 'attractors_tall', 0.01, 10).name("Attractors Tallness")
+sc_folder.add(sc_params, 'attractors_shape_mod', -1, 1).name("Attractors Shape Mod")
+sc_folder.add(sc_params, 'attractors_noise', 0, 10).name("Attractors Noise")
+sc_folder.add(sc_params, 'attraction_up', -1, 1).name("Attraction Up")
+sc_folder.add(sc_params, 'attraction_decay', 0, 1).name("Attraction Up Decay")
 sc_folder.hide();
 
 
@@ -408,34 +408,34 @@ const leaves_param = tree_params.LeavesParam;
 leaves_penn_params.push(leaves_folder.add(leaves_param, 'Amount', 0, 100))
 leaves_sc_params.push(leaves_folder.add(sc_params, 'leaves_per_branch', 0, 10, 1).name("Amount"))
 leaves_sc_params.push(leaves_folder.add(sc_params, 'leaf_start', 0, 1).name("Leaf Start"))
-leaves_folder.add(leaves_param, 'DownAngle', 0, 180);
-leaves_folder.add(leaves_param, 'DownAngleV', -90, 90);
+leaves_folder.add(leaves_param, 'DownAngle', 0, 180).name("Down Angle");
+leaves_folder.add(leaves_param, 'DownAngleV', -90, 90).name("Down AngleV");
 leaves_penn_params.push(leaves_folder.add(leaves_param, 'Rotate', 0, 360))
 leaves_penn_params.push(leaves_folder.add(leaves_param, 'RotateV', 0, 360))
-leaves_folder.add(leaves_param, 'LeafScale', 0, 10);
-leaves_folder.add(leaves_param, 'LeafScaleX', 0, 2);
+leaves_folder.add(leaves_param, 'LeafScale', 0, 10).name("Leaf Scale");
+leaves_folder.add(leaves_param, 'LeafScaleX', 0, 2).name("Leaf Width");
 
 tree_controls.add(tree_params, 'GenerateRoots').name("(experimental) Generate Root Geometry");
 // Root generation colony controls
 const root_folder = tree_controls.addFolder('Root Generation');
 const root_params = tree.params.RootParams
-root_folder.add(root_params, 'see_attraction_cloud')
-root_folder.add(root_params, 'max_iterations', 1, 500, 1)
-root_folder.add(root_params, 'relative_branch_length', 0.1, 0.99)
-root_folder.add(root_params, 'attraction_range', 0.1, 10)
-root_folder.add(root_params, 'kill_range_relative', 0.01, 0.99)
-root_folder.add(root_params, 'branch_randomness', 0.01, 10)
-root_folder.add(root_params, 'inverse_growth_factor', 0.01, 5)
-root_folder.add(root_params, 'branch_thickness', 0.001, 0.1)
-root_folder.add(root_params, 'attractors', 1, 8000, 1)
-root_folder.add(root_params, 'attractors_radius', 0.1, 15)
-root_folder.add(root_params, 'attractors_height', -10, 0)
-root_folder.add(root_params, 'attractors_tall', 0.01, 10)
-root_folder.add(root_params, 'attractors_shape_mod', -1, 1)
-root_folder.add(root_params, 'attractors_noise', 0, 10)
-root_folder.add(root_params, 'attraction_up', -1, 1)
-root_folder.add(root_params, 'attraction_decay', 0, 1)
-root_folder.add(root_params, 'root_start', 0, 5)
+root_folder.add(root_params, 'see_attraction_cloud').name("See Attraction Cloud")
+root_folder.add(root_params, 'root_start', 0, 5).name("Root Start")
+root_folder.add(root_params, 'max_iterations', 1, 500, 1).name("Max Iterations")
+root_folder.add(root_params, 'relative_branch_length', 0.1, 0.99).name("Branch Length")
+root_folder.add(root_params, 'attraction_range', 0.1, 10).name("Attraction Range")
+root_folder.add(root_params, 'kill_range_relative', 0.01, 0.99).name("Kill Range")
+root_folder.add(root_params, 'branch_randomness', 0.01, 10).name("Branch Gnarlyness")
+root_folder.add(root_params, 'inverse_growth_factor', 0.01, 5).name("Ratio Power")
+root_folder.add(root_params, 'branch_thickness', 0.001, 0.1).name("Branch Radius")
+root_folder.add(root_params, 'attractors', 1, 8000, 1).name("Attractors")
+root_folder.add(root_params, 'attractors_radius', 0.1, 15).name("Attractors Radius")
+root_folder.add(root_params, 'attractors_height', -10, 0).name("Attractors Height")
+root_folder.add(root_params, 'attractors_tall', 0.01, 10).name("Attractors Tallness")
+root_folder.add(root_params, 'attractors_shape_mod', -1, 1).name("Attractors Shape Mod")
+root_folder.add(root_params, 'attractors_noise', 0, 10).name("Attractors Noise")
+root_folder.add(root_params, 'attraction_up', -1, 1).name("Attraction Up")
+root_folder.add(root_params, 'attraction_decay', 0, 1).name("Attraction Up Decay")
 root_folder.hide();
 
 tree_controls.onChange(
@@ -449,12 +449,12 @@ tree_controls.onChange(
 // Texture controls
 const texture_folder = tree_controls.addFolder('Textures');
 const texture_params = tree_params.TextureParam;
-texture_folder.add(texture_params, 'LeafTexture', Object.keys(Tex.LeafTextures));
-texture_folder.add(texture_params, 'LeafHue', 0, 360);
-texture_folder.add(texture_params, 'LeafBrightness', 0, 2);
-texture_folder.add(texture_params, 'BarkTexture', Object.keys(Tex.BarkTextures));
-texture_folder.add(texture_params, 'BarkHue', 0, 360);
-texture_folder.add(texture_params, 'BarkBrightness', 0, 2);
+texture_folder.add(texture_params, 'LeafTexture', Object.keys(Tex.LeafTextures)).name("Leaf Texture");
+texture_folder.add(texture_params, 'LeafHue', 0, 360).name("Leaf Hue");
+texture_folder.add(texture_params, 'LeafBrightness', 0, 2).name("Leaf Brightness");
+texture_folder.add(texture_params, 'BarkTexture', Object.keys(Tex.BarkTextures)).name("Bark Texture");
+texture_folder.add(texture_params, 'BarkHue', 0, 360).name("Bark Hue");
+texture_folder.add(texture_params, 'BarkBrightness', 0, 2).name("Bark Brightness");
 
 function shiftHue(image: HTMLImageElement, degrees: number, brightness : number): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
