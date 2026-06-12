@@ -69,25 +69,26 @@ function cloneTreeParams(p: T.TreeParams): T.TreeParams {
 var tree_params : T.TreeParams = cloneTreeParams(presets["Quaking Aspen"]);
 var tree = new T.Tree(tree_params, seed.Seed);
 
-const trunk_mat = new THREE.MeshStandardMaterial({map: Tex.BarkTextures[tree_params.TextureParam.BarkTexture]});
-var tree_mesh = tree.build_tree_geometry(trunk_mat);
-scene.add(tree_mesh);
+const trunk_mat = new THREE.MeshStandardMaterial({
+    map: Tex.BarkTextures[tree_params.TextureParam.BarkTexture]
+});
 
-var roots_mesh : THREE.Mesh = tree.build_root_geometry(trunk_mat);
-scene.add(roots_mesh)
+const leaf_mat = new THREE.MeshStandardMaterial({
+    side: THREE.DoubleSide,
+    map: Tex.LeafTextures[tree_params.TextureParam.LeafTexture],
+    transparent: true,
+    alphaTest: 0.5
+});
 
-// leaves
-const leaf_mat = new THREE.MeshStandardMaterial({side : THREE.DoubleSide, map: Tex.LeafTextures[tree_params.TextureParam.LeafTexture], transparent: true, alphaTest:0.5});
-var tree_leaves = tree.build_leaves(leaf_mat);
-scene.add(tree_leaves);
+var tree_mesh = new THREE.Mesh();
+var roots_mesh = new THREE.Mesh();
+var tree_leaves = new THREE.Mesh();
 
-// Space Colony
-const attractors_mat = new THREE.PointsMaterial({color : 0xff0000, size:0.2})
-const root_attractors_mat = new THREE.PointsMaterial({color : 0x00ff00, size:0.2})
-var attractors_cloud = tree.space_colonizer.create_attractors_point_cloud(attractors_mat); 
-var root_attractors_cloud = tree.root_sc.create_attractors_point_cloud(root_attractors_mat);
-scene.add(root_attractors_cloud)
-scene.add(attractors_cloud)
+const attractors_mat = new THREE.PointsMaterial({color: 0xff0000, size:0.2});
+const root_attractors_mat = new THREE.PointsMaterial({color: 0x00ff00, size:0.2});
+
+var attractors_cloud = new THREE.Points();
+var root_attractors_cloud = new THREE.Points();
 
 // GUI
 const gui = new GUI.GUI();
@@ -597,5 +598,5 @@ function animate() {
     renderer.render( scene, camera );
 }
 
-
+rebuild_tree();
 renderer.setAnimationLoop( animate );
