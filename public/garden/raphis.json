@@ -24,10 +24,10 @@
       "Length": 1,
       "LengthV": 0,
       "CurveRes": 16,
-      "Curve": -13.32,
-      "CurveV": 20,
+      "Curve": 0,
+      "CurveV": 0,
       "BaseSize": 0.188,
-      "Gnarly": 2.46
+      "Gnarly": 1.42
     },
     {
       "DownAngle": 6.12,
@@ -82,7 +82,7 @@
     "LeafScaleX": 0.194
   },
   "AttractionUp": 0.84,
-  "TrunkAttractionUp": 0.58,
+  "TrunkAttractionUp": 10,
   "TextureParam": {
     "LeafTexture": "Raffia",
     "BarkTexture": "New",
