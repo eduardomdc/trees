@@ -4,7 +4,8 @@ const loader = new THREE.TextureLoader();
 export const LeafTextures = {
     'CommonGreen' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/greenleaf.png'),
     'LongGreen' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/longleaf.png'),
-    'MapleRed' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/leaf.png'),
+    'Maple' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/jmaple.png'),
+    'Acer' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/acer_leaf.png'),
     'PalmFrond' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/palm_leaf.png'),
     'PalmNeedle' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/palm_needle.png'),
     'Raffia' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/raffia.png'),

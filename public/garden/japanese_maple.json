@@ -84,7 +84,7 @@
   "AttractionUp": 0.5,
   "TrunkAttractionUp": 0,
   "TextureParam": {
-    "LeafTexture": "MapleRed",
+    "LeafTexture": "Maple",
     "BarkTexture": "Mossy4",
     "LeafHue": 1.8,
     "LeafBrightness": 1.372,
