@@ -3,6 +3,7 @@ import * as THREE from 'three';
 const loader = new THREE.TextureLoader();
 export const LeafTextures = {
     'CommonGreen' : loader.load(import.meta.env.BASE_URL+'/assets/greenleaf.png'),
+    'LongGreen' : loader.load(import.meta.env.BASE_URL+'/assets/longleaf.png'),
     'MapleRed' : loader.load(import.meta.env.BASE_URL+'/assets/leaf.png'),
     'PalmFrond' : loader.load(import.meta.env.BASE_URL+'/assets/palm_leaf.png'),
     'PalmNeedle' : loader.load(import.meta.env.BASE_URL+'/assets/palm_needle.png'),
@@ -24,3 +25,7 @@ export const BarkTextures = {
     'Gray' : loader.load(import.meta.env.BASE_URL+'/assets/gray_bark.jpg'),
     'Grainy' : loader.load(import.meta.env.BASE_URL+'/assets/grainy_bark.jpg'),
 }
+
+Object.values(LeafTextures).forEach(tex => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+});

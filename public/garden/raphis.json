@@ -23,7 +23,7 @@
       "Branches": 0,
       "Length": 1,
       "LengthV": 0,
-      "CurveRes": 16,
+      "CurveRes": 8,
       "Curve": 0,
       "CurveV": 0,
       "BaseSize": 0.188,
@@ -37,7 +37,7 @@
       "Branches": 17,
       "Length": 0.6,
       "LengthV": 0,
-      "CurveRes": 15,
+      "CurveRes": 17,
       "Curve": -77.04,
       "CurveV": 33.84,
       "BaseSize": 0.258,
@@ -85,11 +85,11 @@
   "TrunkAttractionUp": 10,
   "TextureParam": {
     "LeafTexture": "Raffia",
-    "BarkTexture": "New",
+    "BarkTexture": "Mossy3",
     "LeafHue": 350.64,
-    "LeafBrightness": 0.848,
-    "BarkHue": 72.72,
-    "BarkBrightness": 0.09
+    "LeafBrightness": 1.372,
+    "BarkHue": 0,
+    "BarkBrightness": 0.9
   },
   "SpaceColonyParam": {
     "max_iterations": 200,

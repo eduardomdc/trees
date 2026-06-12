@@ -15,6 +15,8 @@ const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.shadowMap.enabled = true;
+renderer.toneMapping = THREE.NoToneMapping;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const { camera, updateCamera, setTarget} = createOrbitalCamera(canvas, {initialRadius: 15, sensitivity: 0.008, target: new THREE.Vector3(0,10,0),});
 
@@ -445,8 +447,6 @@ root_folder.hide();
 tree_controls.onChange(
     _ => {
         rebuild_tree()
-        
-
     }
 );
 
@@ -460,18 +460,67 @@ texture_folder.add(texture_params, 'BarkTexture', Object.keys(Tex.BarkTextures))
 texture_folder.add(texture_params, 'BarkHue', 0, 360).name("Bark Hue");
 texture_folder.add(texture_params, 'BarkBrightness', 0, 2).name("Bark Brightness");
 
-function shiftHue(image: HTMLImageElement, degrees: number, brightness : number): THREE.CanvasTexture {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+function shiftHue(image: HTMLImageElement, degrees: number, brightness: number): THREE.CanvasTexture {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get 2D context from canvas');
 
-  if (!ctx) throw new Error('Could not get 2D context from canvas');
+    canvas.width = image.width;
+    canvas.height = image.height;
+    ctx.drawImage(image, 0, 0);
 
-  canvas.width = image.width;
-  canvas.height = image.height;
-  ctx.filter = `hue-rotate(${degrees}deg) brightness(${brightness})`;
-  ctx.drawImage(image, 0, 0);
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imgData.data;
 
-  return new THREE.CanvasTexture(canvas);
+    for (let i = 0; i < data.length; i += 4) {
+    const r = data[i] / 255;
+    const g = data[i+1] / 255;
+    const b = data[i+2] / 255;
+
+    // RGB -> HSL
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0;
+    const l = (max + min) / 2;
+    const d = max - min;
+
+    if (d !== 0) {
+        s = d / (1 - Math.abs(2 * l - 1));
+        switch (max) {
+        case r: h = ((g - b) / d) % 6; break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+        }
+        h *= 60;
+        if (h < 0) h += 360;
+    }
+
+    // apply hue shift
+    h = (h + degrees) % 360;
+    if (h < 0) h += 360;
+
+    // HSL -> RGB
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    const m = l - c / 2;
+    let r2 = 0, g2 = 0, b2 = 0;
+
+    if (h < 60)      { r2 = c; g2 = x; b2 = 0; }
+    else if (h < 120){ r2 = x; g2 = c; b2 = 0; }
+    else if (h < 180){ r2 = 0; g2 = c; b2 = x; }
+    else if (h < 240){ r2 = 0; g2 = x; b2 = c; }
+    else if (h < 300){ r2 = x; g2 = 0; b2 = c; }
+    else             { r2 = c; g2 = 0; b2 = x; }
+
+    data[i]   = Math.min(255, (r2 + m) * 255 * brightness);
+    data[i+1] = Math.min(255, (g2 + m) * 255 * brightness);
+    data[i+2] = Math.min(255, (b2 + m) * 255 * brightness);
+    }
+
+    ctx.putImageData(imgData, 0, 0);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
 }
 
 
@@ -547,4 +596,6 @@ function animate() {
     updateCamera();
     renderer.render( scene, camera );
 }
+
+
 renderer.setAnimationLoop( animate );
