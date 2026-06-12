@@ -185,6 +185,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
     preset.RootParams.leaf_start = input.RootParams.leaf_start;
     preset.RootParams.leaves_per_branch = input.RootParams.leaves_per_branch;
     preset.RootParams.is_root = input.RootParams.is_root;
+    preset.RootParams.root_start = input.RootParams.root_start;
 
     preset.TextureParam.LeafTexture = input.TextureParam.LeafTexture
     preset.TextureParam.BarkTexture = input.TextureParam.BarkTexture
