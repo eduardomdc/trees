@@ -159,67 +159,109 @@ export class SpaceColonizer {
         const kill_range = this.kill_range
         const randomness = this.params.branch_randomness+1 // minimal randomness is always 1
         const branch_count = this.branches.length
+        const spread = 1
 
         // --- Pass 1: assign each attractor to its closest branch ---
         // Map from branch index → list of attractor positions influencing it
-        const branch_attractors = new Map<number, T.Vector3[]>()
+        // const branch_attractors = new Map<number, T.Vector3[]>()
 
-        for (let attractor_idx = 0; attractor_idx < this.attractors.length; attractor_idx++) {
-            const attractor = this.attractors[attractor_idx]
-            if (attractor.killed) { continue }
+        // for (let attractor_idx = 0; attractor_idx < this.attractors.length; attractor_idx++) {
+        //     const attractor = this.attractors[attractor_idx]
+        //     if (attractor.killed) { continue }
 
-            let closest_branch_idx = -1
-            let closest_distance = Infinity
+        //     let closest_branch_idx = -1
+        //     let closest_distance = Infinity
 
-            for (let i = 0; i < branch_count; i++) {
-                const branch = this.branches[i]
-                if (!branch.active) { continue }
+        //     for (let i = 0; i < branch_count; i++) {
+        //         const branch = this.branches[i]
+        //         if (!branch.active) { continue }
 
+        //         const distance = branch.end.distanceTo(attractor.pos)
+        //         if (distance < attraction_range && distance < closest_distance) {
+        //             closest_distance = distance
+        //             closest_branch_idx = i
+        //         }
+        //     }
+
+        //     if (closest_branch_idx === -1) { continue }
+
+        //     // Kill attractor if within kill range of its closest branch
+        //     if (closest_distance <= kill_range) {
+        //         attractor.killed = true
+        //     }
+
+        //     if (!branch_attractors.has(closest_branch_idx)) {
+        //         branch_attractors.set(closest_branch_idx, [])
+        //     }
+        //     branch_attractors.get(closest_branch_idx)!.push(attractor.pos)
+        // }
+
+        // // --- Pass 2: grow branches toward their assigned attractors ---
+        // for (let i = 0; i < branch_count; i++) {
+        //     const branch = this.branches[i]
+        //     if (!branch.active) { continue }
+
+        //     const attractors = branch_attractors.get(i)
+
+        //     if (!attractors || attractors.length === 0) {
+        //         branch.active = false
+        //         continue
+        //     }
+
+        //     branch.attractors = attractors
+
+        //     let sum_vector = branch.direction.clone()
+        //     for (const attractor of attractors) {
+        //         const direction = attractor.clone().sub(branch.end).normalize()
+        //         sum_vector.add(direction)
+        //     }
+
+        //     sum_vector.add(this.tree.randDirection(1).multiplyScalar(randomness))
+        //     sum_vector.normalize()
+
+        //     const new_branch = new SCBranch(branch.end, sum_vector, this.branch_length, branch)
+        //     this.branches.push(new_branch)
+        // }
+        //const attraction_up = this.params.attraction_up
+        for (let i : number = 0; i < branch_count; i += 1) {
+            const branch = this.branches[i];
+            if (!branch.active) {continue}
+            
+            branch.attractors = []
+            for (let attractor_idx : number = 0; attractor_idx < this.attractors.length; attractor_idx += 1) {
+                const attractor = this.attractors[attractor_idx]
+                if (attractor.killed) {continue}
                 const distance = branch.end.distanceTo(attractor.pos)
-                if (distance < attraction_range && distance < closest_distance) {
-                    closest_distance = distance
-                    closest_branch_idx = i
+                if (distance < attraction_range) {
+                    const distance = branch.end.distanceTo(attractor.pos)
+                    if (distance < kill_range) attractor.killed = true
+                    branch.attractors.push(attractor.pos)
                 }
             }
 
-            if (closest_branch_idx === -1) { continue }
+            if (branch.attractors.length > 0) {
+                let sum_vector = branch.direction.clone() // think about this
+                //let sum_vector = new T.Vector3(0,0,0)
+                for (const attractor of branch.attractors) {
+                    const direction = attractor.clone().sub(branch.end).normalize() // repeats :90, optimize later
+                    sum_vector.add(direction) 
+                }
 
-            // Kill attractor if within kill range of its closest branch
-            if (closest_distance <= kill_range) {
-                attractor.killed = true
-            }
+                sum_vector.add(this.tree.randDirection(1).multiplyScalar(randomness))
+                sum_vector.normalize()
+                // spread
+                if (spread > 0 && branch.children.length > 0) {
+                    let paralel = this.tree.randDirection(1)
+                    const similarity = sum_vector.dot(paralel)
+                    paralel.sub(sum_vector.clone().multiplyScalar(similarity)).normalize()
+                    sum_vector.add(paralel.multiplyScalar(spread*branch.children.length)).normalize()
+                }
 
-            if (!branch_attractors.has(closest_branch_idx)) {
-                branch_attractors.set(closest_branch_idx, [])
-            }
-            branch_attractors.get(closest_branch_idx)!.push(attractor.pos)
-        }
-
-        // --- Pass 2: grow branches toward their assigned attractors ---
-        for (let i = 0; i < branch_count; i++) {
-            const branch = this.branches[i]
-            if (!branch.active) { continue }
-
-            const attractors = branch_attractors.get(i)
-
-            if (!attractors || attractors.length === 0) {
+                const new_branch = new SCBranch(branch.end, sum_vector, this.branch_length, branch);
+                this.branches.push(new_branch)
+            } else { // no attractors, this branch goes inactive
                 branch.active = false
-                continue
             }
-
-            branch.attractors = attractors
-
-            let sum_vector = branch.direction.clone()
-            for (const attractor of attractors) {
-                const direction = attractor.clone().sub(branch.end).normalize()
-                sum_vector.add(direction)
-            }
-
-            sum_vector.add(this.tree.randDirection(1).multiplyScalar(randomness))
-            sum_vector.normalize()
-
-            const new_branch = new SCBranch(branch.end, sum_vector, this.branch_length, branch)
-            this.branches.push(new_branch)
         }
     }
 
