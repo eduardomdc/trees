@@ -3,6 +3,7 @@ import {type TreeParams} from './penn.ts'
 export const preset_paths : Record<string, string> = {
   "Quaking Aspen": import.meta.env.BASE_URL + "/garden/quaking_aspen.json",
   "Japanese Maple": import.meta.env.BASE_URL + "/garden/japanese_maple.json",
+  "Raphis": import.meta.env.BASE_URL + "/garden/raphis.json",
 };
 
 async function loadAllPresets(): Promise<Record<string, TreeParams>> {

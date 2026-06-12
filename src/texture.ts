@@ -6,6 +6,7 @@ export const LeafTextures = {
     'MapleRed' : loader.load(import.meta.env.BASE_URL+'/assets/leaf.png'),
     'PalmFrond' : loader.load(import.meta.env.BASE_URL+'/assets/palm_leaf.png'),
     'PalmNeedle' : loader.load(import.meta.env.BASE_URL+'/assets/palm_needle.png'),
+    'Raffia' : loader.load(import.meta.env.BASE_URL+'/assets/raffia.png'),
 }
 export const BarkTextures = {
     'Common' : loader.load(import.meta.env.BASE_URL+'/assets/bark.jpg'),
