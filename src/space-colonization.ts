@@ -337,7 +337,7 @@ export class SpaceColonizer {
                     // calculate leaf orientation
                     const around_angle = Math.PI * (this.tree.randFloat(-1, 1, 1));
                     const rotate_around = new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0), around_angle)
-                    const down_angle = Math.PI * (this.tree.params.LeavesParam.DownAngle)/180
+                    const down_angle = Math.PI * (this.tree.params.LeavesParam.DownAngle + this.tree.params.LeavesParam.DownAngleV * this.tree.randFloat(-1,1,3))/180
                     const rotate_down = new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0), down_angle)
                     // push leaf out of stem
                     const leaf_pos = branch.start.clone().addScaledVector(branch.direction, leaf_dislocation)
