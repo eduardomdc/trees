@@ -9,6 +9,7 @@ export const LeafTextures = {
     'PalmFrond' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/palm_leaf.png'),
     'PalmNeedle' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/palm_needle.png'),
     'Raffia' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/raffia.png'),
+    'BroadLeaf' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/broad_leaf.png'),
 }
 export const BarkTextures = {
     'Common' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/bark.jpg'),
