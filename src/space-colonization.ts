@@ -157,7 +157,7 @@ export class SpaceColonizer {
     space_colonization () {
         const attraction_range = this.params.attraction_range
         const kill_range = this.kill_range
-        const randomness = this.params.branch_randomness+1 // minimal randomness is always 1
+        const randomness = this.branch_length*this.params.branch_randomness // minimal randomness is always 1
         const branch_count = this.branches.length
         const spread = 1
 
@@ -227,29 +227,24 @@ export class SpaceColonizer {
             const branch = this.branches[i];
             if (!branch.active) {continue}
             
-            branch.attractors = []
+            let branch_attractors_count = 0
+            let sum_vector = branch.direction.clone() // think about this
             for (let attractor_idx : number = 0; attractor_idx < this.attractors.length; attractor_idx += 1) {
                 const attractor = this.attractors[attractor_idx]
                 if (attractor.killed) {continue}
-                const distance = branch.end.distanceTo(attractor.pos)
+                const direction = attractor.pos.clone().sub(branch.end)
+                const distance = direction.length()
                 if (distance < attraction_range) {
-                    const distance = branch.end.distanceTo(attractor.pos)
                     if (distance < kill_range) attractor.killed = true
-                    branch.attractors.push(attractor.pos)
+                    branch_attractors_count += 1
+                    sum_vector.add(direction.normalize().multiplyScalar(1/distance**2))
                 }
             }
 
-            if (branch.attractors.length > 0) {
-                let sum_vector = branch.direction.clone() // think about this
-                //let sum_vector = new T.Vector3(0,0,0)
-                for (const attractor of branch.attractors) {
-                    const direction = attractor.clone().sub(branch.end).normalize() // repeats :90, optimize later
-                    sum_vector.add(direction) 
-                }
-
+            if (branch_attractors_count > 0) {
                 sum_vector.add(this.tree.randDirection(1).multiplyScalar(randomness))
                 sum_vector.normalize()
-                // spread
+                //spread
                 if (spread > 0 && branch.children.length > 0) {
                     let paralel = this.tree.randDirection(1)
                     const similarity = sum_vector.dot(paralel)
@@ -393,7 +388,6 @@ export class SCBranch {
     active : boolean = true
     parent : SCBranch | null
     children : SCBranch[] = []
-    attractors : T.Vector3[] = []
     vertex_offset : number = 0
     radius : number = 0
     extremity : boolean = false
