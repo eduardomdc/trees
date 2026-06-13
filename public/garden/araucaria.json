@@ -40,19 +40,19 @@
       "CurveRes": 14,
       "Curve": 43.92,
       "CurveV": 43.92,
-      "BaseSize": 0.93,
+      "BaseSize": 0.888,
       "Gnarly": 0
     },
     {
-      "DownAngle": 66.6,
-      "DownAngleV": 42.12,
+      "DownAngle": 64.08,
+      "DownAngleV": 9.36,
       "Rotate": 137.7,
       "RotateV": 0,
-      "Branches": 12,
-      "Length": 0.544,
+      "Branches": 15,
+      "Length": 0.656,
       "LengthV": 0,
       "CurveRes": 3,
-      "Curve": 104.4,
+      "Curve": 124.56,
       "CurveV": 0,
       "BaseSize": 0,
       "Gnarly": 0
@@ -73,13 +73,13 @@
     }
   ],
   "LeavesParam": {
-    "DownAngle": 45,
+    "DownAngle": 10.44,
     "DownAngleV": 10,
     "Rotate": 77,
     "RotateV": 0,
     "Amount": 20.2,
-    "LeafScale": 0.71,
-    "LeafScaleX": 0.508
+    "LeafScale": 0.45,
+    "LeafScaleX": 0.926
   },
   "AttractionUp": 0,
   "TrunkAttractionUp": 0,
