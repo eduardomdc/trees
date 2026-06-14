@@ -39,7 +39,7 @@ scene.add( directionalLight );
 
 const loader = new THREE.TextureLoader();
 
-const jungle_tex = loader.load(import.meta.env.BASE_URL+'/assets/jungle.jpg');
+const jungle_tex = loader.load(import.meta.env.BASE_URL+'/assets/sky.jpg');
 jungle_tex.mapping = THREE.EquirectangularReflectionMapping
 scene.background = jungle_tex;
 scene.environment = jungle_tex;

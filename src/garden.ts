@@ -13,6 +13,7 @@ export const preset_paths : Record<string, string> = {
   "Jequitibá": import.meta.env.BASE_URL + "/garden/jequitiba.json",
   "Pau Brasil": import.meta.env.BASE_URL + "/garden/pau_brasil.json",
   "Pine": import.meta.env.BASE_URL + "/garden/pine.json",
+  "Baobab": import.meta.env.BASE_URL + "/garden/baobab.json",
 };
 
 async function loadAllPresets(): Promise<Record<string, TreeParams>> {
