@@ -12,6 +12,7 @@ export const LeafTextures = {
     'BroadLeaf' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/broad_leaf.png'),
     'Ararucaria' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/ararucaria.png'),
     'TropicalLeaf' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/tropical_leaf.png'),
+    'Ficus' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/ficus.png'),
 }
 export const BarkTextures = {
     'Common' : await loader.loadAsync(import.meta.env.BASE_URL+'/assets/bark.jpg'),
