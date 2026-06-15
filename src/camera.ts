@@ -33,8 +33,8 @@ export function createOrbitalCamera(
   const _target = target.clone();
 
   const state: OrbitalCameraState = {
-    theta: Math.PI,
-    phi: Math.PI / 3,
+    theta: 0,
+    phi: Math.PI/2,
     radius: initialRadius,
     isDragging: false,
     lastX: 0,
