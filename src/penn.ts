@@ -301,14 +301,6 @@ export class Segment {
         offset_child = position_across + parent.length_along_this_stem;
         child.position.add(parent.direction.clone().multiplyScalar(position_across));
        
-        /*
-        const len_base = tree.processed_params.length_base[parent.stem.level]*parent.stem.length;
-        if (this.length_along_this_stem < len_base) {
-            const diff = this.length_along_this_stem+offset_child-len_base;
-            if (diff < 0) {
-                return; // shouldn't even be creating a child here
-            }
-        }*/
         this.setup_stem(tree, child.stem, parent, offset_child) 
         
         // ==== child segment ======
@@ -352,7 +344,7 @@ export class Segment {
             stem.per_segment_length = tree.processed_params.per_segment_length_trunk;
         } else {
             if (stem.level == 1) {
-                stem.length = tree.processed_params.length_trunk * length_child_max * ShapeRatio(tree.params.Shape, (tree.processed_params.length_trunk-offset_child)/(tree.processed_params.length_trunk-tree.processed_params.length_base[parent_stem.level]) );
+                stem.length = tree.processed_params.length_trunk * length_child_max * ShapeRatio(tree.params.Shape, (tree.processed_params.length_trunk-offset_child)/(tree.processed_params.length_trunk-parent_stem.length*tree.params.LevelParam[parent_stem.level].BaseSize) );
             } else {
                 stem.length = length_child_max * (parent_stem.length - 0.6 * offset_child);
             }
@@ -505,15 +497,13 @@ export type TreeParams = {
 
 class ProcessedTreeParams {
     length_trunk : number; // length of full trunk ( 0Length ± 0LengthV )*scale_tree
-    length_base : number[]; //(BaseSize*scale tree ) 
     scale_tree : number; // (Scale±ScaleV)
     per_segment_length_trunk : number;
 
     constructor(t: Tree){
         this.scale_tree = (t.params.Scale + t.randFloat(-1,1,0)*t.params.ScaleV);
         this.length_trunk = (t.params.LevelParam[0].Length+t.params.LevelParam[0].LengthV*t.randFloat(-1, 1, 0))*this.scale_tree;
-        this.per_segment_length_trunk = this.length_trunk/t.params.LevelParam[0].CurveRes,
-        this.length_base = [(t.params.LevelParam[0].BaseSize*this.scale_tree),(t.params.LevelParam[1].BaseSize*this.scale_tree),(t.params.LevelParam[2].BaseSize*this.scale_tree),(t.params.LevelParam[3].BaseSize*this.scale_tree)];
+        this.per_segment_length_trunk = this.length_trunk/t.params.LevelParam[0].CurveRes
     }
 }
 
@@ -572,7 +562,7 @@ function ShapeRatio (Shape : ShapeID, ratio : number) : number {
         case ShapeID.InverseConical:
             return 1.0 - 0.8*ratio;
         case ShapeID.TendFlame:
-            if (ratio <= 0.7) return 0.5 + 0.5 * ratio;
+            if (ratio <= 0.7) return 0.5 + 0.5 * ratio/0.7;
             else return 0.5 + 0.5 * (1.0 - ratio)/0.3;
     }
 }
