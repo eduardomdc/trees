@@ -198,7 +198,7 @@ export class Segment {
             // curve the new segment's coordinate frame a little
             const bendQ = new T.Quaternion().setFromAxisAngle(
                 x_dir,
-                Math.PI*(-curve/curve_res)/180,  // bend angle
+                Math.PI*(curve/curve_res)/180,  // bend angle
             );
             next_segment.direction.applyQuaternion(bendQ);
             // in either case, a random rotation of magnitude (nCurveV/nCurveRes ) is also added for each segment
@@ -257,9 +257,10 @@ export class Segment {
         let Rotate = src.Rotate;
         let RotateV = src.RotateV;
 
+        const length_base = tree.params.LevelParam[parent.stem.level].BaseSize * parent.stem.length;
         const down_angle = Math.PI * (DownAngleV >= 0
             ? DownAngle + tree.randFloat(-1, 1, child_level) * DownAngleV
-            : DownAngle + tree.randFloat(-1, 1, child_level) * (DownAngleV * ( 1 - 2 * ShapeRatio( 0, (parent.stem.length - offset_child)/parent.stem.length ) ))
+            : DownAngle + tree.randFloat(-1, 1, child_level) * (DownAngleV * ( 1 - 2 * ShapeRatio( 0, (parent.stem.length - offset_child)/(parent.stem.length-length_base) ) ))
         ) / 180;
 
         const rotation = new T.Quaternion();

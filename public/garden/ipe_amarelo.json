@@ -38,7 +38,7 @@
       "Length": 0.3,
       "LengthV": 0,
       "CurveRes": 5,
-      "Curve": -40,
+      "Curve": 40,
       "CurveV": 50,
       "BaseSize": 0,
       "Gnarly": 0
@@ -52,7 +52,7 @@
       "Length": 0.6,
       "LengthV": 0,
       "CurveRes": 3,
-      "Curve": -40,
+      "Curve": 40,
       "CurveV": 75,
       "BaseSize": 0,
       "Gnarly": 0

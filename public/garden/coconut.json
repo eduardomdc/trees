@@ -26,19 +26,19 @@
       "CurveRes": 16,
       "Curve": 0,
       "CurveV": 0,
-      "BaseSize": 0.817,
+      "BaseSize": 0.895,
       "Gnarly": 1.42
     },
     {
       "DownAngle": 48.96,
-      "DownAngleV": -90,
+      "DownAngleV": 69.84,
       "Rotate": 137.7,
       "RotateV": 0,
       "Branches": 55,
       "Length": 0.348,
       "LengthV": 0,
       "CurveRes": 17,
-      "Curve": -77.04,
+      "Curve": 77.04,
       "CurveV": 33.84,
       "BaseSize": 0.202,
       "Gnarly": 0
@@ -52,7 +52,7 @@
       "Length": 0.544,
       "LengthV": 0.096,
       "CurveRes": 10,
-      "Curve": -31.68,
+      "Curve": 31.68,
       "CurveV": 0,
       "BaseSize": 0,
       "Gnarly": 0
