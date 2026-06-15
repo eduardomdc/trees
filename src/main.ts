@@ -338,8 +338,7 @@ parametric_controls.add(tree_params, 'Shape', {
     TaperedCylindrical : 4,
     Flame : 5,
     InverseConical : 6,
-    TendFlame : 7,
-    Envelope : 8,});
+    TendFlame : 7,});
 parametric_controls.add(tree_params, 'Scale', 0, 100);
 parametric_controls.add(tree_params, 'ScaleV', 0, 20);
 
