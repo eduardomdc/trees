@@ -552,7 +552,6 @@ enum ShapeID {
     Flame,
     InverseConical,
     TendFlame,
-    Envelope,
 };
 
 function ShapeRatio (Shape : ShapeID, ratio : number) : number {
