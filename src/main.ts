@@ -294,6 +294,9 @@ function update_display_and_rebuild_tree () {
     tree_controls.controllers.forEach( (value : GUI.Controller) => {
         value.updateDisplay(); 
     })
+    parametric_controls.controllers.forEach( (value : GUI.Controller) => {
+        value.updateDisplay();
+    })
     trunk_controls.controllers.forEach( (value : GUI.Controller) => {
         value.updateDisplay(); 
     })
