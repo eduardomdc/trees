@@ -573,7 +573,5 @@ function ShapeRatio (Shape : ShapeID, ratio : number) : number {
         case ShapeID.TendFlame:
             if (ratio <= 0.7) return 0.5 + 0.5 * ratio;
             else return 0.5 + 0.5 * (1.0 - ratio)/0.3;
-        case ShapeID.Envelope:
-            return 0; // todo
     }
 }
