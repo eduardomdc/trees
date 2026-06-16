@@ -20,15 +20,15 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const { camera, updateCamera, setTarget} = createOrbitalCamera(canvas, {initialRadius: 15, sensitivity: 0.008, target: new THREE.Vector3(0,10,0),});
 
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 5 );
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 4 );
 directionalLight.castShadow = true;
 directionalLight.position.set(5, 5, 3);
 directionalLight.shadow.camera.near = 0.1;
 directionalLight.shadow.camera.far = 100;
-directionalLight.shadow.camera.left = -10;
-directionalLight.shadow.camera.right = 10;
-directionalLight.shadow.camera.top = 10;
-directionalLight.shadow.camera.bottom = -10;
+directionalLight.shadow.camera.left = -15;
+directionalLight.shadow.camera.right = 15;
+directionalLight.shadow.camera.top = 15;
+directionalLight.shadow.camera.bottom = -15;
 directionalLight.shadow.bias = -0.001;
 directionalLight.shadow.normalBias = 0.05;
 directionalLight.shadow.mapSize.width = 2048;
@@ -43,7 +43,7 @@ const jungle_tex = loader.load(import.meta.env.BASE_URL+'/assets/sky.jpg');
 jungle_tex.mapping = THREE.EquirectangularReflectionMapping
 scene.background = jungle_tex;
 scene.environment = jungle_tex;
-scene.environmentIntensity = 0.4;
+scene.environmentIntensity = 0.2;
 
 const ground_tex = loader.load(import.meta.env.BASE_URL+'/assets/ground.jpg');
 ground_tex.wrapS = THREE.RepeatWrapping;
