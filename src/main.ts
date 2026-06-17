@@ -34,14 +34,12 @@ directionalLight.shadow.normalBias = 0.05;
 directionalLight.shadow.mapSize.width = 2048;
 directionalLight.shadow.mapSize.height = 2048;
 scene.add( directionalLight );
-//const light = new THREE.AmbientLight( 0xcad8db, 1.2); // soft white light
-//scene.add( light );
 
 const loader = new THREE.TextureLoader();
 
 const jungle_tex = loader.load(import.meta.env.BASE_URL+'/assets/sky.jpg');
 jungle_tex.mapping = THREE.EquirectangularReflectionMapping
-//scene.background = jungle_tex;
+scene.background = jungle_tex;
 scene.environment = jungle_tex;
 scene.environmentIntensity = 0.2;
 
@@ -52,7 +50,7 @@ ground_tex.repeat.set(1,1);
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(50,50), new THREE.MeshStandardMaterial({map:ground_tex}) );
 ground.rotateX(-Math.PI/2);
 ground.receiveShadow = true;
-//scene.add(ground);
+scene.add(ground);
 
 // tree
 var seed = {Seed : 0};
