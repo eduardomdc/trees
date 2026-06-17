@@ -41,7 +41,7 @@ const loader = new THREE.TextureLoader();
 
 const jungle_tex = loader.load(import.meta.env.BASE_URL+'/assets/sky.jpg');
 jungle_tex.mapping = THREE.EquirectangularReflectionMapping
-scene.background = jungle_tex;
+//scene.background = jungle_tex;
 scene.environment = jungle_tex;
 scene.environmentIntensity = 0.2;
 
@@ -52,7 +52,7 @@ ground_tex.repeat.set(1,1);
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(50,50), new THREE.MeshStandardMaterial({map:ground_tex}) );
 ground.rotateX(-Math.PI/2);
 ground.receiveShadow = true;
-scene.add(ground);
+//scene.add(ground);
 
 // tree
 var seed = {Seed : 0};

@@ -85,11 +85,11 @@
   "TrunkAttractionUp": 0,
   "TextureParam": {
     "LeafTexture": "TropicalLeaf",
-    "BarkTexture": "New",
-    "LeafHue": 345.96,
-    "LeafBrightness": 1.398,
-    "BarkHue": 6.48,
-    "BarkBrightness": 0.874
+    "BarkTexture": "Old",
+    "LeafHue": 322.2,
+    "LeafBrightness": 1.582,
+    "BarkHue": 11.16,
+    "BarkBrightness": 1.032
   },
   "SpaceColonyParam": {
     "max_iterations": 200,
