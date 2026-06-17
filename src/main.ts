@@ -197,6 +197,7 @@ function applyPreset(preset: T.TreeParams, input: T.TreeParams) {
 // Load controls
 const loadControls = {
     Preset : "Quaking Aspen",
+    environment_enabled : true,
     Download : function downloadAsJSON() {
           const json = JSON.stringify(tree_params, null, 2);
           const blob = new Blob([json], { type: "application/json" });
@@ -280,6 +281,17 @@ function downloadGLTF(scene: THREE.Scene, filename = "scene.gltf") {
         }
     );
 }
+const env_control = gui.add(loadControls, 'environment_enabled').name('Toggle Environment')
+env_control.onChange( (_:any) => {
+    if (loadControls.environment_enabled) {
+        scene.background = jungle_tex;
+        scene.add(ground)
+    } else {
+        scene.background = null;
+        scene.remove(ground)
+    }
+})
+
 const load_controls = gui.addFolder('Load');
 load_controls.add( loadControls, 'Preset', Object.keys(presets)).onChange((_ : any) => {
     applyPreset(tree_params, presets[loadControls.Preset])
